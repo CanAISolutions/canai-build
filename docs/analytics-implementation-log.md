@@ -278,29 +278,35 @@ onboarding, audits, and future planning.
 ## [2025-07-03] Payment Log Querying Service & Endpoint Implemented
 
 - **Summary:**
-  - Implemented `backend/services/paymentLogs.js` to encapsulate payment log querying logic (filters, pagination, sorting, RLS).
-  - Refactored `/v1/stripe/payment-logs` endpoint to use the new service, with robust param validation and RLS enforcement.
-  - Updated and unskipped integration tests for all query/filter/sort/pagination scenarios and RLS enforcement.
+  - Implemented `backend/services/paymentLogs.js` to encapsulate payment log querying logic
+    (filters, pagination, sorting, RLS).
+  - Refactored `/v1/stripe/payment-logs` endpoint to use the new service, with robust param
+    validation and RLS enforcement.
+  - Updated and unskipped integration tests for all query/filter/sort/pagination scenarios and RLS
+    enforcement.
 - **PRD/Rule Alignment:**
   - Fully aligned with PRD.md (F4 Purchase Flow, audit/compliance requirements).
   - Follows canai-structure-rules for modularity and maintainability.
 - **Technical Notes:**
-  - Service supports admin/user role distinction, leverages Supabase RLS, and is ready for analytics aggregation.
+  - Service supports admin/user role distinction, leverages Supabase RLS, and is ready for analytics
+    aggregation.
   - Documentation updated in `project-structure-mapping.md` and this log.
 
 ## Milestones
 
 ### 2025-07-02: Payment Logs Data Retention (MVP)
+
 - Implemented automated data retention for `payment_logs`.
-- Added monthly `pg_cron` job (see `backend/supabase/migrations/010_payment_logs_retention.sql`) to purge records older than 24 months.
+- Added monthly `pg_cron` job (see `backend/supabase/migrations/010_payment_logs_retention.sql`) to
+  purge records older than 24 months.
 - Fulfills PRD and legal/accounting requirements for payment data retention.
 - MVP scope: Purge only, no archiving or user-facing controls.
 
 ### 2025-07-02: Payment Analytics Endpoint (MVP)
-- Implemented /v1/stripe/payment-logs/analytics endpoint for user-level analytics (total revenue, refunds, event counts).
+
+- Implemented /v1/stripe/payment-logs/analytics endpoint for user-level analytics (total revenue,
+  refunds, event counts).
 - Documented in docs/api/endpoints.md and project-structure-mapping.md.
 - Admin access to all data pending RLS policy update.
 
 _Add new entries above this line as further analytics/observability milestones are delivered._
-
-

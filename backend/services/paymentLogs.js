@@ -30,7 +30,9 @@ export async function queryPaymentLogs(params, jwtToken, isAdmin) {
   const supabase = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_ANON_KEY,
-    jwtToken ? { global: { headers: { Authorization: `Bearer ${jwtToken}` } } } : {}
+    jwtToken
+      ? { global: { headers: { Authorization: `Bearer ${jwtToken}` } } }
+      : {}
   );
 
   let query = supabase.from('payment_logs').select('*', { count: 'exact' });
@@ -72,7 +74,9 @@ export async function getPaymentAnalytics(params = {}, jwtToken, isAdmin) {
   const supabase = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_ANON_KEY,
-    jwtToken ? { global: { headers: { Authorization: `Bearer ${jwtToken}` } } } : {}
+    jwtToken
+      ? { global: { headers: { Authorization: `Bearer ${jwtToken}` } } }
+      : {}
   );
 
   let baseQuery = supabase.from('payment_logs').select('*');
@@ -87,7 +91,8 @@ export async function getPaymentAnalytics(params = {}, jwtToken, isAdmin) {
 
   // Fetch all relevant logs (MVP: small scale, optimize later)
   const { data: logs, error } = await baseQuery;
-  if (error) return { totalRevenue: 0, totalRefunds: 0, eventCounts: {}, error };
+  if (error)
+    return { totalRevenue: 0, totalRefunds: 0, eventCounts: {}, error };
 
   let totalRevenue = 0;
   let totalRefunds = 0;
@@ -108,4 +113,3 @@ export async function getPaymentAnalytics(params = {}, jwtToken, isAdmin) {
 
   return { totalRevenue, totalRefunds, eventCounts, error: null };
 }
-

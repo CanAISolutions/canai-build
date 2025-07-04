@@ -32,7 +32,11 @@ const PRODUCT_TRACKS = {
  * @param {Object} params.metadata - Additional metadata (optional)
  * @returns {Promise<Object>} Stripe session object
  */
-export async function createCheckoutSession({ productTrack, userId, metadata = {} }) {
+export async function createCheckoutSession({
+  productTrack,
+  userId,
+  metadata = {},
+}) {
   const config = PRODUCT_TRACKS[productTrack];
   if (!config) throw new Error('Invalid product track');
 
@@ -41,39 +45,49 @@ export async function createCheckoutSession({ productTrack, userId, metadata = {
   const name = config.name;
 
   // Use environment-based URLs
-  const success_url = process.env.STRIPE_SUCCESS_URL || `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`;
-  const cancel_url = process.env.STRIPE_CANCEL_URL || `${process.env.CLIENT_URL}/cancel`;
+  const success_url =
+    process.env.STRIPE_SUCCESS_URL ||
+    `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`;
+  const cancel_url =
+    process.env.STRIPE_CANCEL_URL || `${process.env.CLIENT_URL}/cancel`;
 
   // Generate idempotency key (user+track+timestamp or provided)
-  const idempotencyKey = metadata.idempotency_key || crypto.createHash('sha256').update(`${userId}-${productTrack}-${Date.now()}`).digest('hex');
+  const idempotencyKey =
+    metadata.idempotency_key ||
+    crypto
+      .createHash('sha256')
+      .update(`${userId}-${productTrack}-${Date.now()}`)
+      .digest('hex');
 
   try {
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: { name },
-            unit_amount: amount,
+    const session = await stripe.checkout.sessions.create(
+      {
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price_data: {
+              currency: 'usd',
+              product_data: { name },
+              unit_amount: amount,
+            },
+            quantity: 1,
           },
-          quantity: 1,
+        ],
+        mode: 'payment',
+        success_url,
+        cancel_url,
+        metadata: {
+          user_id: userId,
+          product_track: productTrack,
+          ...metadata,
         },
-      ],
-      mode: 'payment',
-      success_url,
-      cancel_url,
-      metadata: {
-        user_id: userId,
-        product_track: productTrack,
-        ...metadata,
       },
-    }, {
-      idempotencyKey,
-    });
+      {
+        idempotencyKey,
+      }
+    );
     return session;
   } catch (err) {
     throw new Error('Stripe checkout session creation failed: ' + err.message);
   }
 }
-

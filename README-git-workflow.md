@@ -76,5 +76,3 @@ Platform, ensuring traceability and alignment with TaskMaster and PRD-driven dev
 
 **Keep this file updated as your workflow evolves. The AI agent will use this as a reference to
 guide you and future contributors.**
-
-

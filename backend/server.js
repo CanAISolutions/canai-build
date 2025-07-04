@@ -102,7 +102,10 @@ app.get('/health', async (req, res) => {
     // Try a simple Supabase query on a table that should always exist, fallback to degraded if error
     let dbStatus = 'unknown';
     try {
-      const { error } = await supabase.from('prompt_logs').select('id').limit(1);
+      const { error } = await supabase
+        .from('prompt_logs')
+        .select('id')
+        .limit(1);
       dbStatus = error ? 'unhealthy' : 'healthy';
     } catch (err) {
       dbStatus = 'unhealthy';

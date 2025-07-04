@@ -1,5 +1,7 @@
 import * as Sentry from '@sentry/react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { MemberstackProvider } from '@memberstack/react';
 import App from './App.tsx';
 import ErrorBoundary from './components/ErrorBoundary.tsx';
 import './index.css';
@@ -19,7 +21,13 @@ const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Root element not found');
 createRoot(rootElement).render(
   <ErrorBoundary>
-    <App />
+    <MemberstackProvider
+      config={{ publicKey: import.meta.env.VITE_MEMBERSTACK_PUBLIC_KEY }}
+    >
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </MemberstackProvider>
   </ErrorBoundary>
 );
 

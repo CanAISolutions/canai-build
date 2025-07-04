@@ -4,13 +4,22 @@ import { createClient } from '@supabase/supabase-js';
 import { createCheckoutSession } from '../services/stripeCheckout.js';
 import Joi from 'joi';
 import jwt from 'jsonwebtoken';
-import { queryPaymentLogs, getPaymentAnalytics } from '../services/paymentLogs.js';
+import {
+  queryPaymentLogs,
+  getPaymentAnalytics,
+} from '../services/paymentLogs.js';
 
 const router = express.Router();
 
-const allowedTracks = ['business-plan-builder', 'social-media-campaign', 'website-audit-feedback'];
+const allowedTracks = [
+  'business-plan-builder',
+  'social-media-campaign',
+  'website-audit-feedback',
+];
 const checkoutSessionSchema = Joi.object({
-  productTrack: Joi.string().valid(...allowedTracks).required(),
+  productTrack: Joi.string()
+    .valid(...allowedTracks)
+    .required(),
   user_id: Joi.string().required(),
   metadata: Joi.object().optional(),
 });
@@ -19,7 +28,11 @@ router.post('/stripe-session', async (req, res) => {
   try {
     const { error, value } = checkoutSessionSchema.validate(req.body);
     if (error) {
-      return res.status(400).json({ error: { message: `Input validation failed: ${error.details.map(d => d.message).join(', ')}` } });
+      return res.status(400).json({
+        error: {
+          message: `Input validation failed: ${error.details.map(d => d.message).join(', ')}`,
+        },
+      });
     }
     const { productTrack, user_id, metadata = {} } = value;
     const session = await createCheckoutSession({
@@ -29,20 +42,22 @@ router.post('/stripe-session', async (req, res) => {
     });
     // Log session in Supabase payment_logs
     try {
-      await supabase
-        .from('payment_logs')
-        .insert([{
+      await supabase.from('payment_logs').insert([
+        {
           user_id,
           amount: session.amount_total ? session.amount_total / 100 : null, // Stripe returns amount in cents
           currency: session.currency || 'usd',
-          payment_method: (session.payment_method_types && session.payment_method_types[0]) || 'card',
+          payment_method:
+            (session.payment_method_types && session.payment_method_types[0]) ||
+            'card',
           status: 'pending',
           stripe_payment_id: session.payment_intent || session.id, // fallback to session.id if payment_intent missing
           event_type: 'checkout.session.created',
           metadata: session,
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }]);
+          updated_at: new Date().toISOString(),
+        },
+      ]);
     } catch (logErr) {
       console.error('Failed to log payment event:', logErr.message);
     }
@@ -72,7 +87,7 @@ router.post('/refund', async (req, res) => {
           status: 'refunded',
           event_type: 'refund.created',
           metadata: { ...refund, refund_reason: reason },
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('stripe_payment_id', paymentIntentId);
     } catch (logErr) {
@@ -102,12 +117,17 @@ router.get('/payment-logs', async (req, res) => {
       return res.status(401).json({ error: 'Invalid JWT' });
     }
     // Determine if user is admin (role claim or similar)
-    const isAdmin = decodedJwt && (decodedJwt.role === 'admin' || decodedJwt['https://hasura.io/jwt/claims']?.['x-hasura-role'] === 'admin');
+    const isAdmin =
+      decodedJwt &&
+      (decodedJwt.role === 'admin' ||
+        decodedJwt['https://hasura.io/jwt/claims']?.['x-hasura-role'] ===
+          'admin');
     // For non-admins, require user_id to match JWT sub
     let user_id = req.query.user_id;
     if (!isAdmin) {
       user_id = decodedJwt?.sub;
-      if (!user_id) return res.status(401).json({ error: 'Missing user_id in JWT' });
+      if (!user_id)
+        return res.status(401).json({ error: 'Missing user_id in JWT' });
     }
     // Validate and parse query params
     const params = {
@@ -120,7 +140,11 @@ router.get('/payment-logs', async (req, res) => {
       offset: req.query.offset ? parseInt(req.query.offset, 10) : 0,
       sort: req.query.sort || 'created_at.desc',
     };
-    const { data, total, error } = await queryPaymentLogs(params, jwtToken, isAdmin);
+    const { data, total, error } = await queryPaymentLogs(
+      params,
+      jwtToken,
+      isAdmin
+    );
     if (error) {
       console.error('Payment logs query error:', error);
       return res.status(500).json({ error });
@@ -148,18 +172,24 @@ router.get('/payment-logs/analytics', async (req, res) => {
     } catch (e) {
       return res.status(401).json({ error: 'Invalid JWT' });
     }
-    const isAdmin = decodedJwt && (decodedJwt.role === 'admin' || decodedJwt['https://hasura.io/jwt/claims']?.['x-hasura-role'] === 'admin');
+    const isAdmin =
+      decodedJwt &&
+      (decodedJwt.role === 'admin' ||
+        decodedJwt['https://hasura.io/jwt/claims']?.['x-hasura-role'] ===
+          'admin');
     let user_id = req.query.user_id;
     if (!isAdmin) {
       user_id = decodedJwt?.sub;
-      if (!user_id) return res.status(401).json({ error: 'Missing user_id in JWT' });
+      if (!user_id)
+        return res.status(401).json({ error: 'Missing user_id in JWT' });
     }
     const params = {
       user_id,
       from: req.query.from,
       to: req.query.to,
     };
-    const { totalRevenue, totalRefunds, eventCounts, error } = await getPaymentAnalytics(params, jwtToken, isAdmin);
+    const { totalRevenue, totalRefunds, eventCounts, error } =
+      await getPaymentAnalytics(params, jwtToken, isAdmin);
     if (error) {
       console.error('Payment analytics error:', error);
       return res.status(500).json({ error });
@@ -172,5 +202,3 @@ router.get('/payment-logs/analytics', async (req, res) => {
 });
 
 export default router;
-
-

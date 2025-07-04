@@ -372,5 +372,3 @@ export {
   safeCapture,
   sessionStore,
 };
-
-

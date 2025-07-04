@@ -38,15 +38,19 @@ Authorization: Bearer <memberstack-jwt>
 Returns payment analytics for the requesting user (or all users if admin, once RLS is updated).
 
 **Query Parameters:**
-- `user_id` (optional, string): Filter by user (required for non-admins; admins can omit to get all data)
+
+- `user_id` (optional, string): Filter by user (required for non-admins; admins can omit to get all
+  data)
 - `from` (optional, ISO date): Start date for analytics window
 - `to` (optional, ISO date): End date for analytics window
 
 **Authentication:**
+
 - Requires JWT (Memberstack)
 - RLS enforced: users see only their data; admins see all (pending RLS update)
 
 **Response:**
+
 ```json
 {
   "totalRevenue": 1234.56,
@@ -61,8 +65,7 @@ Returns payment analytics for the requesting user (or all users if admin, once R
 ```
 
 **MVP Scope:**
+
 - Only basic aggregation (total revenue, refunds, event counts)
 - No advanced analytics or PostHog integration
 - Admin access to all data pending RLS policy update
-
-
