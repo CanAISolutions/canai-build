@@ -1,0 +1,93 @@
+# Dependencies and build artifacts
+node_modules/
+.yarn/
+.pnp/
+.pnp.js
+dist/
+build/
+coverage/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+.cursor/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Log files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Database files
+databases/
+*.db
+*.sqlite
+
+# Generated and temporary files
+*.generated.*
+*.tmp
+*.temp
+.temp/
+.cache/
+
+# Test artifacts
+coverage/
+.nyc_output/
+test-results/
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Documentation builds
+docs/api/generated/
+
+# Large media files
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+*.mp3
+*.wav
+*.flac
+
+# Binary files
+*.exe
+*.dll
+*.so
+*.dylib
+*.bin
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Taskmaster internal files
+.taskmaster/temp/
+.taskmaster/cache/
+.taskmaster/logs/
+
+# Development tools
+.eslintcache
+*.tsbuildinfo
+
+# Backup files
+*.bak
+*.backup
+*~

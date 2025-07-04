@@ -1,0 +1,51 @@
+name: LLM Integration Testing
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'backend/services/gpt4o.js'
+      - 'backend/services/hume.js'
+      - 'backend/prompts/**'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'backend/services/gpt4o.js'
+      - 'backend/services/hume.js'
+      - 'backend/prompts/**'
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  test-llm-integrations:
+    name: Test LLM Integrations
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test GPT-4o integration
+        run: |
+          cd backend
+          npm run test:llm:gpt4o
+
+      - name: Test Hume AI integration
+        run: |
+          cd backend
+          npm run test:llm:hume
+
+      - name: Validate prompt responses
+        run: |
+          cd backend
+          npm run test:llm:prompts

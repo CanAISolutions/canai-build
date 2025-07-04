@@ -1,0 +1,920 @@
+{
+  "name": "SAAP - Add Project",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": 1003214,
+        "maxResults": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 0
+        },
+        "restore": {
+          "parameters": {
+            "hook": {
+              "data": {
+                "editable": "true"
+              },
+              "label": "SAAP - Create Project"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "hook",
+            "type": "hook:gateway-webhook",
+            "label": "Webhook",
+            "required": true
+          },
+          {
+            "name": "maxResults",
+            "type": "number",
+            "label": "Maximum number of results"
+          }
+        ],
+        "interface": [
+          {
+            "name": "name",
+            "type": "text"
+          },
+          {
+            "name": "stage",
+            "spec": {
+              "type": "text"
+            },
+            "type": "array"
+          },
+          {
+            "name": "labels",
+            "type": "text"
+          },
+          {
+            "name": "brief",
+            "type": "text"
+          },
+          {
+            "name": "deadline-date",
+            "type": "text"
+          }
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "module": "webflow:createItem",
+      "version": 2,
+      "parameters": {
+        "__IMTCONN__": 1882634
+      },
+      "mapper": {
+        "fields": {
+          "name": "{{1.name}}",
+          "status": "Upcoming",
+          "deadline-date": "{{1.`deadline-date`}}",
+          "project-brief": "{{1.brief}}",
+          "service-offering": "{{1.labels}}",
+          "created-by-member": "{{1.cmsid}}"
+        },
+        "select": "list",
+        "site_id": "656604b87d3f1c1d75e4c392",
+        "collection_id": "656df9866efdc7c99b1e65ce"
+      },
+      "metadata": {
+        "designer": {
+          "x": 290,
+          "y": -6
+        },
+        "restore": {
+          "expect": {
+            "fields": {
+              "nested": {
+                "assignee": {
+                  "mode": "chose"
+                },
+                "service-offering": {
+                  "mode": "edit"
+                },
+                "created-by-member": {
+                  "mode": "edit"
+                }
+              }
+            },
+            "select": {
+              "label": "Select from the list"
+            },
+            "isDraft": {
+              "mode": "chose"
+            },
+            "site_id": {
+              "label": "Productized Service Template"
+            },
+            "isArchived": {
+              "mode": "chose"
+            },
+            "collection_id": {
+              "label": "Projects",
+              "nested": [
+                {
+                  "name": "fields",
+                  "spec": [
+                    {
+                      "name": "name",
+                      "type": "text",
+                      "label": "Name",
+                      "required": true,
+                      "validate": {
+                        "max": 256
+                      }
+                    },
+                    {
+                      "name": "webflow-unique-id",
+                      "type": "text",
+                      "label": "CMS ID",
+                      "required": false
+                    },
+                    {
+                      "name": "starting-date",
+                      "time": false,
+                      "type": "date",
+                      "label": "Starting Date",
+                      "required": false
+                    },
+                    {
+                      "name": "deadline-date",
+                      "time": false,
+                      "type": "date",
+                      "label": "Deadline Date",
+                      "required": false
+                    },
+                    {
+                      "name": "project-number-2",
+                      "type": "number",
+                      "label": "Project Number",
+                      "required": false
+                    },
+                    {
+                      "name": "status",
+                      "type": "text",
+                      "label": "Status",
+                      "required": false
+                    },
+                    {
+                      "name": "assignee",
+                      "type": "select",
+                      "label": "Assignee",
+                      "options": "rpc://webflow/2/listItems?collection_id=656e117368136052040f7dee",
+                      "required": false
+                    },
+                    {
+                      "name": "service-offering",
+                      "type": "select",
+                      "label": "Service offering",
+                      "options": "rpc://webflow/2/listItems?collection_id=656e1c9b3bfbb19ab1db44f6",
+                      "required": false
+                    },
+                    {
+                      "name": "project-brief",
+                      "type": "text",
+                      "label": "Project Brief",
+                      "required": false,
+                      "multiline": true
+                    },
+                    {
+                      "name": "created-by-member",
+                      "type": "select",
+                      "label": "Client",
+                      "options": "rpc://webflow/2/listItems?collection_id=657104ea8f5a172215e5915a",
+                      "required": false
+                    },
+                    {
+                      "help": "Must be alphanumerical and not contain any spaces or special characters",
+                      "name": "slug",
+                      "type": "text",
+                      "label": "Slug",
+                      "required": false,
+                      "validate": {
+                        "max": 256
+                      }
+                    }
+                  ],
+                  "type": "collection",
+                  "label": "Fields"
+                }
+              ]
+            }
+          },
+          "parameters": {
+            "__IMTCONN__": {
+              "data": {
+                "scoped": "true",
+                "connection": "webflow2"
+              },
+              "label": "Productized Service Template (julian@memberstack.com)"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "__IMTCONN__",
+            "type": "account:webflow2",
+            "label": "Connection",
+            "required": true
+          }
+        ],
+        "expect": [
+          {
+            "name": "select",
+            "type": "select",
+            "label": "Choose Method",
+            "required": true,
+            "validate": {
+              "enum": ["map", "list"]
+            }
+          },
+          {
+            "name": "isArchived",
+            "type": "boolean",
+            "label": "Is Archived"
+          },
+          {
+            "name": "isDraft",
+            "type": "boolean",
+            "label": "Is Draft"
+          },
+          {
+            "name": "site_id",
+            "type": "select",
+            "label": "Site",
+            "required": true
+          },
+          {
+            "name": "collection_id",
+            "type": "select",
+            "label": "Collection",
+            "required": true
+          },
+          {
+            "name": "fields",
+            "spec": [
+              {
+                "name": "name",
+                "type": "text",
+                "label": "Name",
+                "required": true,
+                "validate": {
+                  "max": 256
+                }
+              },
+              {
+                "name": "webflow-unique-id",
+                "type": "text",
+                "label": "CMS ID"
+              },
+              {
+                "name": "starting-date",
+                "time": false,
+                "type": "date",
+                "label": "Starting Date"
+              },
+              {
+                "name": "deadline-date",
+                "time": false,
+                "type": "date",
+                "label": "Deadline Date"
+              },
+              {
+                "name": "project-number-2",
+                "type": "number",
+                "label": "Project Number"
+              },
+              {
+                "name": "status",
+                "type": "text",
+                "label": "Status"
+              },
+              {
+                "name": "assignee",
+                "type": "select",
+                "label": "Assignee"
+              },
+              {
+                "name": "service-offering",
+                "type": "select",
+                "label": "Service offering"
+              },
+              {
+                "name": "project-brief",
+                "type": "text",
+                "label": "Project Brief"
+              },
+              {
+                "name": "created-by-member",
+                "type": "select",
+                "label": "Client"
+              },
+              {
+                "name": "slug",
+                "type": "text",
+                "label": "Slug",
+                "validate": {
+                  "max": 256
+                }
+              }
+            ],
+            "type": "collection",
+            "label": "Fields"
+          }
+        ],
+        "interface": [
+          {
+            "name": "id",
+            "type": "text",
+            "label": "Item ID"
+          },
+          {
+            "name": "lastPublished",
+            "type": "text",
+            "label": "Last Published"
+          },
+          {
+            "name": "lastUpdated",
+            "type": "date",
+            "label": "Last Updated"
+          },
+          {
+            "name": "createdOn",
+            "type": "date",
+            "label": "Created on"
+          },
+          {
+            "name": "isArchived",
+            "type": "boolean",
+            "label": "Is Archived"
+          },
+          {
+            "name": "isDraft",
+            "type": "boolean",
+            "label": "Is Draft"
+          },
+          {
+            "name": "fieldData",
+            "spec": [
+              {
+                "name": "name",
+                "type": "text",
+                "label": "Name",
+                "required": true,
+                "validate": {
+                  "max": 256
+                }
+              },
+              {
+                "name": "webflow-unique-id",
+                "type": "text",
+                "label": "CMS ID",
+                "required": false
+              },
+              {
+                "name": "starting-date",
+                "time": false,
+                "type": "date",
+                "label": "Starting Date",
+                "required": false
+              },
+              {
+                "name": "deadline-date",
+                "time": false,
+                "type": "date",
+                "label": "Deadline Date",
+                "required": false
+              },
+              {
+                "name": "project-number-2",
+                "type": "number",
+                "label": "Project Number",
+                "required": false
+              },
+              {
+                "name": "status",
+                "type": "text",
+                "label": "Status",
+                "required": false
+              },
+              {
+                "name": "assignee",
+                "type": "text",
+                "label": "Assignee",
+                "required": false
+              },
+              {
+                "name": "service-offering",
+                "type": "text",
+                "label": "Service offering",
+                "required": false
+              },
+              {
+                "name": "project-brief",
+                "type": "text",
+                "label": "Project Brief",
+                "required": false,
+                "multiline": true
+              },
+              {
+                "name": "created-by-member",
+                "type": "text",
+                "label": "Client",
+                "required": false
+              },
+              {
+                "help": "Must be alphanumerical and not contain any spaces or special characters",
+                "name": "slug",
+                "type": "text",
+                "label": "Slug",
+                "required": false,
+                "validate": {
+                  "max": 256
+                }
+              }
+            ],
+            "type": "collection",
+            "label": "Field Data"
+          }
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "module": "webflow:updateItem",
+      "version": 2,
+      "parameters": {
+        "__IMTCONN__": 1882634
+      },
+      "mapper": {
+        "fields": {
+          "name": "{{8.fieldData.name}}",
+          "webflow-unique-id": "{{8.id}}"
+        },
+        "select": "list",
+        "item_id": "{{8.id}}",
+        "site_id": "656604b87d3f1c1d75e4c392",
+        "collection_id": "656df9866efdc7c99b1e65ce"
+      },
+      "metadata": {
+        "designer": {
+          "x": 611,
+          "y": 1
+        },
+        "restore": {
+          "expect": {
+            "fields": {
+              "nested": {
+                "assignee": {
+                  "mode": "chose"
+                },
+                "service-offering": {
+                  "mode": "chose"
+                },
+                "created-by-member": {
+                  "mode": "chose"
+                }
+              }
+            },
+            "select": {
+              "label": "Select from the list"
+            },
+            "isDraft": {
+              "mode": "chose"
+            },
+            "item_id": {
+              "mode": "edit"
+            },
+            "site_id": {
+              "label": "Productized Service Template"
+            },
+            "isArchived": {
+              "mode": "chose"
+            },
+            "collection_id": {
+              "label": "Projects"
+            }
+          },
+          "parameters": {
+            "__IMTCONN__": {
+              "data": {
+                "scoped": "true",
+                "connection": "webflow2"
+              },
+              "label": "Productized Service Template (julian@memberstack.com)"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "__IMTCONN__",
+            "type": "account:webflow2",
+            "label": "Connection",
+            "required": true
+          }
+        ],
+        "expect": [
+          {
+            "name": "select",
+            "type": "select",
+            "label": "Choose Method",
+            "required": true,
+            "validate": {
+              "enum": ["map", "list"]
+            }
+          },
+          {
+            "name": "isArchived",
+            "type": "boolean",
+            "label": "Is Archived"
+          },
+          {
+            "name": "isDraft",
+            "type": "boolean",
+            "label": "Is Draft"
+          },
+          {
+            "name": "site_id",
+            "type": "select",
+            "label": "Site",
+            "required": true
+          },
+          {
+            "name": "collection_id",
+            "type": "select",
+            "label": "Collection",
+            "required": true
+          },
+          {
+            "name": "item_id",
+            "type": "select",
+            "label": "Item",
+            "required": true
+          },
+          {
+            "name": "fields",
+            "spec": [
+              {
+                "name": "name",
+                "type": "text",
+                "label": "Name",
+                "required": true,
+                "validate": {
+                  "max": 256
+                }
+              },
+              {
+                "name": "webflow-unique-id",
+                "type": "text",
+                "label": "CMS ID"
+              },
+              {
+                "name": "starting-date",
+                "time": false,
+                "type": "date",
+                "label": "Starting Date"
+              },
+              {
+                "name": "deadline-date",
+                "time": false,
+                "type": "date",
+                "label": "Deadline Date"
+              },
+              {
+                "name": "project-number-2",
+                "type": "number",
+                "label": "Project Number"
+              },
+              {
+                "name": "status",
+                "type": "text",
+                "label": "Status"
+              },
+              {
+                "name": "assignee",
+                "type": "select",
+                "label": "Assignee"
+              },
+              {
+                "name": "service-offering",
+                "type": "select",
+                "label": "Service offering"
+              },
+              {
+                "name": "project-brief",
+                "type": "text",
+                "label": "Project Brief"
+              },
+              {
+                "name": "created-by-member",
+                "type": "select",
+                "label": "Client"
+              },
+              {
+                "name": "slug",
+                "type": "text",
+                "label": "Slug",
+                "validate": {
+                  "max": 256
+                }
+              }
+            ],
+            "type": "collection",
+            "label": "Fields"
+          }
+        ],
+        "interface": [
+          {
+            "name": "id",
+            "type": "text",
+            "label": "Item ID"
+          },
+          {
+            "name": "lastPublished",
+            "type": "text",
+            "label": "Last Published"
+          },
+          {
+            "name": "lastUpdated",
+            "type": "date",
+            "label": "Last Updated"
+          },
+          {
+            "name": "createdOn",
+            "type": "date",
+            "label": "Created on"
+          },
+          {
+            "name": "isArchived",
+            "type": "boolean",
+            "label": "Is Archived"
+          },
+          {
+            "name": "isDraft",
+            "type": "boolean",
+            "label": "Is Draft"
+          },
+          {
+            "name": "fieldData",
+            "spec": [
+              {
+                "name": "name",
+                "type": "text",
+                "label": "Name",
+                "required": true,
+                "validate": {
+                  "max": 256
+                }
+              },
+              {
+                "name": "webflow-unique-id",
+                "type": "text",
+                "label": "CMS ID",
+                "required": false
+              },
+              {
+                "name": "starting-date",
+                "time": false,
+                "type": "date",
+                "label": "Starting Date",
+                "required": false
+              },
+              {
+                "name": "deadline-date",
+                "time": false,
+                "type": "date",
+                "label": "Deadline Date",
+                "required": false
+              },
+              {
+                "name": "project-number-2",
+                "type": "number",
+                "label": "Project Number",
+                "required": false
+              },
+              {
+                "name": "status",
+                "type": "text",
+                "label": "Status",
+                "required": false
+              },
+              {
+                "name": "assignee",
+                "type": "text",
+                "label": "Assignee",
+                "required": false
+              },
+              {
+                "name": "service-offering",
+                "type": "text",
+                "label": "Service offering",
+                "required": false
+              },
+              {
+                "name": "project-brief",
+                "type": "text",
+                "label": "Project Brief",
+                "required": false,
+                "multiline": true
+              },
+              {
+                "name": "created-by-member",
+                "type": "text",
+                "label": "Client",
+                "required": false
+              },
+              {
+                "help": "Must be alphanumerical and not contain any spaces or special characters",
+                "name": "slug",
+                "type": "text",
+                "label": "Slug",
+                "required": false,
+                "validate": {
+                  "max": 256
+                }
+              }
+            ],
+            "type": "collection",
+            "label": "Field Data"
+          }
+        ]
+      }
+    },
+    {
+      "id": 9,
+      "module": "webflow:publishAnItem",
+      "version": 2,
+      "parameters": {
+        "__IMTCONN__": 1882634
+      },
+      "mapper": {
+        "itemIds": "{{4.id}}",
+        "site_id": "656604b87d3f1c1d75e4c392",
+        "collection_id": "656df9866efdc7c99b1e65ce"
+      },
+      "metadata": {
+        "designer": {
+          "x": 980,
+          "y": 13
+        },
+        "restore": {
+          "expect": {
+            "itemIds": {
+              "mode": "edit"
+            },
+            "site_id": {
+              "mode": "chose",
+              "label": "Productized Service Template"
+            },
+            "collection_id": {
+              "mode": "chose",
+              "label": "Projects"
+            }
+          },
+          "parameters": {
+            "__IMTCONN__": {
+              "data": {
+                "scoped": "true",
+                "connection": "webflow2"
+              },
+              "label": "Productized Service Template (julian@memberstack.com)"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "__IMTCONN__",
+            "type": "account:webflow2",
+            "label": "Connection",
+            "required": true
+          }
+        ],
+        "expect": [
+          {
+            "name": "site_id",
+            "type": "select",
+            "label": "Site",
+            "required": true
+          },
+          {
+            "name": "collection_id",
+            "type": "select",
+            "label": "Collection",
+            "required": true
+          },
+          {
+            "name": "itemIds",
+            "type": "select",
+            "label": "Item IDs",
+            "multiple": true,
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "module": "gateway:WebhookRespond",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "body": "",
+        "status": "302",
+        "headers": [
+          {
+            "key": "Location",
+            "value": "https://productized-service-template.webflow.io/gated/projects/{{4.fieldData.slug}}"
+          }
+        ]
+      },
+      "metadata": {
+        "designer": {
+          "x": 1336,
+          "y": -3
+        },
+        "restore": {
+          "expect": {
+            "headers": {
+              "mode": "chose",
+              "items": [null]
+            }
+          }
+        },
+        "expect": [
+          {
+            "name": "status",
+            "type": "uinteger",
+            "label": "Status",
+            "required": true,
+            "validate": {
+              "min": 100
+            }
+          },
+          {
+            "name": "body",
+            "type": "any",
+            "label": "Body"
+          },
+          {
+            "name": "headers",
+            "spec": [
+              {
+                "name": "key",
+                "type": "text",
+                "label": "Key",
+                "required": true,
+                "validate": {
+                  "max": 256
+                }
+              },
+              {
+                "name": "value",
+                "type": "text",
+                "label": "Value",
+                "required": true,
+                "validate": {
+                  "max": 4096
+                }
+              }
+            ],
+            "type": "array",
+            "label": "Custom headers",
+            "validate": {
+              "maxItems": 16
+            }
+          }
+        ],
+        "advanced": true
+      }
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com"
+  }
+}

@@ -1,0 +1,195 @@
+{
+  "quizConfiguration": {
+    "version": "1.0.0",
+    "lastUpdated": "2024-12-18",
+    "description": "CanAI Discovery Funnel Quiz Rules and Scoring Configuration"
+  },
+  "discoveryFunnelQuiz": {
+    "totalQuestions": 10,
+    "timeLimit": 300,
+    "passingScore": 70,
+    "categories": {
+      "emotional_awareness": {
+        "weight": 0.3,
+        "description": "Questions assessing emotional intelligence and self-awareness"
+      },
+      "decision_making": {
+        "weight": 0.25,
+        "description": "Questions evaluating decision-making patterns and preferences"
+      },
+      "communication_style": {
+        "weight": 0.25,
+        "description": "Questions identifying communication preferences and styles"
+      },
+      "goal_orientation": {
+        "weight": 0.2,
+        "description": "Questions determining goal-setting and achievement patterns"
+      }
+    }
+  },
+  "scoringRules": {
+    "emotional_awareness": {
+      "high": {
+        "range": [80, 100],
+        "recommendation": "premium_package",
+        "message": "Your high emotional awareness indicates you're ready for advanced emotional sovereignty tools."
+      },
+      "medium": {
+        "range": [60, 79],
+        "recommendation": "standard_package",
+        "message": "You have good emotional foundations. Our standard package will help you build further."
+      },
+      "low": {
+        "range": [0, 59],
+        "recommendation": "basic_package",
+        "message": "Starting with foundational emotional awareness tools will serve you best."
+      }
+    },
+    "decision_making": {
+      "analytical": {
+        "traits": ["data_driven", "systematic", "logical"],
+        "recommendation": "analytical_approach",
+        "tools": ["decision_matrices", "pro_con_analysis", "risk_assessment"]
+      },
+      "intuitive": {
+        "traits": ["gut_feeling", "creative", "spontaneous"],
+        "recommendation": "intuitive_approach",
+        "tools": ["meditation_guides", "feeling_wheels", "creative_exercises"]
+      },
+      "balanced": {
+        "traits": ["flexible", "contextual", "adaptive"],
+        "recommendation": "hybrid_approach",
+        "tools": ["situation_analysis", "balanced_frameworks", "adaptive_strategies"]
+      }
+    }
+  },
+  "pathwayMapping": {
+    "f1_to_f2_triggers": {
+      "high_engagement": {
+        "criteria": ["time_on_page > 120", "scroll_depth > 80", "cta_interaction"],
+        "next_action": "direct_to_quiz"
+      },
+      "medium_engagement": {
+        "criteria": ["time_on_page > 60", "scroll_depth > 50"],
+        "next_action": "show_value_proposition"
+      },
+      "low_engagement": {
+        "criteria": ["time_on_page < 60", "high_bounce_risk"],
+        "next_action": "exit_intent_popup"
+      }
+    },
+    "f2_to_f3_progression": {
+      "quiz_completed": {
+        "high_score": "direct_to_spark_layer",
+        "medium_score": "show_testimonials_first",
+        "low_score": "educational_content_first"
+      },
+      "quiz_abandoned": {
+        "early_exit": "simplified_assessment",
+        "mid_exit": "progress_save_offer",
+        "late_exit": "completion_incentive"
+      }
+    }
+  },
+  "personalizationRules": {
+    "content_adaptation": {
+      "emotional_awareness_high": {
+        "language_tone": "sophisticated",
+        "content_depth": "advanced",
+        "examples": "complex_scenarios"
+      },
+      "emotional_awareness_medium": {
+        "language_tone": "supportive",
+        "content_depth": "moderate",
+        "examples": "relatable_situations"
+      },
+      "emotional_awareness_low": {
+        "language_tone": "encouraging",
+        "content_depth": "foundational",
+        "examples": "simple_clear_cases"
+      }
+    },
+    "journey_customization": {
+      "analytical_type": {
+        "preferred_formats": ["charts", "data_visualizations", "step_by_step_guides"],
+        "communication_style": "fact_based",
+        "decision_support": "evidence_driven"
+      },
+      "intuitive_type": {
+        "preferred_formats": ["stories", "metaphors", "visual_imagery"],
+        "communication_style": "emotion_based",
+        "decision_support": "feeling_centered"
+      }
+    }
+  },
+  "validationRules": {
+    "question_requirements": {
+      "minimum_answer_time": 3,
+      "maximum_answer_time": 60,
+      "required_fields": ["question_id", "answer_value", "timestamp"]
+    },
+    "scoring_validation": {
+      "score_range": [0, 100],
+      "category_weights_sum": 1.0,
+      "minimum_questions_answered": 8
+    },
+    "progression_gates": {
+      "f1_to_f2": {
+        "required_engagement_score": 30,
+        "minimum_time_spent": 45
+      },
+      "f2_to_f3": {
+        "quiz_completion_required": true,
+        "minimum_quiz_score": 40
+      }
+    }
+  },
+  "abTestingRules": {
+    "quiz_variations": {
+      "version_a": {
+        "question_order": "linear",
+        "progress_indicator": "percentage",
+        "visual_style": "minimal"
+      },
+      "version_b": {
+        "question_order": "adaptive",
+        "progress_indicator": "steps",
+        "visual_style": "engaging"
+      }
+    },
+    "scoring_experiments": {
+      "standard_scoring": {
+        "weight_distribution": "equal",
+        "threshold_adjustment": 0
+      },
+      "optimized_scoring": {
+        "weight_distribution": "performance_based",
+        "threshold_adjustment": -5
+      }
+    }
+  },
+  "analyticsTracking": {
+    "quiz_events": [
+      "quiz_started",
+      "question_answered",
+      "quiz_completed",
+      "quiz_abandoned",
+      "score_calculated",
+      "recommendation_shown"
+    ],
+    "funnel_progression": [
+      "f1_entry",
+      "f1_to_f2_transition",
+      "f2_quiz_start",
+      "f2_quiz_complete",
+      "f2_to_f3_transition"
+    ],
+    "performance_metrics": [
+      "completion_rate",
+      "average_score",
+      "time_to_complete",
+      "abandonment_points",
+      "conversion_by_score_range"
+    ]
+  }
+}

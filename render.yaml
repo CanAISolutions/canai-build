@@ -1,0 +1,28 @@
+# Exported from Render on 2025-07-01T03:39:00Z
+services:
+- type: web
+  name: canai-router
+  runtime: docker
+  repo: https://github.com/CanAISolutions/canai-build
+  plan: starter
+  envVars:
+  - key: supabaseUrl
+    sync: false
+  - key: .env
+    sync: false
+  - key: RENDER_SECRET
+    sync: false
+  - key: AIRTABLE_TABLE_NAME
+    sync: false
+  - key: AIRTABLE_BASE_ID
+    sync: false
+  - key: AIRTABLE_TOKEN
+    sync: false
+  - key: OPENAI_API_KEY
+    sync: false
+  - fromGroup: CanAI ENV
+  region: oregon
+  dockerContext: .
+  dockerfilePath: ./Dockerfile
+  autoDeployTrigger: commit
+version: "1"

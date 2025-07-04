@@ -1,0 +1,323 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main, develop]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  pr-metadata:
+    name: PR Metadata Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate PR title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          scopes: |
+            f1
+            f2
+            f3
+            f4
+            f5
+            f6
+            f7
+            f8
+            f9
+            backend
+            frontend
+            docs
+            ci
+            deps
+
+      - name: Check PR description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            if (!pr.body || pr.body.length < 50) {
+              core.setFailed('PR description must be at least 50 characters long');
+            }
+
+            const requiredSections = ['## Changes', '## Testing', '## Impact'];
+            const missingSections = requiredSections.filter(section =>
+              !pr.body.includes(section)
+            );
+
+            if (missingSections.length > 0) {
+              core.setFailed(`PR description missing required sections: ${missingSections.join(', ')}`);
+            }
+
+  pr-labeling:
+    name: Auto-label PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Auto-label based on files changed
+        uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/labeler.yml
+
+      - name: Label based on user journey stage
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const stageLabels = {
+              'f1-discovery-hook': ['DiscoveryHook', 'components/DiscoveryHook'],
+              'f2-discovery-funnel': ['DiscoveryFunnel'],
+              'f3-spark-layer': ['SparkLayer'],
+              'f4-purchase-flow': ['PurchaseFlow', 'components/PurchaseFlow'],
+              'f5-detailed-input': ['DetailedInput', 'components/DetailedInput'],
+              'f6-intent-mirror': ['IntentMirror', 'components/IntentMirror'],
+              'f7-deliverable-generation': ['DeliverableGeneration'],
+              'f8-sparksplit': ['SparkSplit', 'components/SparkSplit'],
+              'f9-feedback': ['Feedback', 'components/feedback']
+            };
+
+            const labelsToAdd = [];
+
+            for (const [label, patterns] of Object.entries(stageLabels)) {
+              if (files.some(file =>
+                patterns.some(pattern => file.filename.includes(pattern))
+              )) {
+                labelsToAdd.push(label);
+              }
+            }
+
+            if (labelsToAdd.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: labelsToAdd
+              });
+            }
+
+  pr-size-check:
+    name: PR Size Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR size
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const totalChanges = files.reduce((sum, file) => sum + file.changes, 0);
+            const filesChanged = files.length;
+
+            let sizeLabel = 'size/XS';
+            if (totalChanges > 1000 || filesChanged > 50) {
+              sizeLabel = 'size/XL';
+              core.warning('This PR is very large. Consider breaking it into smaller PRs.');
+            } else if (totalChanges > 500 || filesChanged > 25) {
+              sizeLabel = 'size/L';
+            } else if (totalChanges > 100 || filesChanged > 10) {
+              sizeLabel = 'size/M';
+            } else if (totalChanges > 30 || filesChanged > 5) {
+              sizeLabel = 'size/S';
+            }
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: [sizeLabel]
+            });
+
+  security-check:
+    name: Security Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run security audit
+        run: npm audit --audit-level=moderate
+
+      - name: Check for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  accessibility-check:
+    name: Accessibility Check
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.changed_files, 'frontend/')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: cd frontend && npm run build
+
+      - name: Run accessibility tests
+        run: cd frontend && npm run test:a11y
+
+  performance-impact:
+    name: Performance Impact
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.changed_files, 'frontend/')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and analyze bundle
+        run: |
+          cd frontend
+          npm run build:analyze
+
+      - name: Comment bundle analysis
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            if (fs.existsSync('frontend/dist/bundle-analysis.json')) {
+              const analysis = JSON.parse(fs.readFileSync('frontend/dist/bundle-analysis.json', 'utf8'));
+
+              const comment = `## 📊 Bundle Analysis
+
+              | Metric | Value |
+              |--------|-------|
+              | Total Size | ${analysis.totalSize} |
+              | Gzipped Size | ${analysis.gzippedSize} |
+              | Chunks | ${analysis.chunks} |
+              | Assets | ${analysis.assets} |
+
+              ${analysis.warnings.length > 0 ? '⚠️ **Warnings:**\n' + analysis.warnings.map(w => `- ${w}`).join('\n') : '✅ No bundle warnings'}
+              `;
+
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+
+  pr-validation-summary:
+    name: PR Validation Summary
+    runs-on: ubuntu-latest
+    needs:
+      [
+        pr-metadata,
+        pr-labeling,
+        pr-size-check,
+        security-check,
+        accessibility-check,
+        performance-impact,
+      ]
+    if: always()
+
+    steps:
+      - name: Validation Summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const results = {
+              'Metadata': '${{ needs.pr-metadata.result }}',
+              'Labeling': '${{ needs.pr-labeling.result }}',
+              'Size Check': '${{ needs.pr-size-check.result }}',
+              'Security': '${{ needs.security-check.result }}',
+              'Accessibility': '${{ needs.accessibility-check.result }}',
+              'Performance': '${{ needs.performance-impact.result }}'
+            };
+
+            const passed = Object.values(results).filter(r => r === 'success').length;
+            const total = Object.values(results).filter(r => r !== 'skipped').length;
+
+            const summary = `## 🔍 PR Validation Summary
+
+            **${passed}/${total} checks passed**
+
+            ${Object.entries(results).map(([name, result]) => {
+              const icon = result === 'success' ? '✅' : result === 'failure' ? '❌' : result === 'skipped' ? '⏭️' : '⏳';
+              return `${icon} ${name}`;
+            }).join('\n')}
+
+            ${passed === total ? '🎉 All validations passed! This PR is ready for review.' : '⚠️ Some validations failed. Please address the issues before merging.'}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });

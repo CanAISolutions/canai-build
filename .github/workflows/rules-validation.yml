@@ -1,0 +1,108 @@
+name: CanAI Rules Enforcement & Validation
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+  FORCE_COLOR: 1
+
+jobs:
+  cursor-rules-validation:
+    name: Cursor Rules Comprehensive Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate All Rule Files Exist
+        run: |
+          echo "🔍 Validating all 23 cursor rule files exist..."
+          MISSING_RULES=()
+
+          # Foundation Rules
+          [ ! -f ".cursor/rules/canai-typescript-rules.mdc" ] && MISSING_RULES+=("canai-typescript-rules.mdc")
+          [ ! -f ".cursor/rules/canai-structure-rules.mdc" ] && MISSING_RULES+=("canai-structure-rules.mdc")
+          [ ! -f ".cursor/rules/canai-cortex-rules.mdc" ] && MISSING_RULES+=("canai-cortex-rules.mdc")
+
+          # Core Development Rules
+          [ ! -f ".cursor/rules/canai-api-rules.mdc" ] && MISSING_RULES+=("canai-api-rules.mdc")
+          [ ! -f ".cursor/rules/canai-supabase-rules.mdc" ] && MISSING_RULES+=("canai-supabase-rules.mdc")
+          [ ! -f ".cursor/rules/canai-user-journey.mdc" ] && MISSING_RULES+=("canai-user-journey.mdc")
+
+          # Integration & Service Rules
+          [ ! -f ".cursor/rules/canai-llm-rules.mdc" ] && MISSING_RULES+=("canai-llm-rules.mdc")
+          [ ! -f ".cursor/rules/canai-llm-prompting.mdc" ] && MISSING_RULES+=("canai-llm-prompting.mdc")
+          [ ! -f ".cursor/rules/canai-make-automation.mdc" ] && MISSING_RULES+=("canai-make-automation.mdc")
+          [ ! -f ".cursor/rules/canai-memberstack-sync.mdc" ] && MISSING_RULES+=("canai-memberstack-sync.mdc")
+
+          # Analytics & Monitoring Rules
+          [ ! -f ".cursor/rules/canai-analytics-rules.mdc" ] && MISSING_RULES+=("canai-analytics-rules.mdc")
+          [ ! -f ".cursor/rules/canai-observability-rules.mdc" ] && MISSING_RULES+=("canai-observability-rules.mdc")
+          [ ! -f ".cursor/rules/canai-performance-rules.mdc" ] && MISSING_RULES+=("canai-performance-rules.mdc")
+
+          # Security & Compliance Rules
+          [ ! -f ".cursor/rules/canai-security-rules.mdc" ] && MISSING_RULES+=("canai-security-rules.mdc")
+          [ ! -f ".cursor/rules/canai-data-lifecycle-rules.mdc" ] && MISSING_RULES+=("canai-data-lifecycle-rules.mdc")
+
+          # Quality Assurance Rules
+          [ ! -f ".cursor/rules/canai-testing-rules.mdc" ] && MISSING_RULES+=("canai-testing-rules.mdc")
+          [ ! -f ".cursor/rules/canai-error-handling-rules.mdc" ] && MISSING_RULES+=("canai-error-handling-rules.mdc")
+
+          # Deployment & Operations Rules
+          [ ! -f ".cursor/rules/canai-ci-cd-rules.mdc" ] && MISSING_RULES+=("canai-ci-cd-rules.mdc")
+          [ ! -f ".cursor/rules/canai-github-rules.mdc" ] && MISSING_RULES+=("canai-github-rules.mdc")
+
+          # Advanced Features Rules
+          [ ! -f ".cursor/rules/canai-feature-flags-rules.mdc" ] && MISSING_RULES+=("canai-feature-flags-rules.mdc")
+          [ ! -f ".cursor/rules/canai-taskmaster-rules.mdc" ] && MISSING_RULES+=("canai-taskmaster-rules.mdc")
+          [ ! -f ".cursor/rules/canai-docs-rules.mdc" ] && MISSING_RULES+=("canai-docs-rules.mdc")
+
+          # Memory Rules
+          [ ! -f ".cursor/rules/cortex.md" ] && MISSING_RULES+=("cortex.md")
+
+          if [ ${#MISSING_RULES[@]} -ne 0 ]; then
+            echo "❌ Missing rule files:"
+            printf '%s\n' "${MISSING_RULES[@]}"
+            exit 1
+          fi
+
+          echo "✅ All 23 cursor rule files found"
+
+      - name: Validate Cursor Configuration Coverage
+        run: |
+          echo "🔍 Validating cursor configuration covers all rules..."
+
+          # Check that all rule files are configured in .cursor.config.json
+          UNCONFIGURED_RULES=()
+
+          while IFS= read -r rule_file; do
+            rule_name=$(basename "$rule_file" .mdc)
+            if ! grep -q "$rule_name" .cursor.config.json; then
+              UNCONFIGURED_RULES+=("$rule_name")
+            fi
+          done < <(find .cursor/rules -name "*.mdc" -type f)
+
+          if [ ${#UNCONFIGURED_RULES[@]} -ne 0 ]; then
+            echo "❌ Unconfigured rules in .cursor.config.json:"
+            printf '%s\n' "${UNCONFIGURED_RULES[@]}"
+            exit 1
+          fi
+
+          echo "✅ All rules properly configured in .cursor.config.json"
+
+  rules-enforcement-summary:
+    name: Rules Enforcement Summary
+    runs-on: ubuntu-latest
+    needs: [cursor-rules-validation]
+    steps:
+      - name: Enforcement Summary
+        run: |
+          echo "🎉 CanAI Rules Enforcement Complete!"
+          echo "✅ All 23 cursor rules validated"
+          echo "✅ Configuration coverage verified"
+          echo "🚀 Your CanAI platform is following all development rules!"

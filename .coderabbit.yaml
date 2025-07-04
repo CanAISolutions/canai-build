@@ -1,0 +1,98 @@
+version: 1
+
+# Configure review settings
+review:
+  # Enable automatic reviews
+  enabled: true
+
+  # Configure review depth
+  depth: thorough
+
+  # Set review focus areas
+  focus:
+    - code_quality
+    - security
+    - performance
+    - documentation
+    - best_practices
+    - accessibility
+
+# Configure comment settings
+comments:
+  # Enable inline comments
+  inline: true
+
+  # Enable summary comments
+  summary: true
+
+  # Configure comment style
+  style: constructive
+
+# Configure language-specific settings
+languages:
+  typescript:
+    # Enable TypeScript-specific checks
+    enabled: true
+    # Set TypeScript version
+    version: '5.3.0'
+
+  javascript:
+    # Enable JavaScript-specific checks
+    enabled: true
+
+  react:
+    # Enable React-specific checks
+    enabled: true
+    # Set React version
+    version: '18.2.0'
+
+# Configure file patterns to include/exclude
+files:
+  include:
+    - '**/*.ts'
+    - '**/*.tsx'
+    - '**/*.js'
+    - '**/*.jsx'
+    - '**/*.json'
+    - '**/*.md'
+  exclude:
+    - '**/node_modules/**'
+    - '**/dist/**'
+    - '**/build/**'
+    - '**/.git/**'
+    - '**/coverage/**'
+
+# Configure documentation settings
+documentation:
+  # Enable documentation checks
+  enabled: true
+  # Set documentation requirements
+  requirements:
+    - readme
+    - api_docs
+    - inline_comments
+    - type_definitions
+
+# Configure security settings
+security:
+  # Enable security checks
+  enabled: true
+  # Set security focus areas
+  focus:
+    - dependencies
+    - authentication
+    - data_validation
+    - api_security
+    - environment_variables
+
+# Configure performance settings
+performance:
+  # Enable performance checks
+  enabled: true
+  # Set performance focus areas
+  focus:
+    - bundle_size
+    - render_optimization
+    - api_calls
+    - caching
+    - memory_usage

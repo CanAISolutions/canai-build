@@ -1,0 +1,44 @@
+name: Memberstack Sync Testing
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'frontend/src/utils/memberstack.ts'
+      - 'frontend/src/utils/memberstackAuth.ts'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'frontend/src/utils/memberstack.ts'
+      - 'frontend/src/utils/memberstackAuth.ts'
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  test-memberstack:
+    name: Test Memberstack Integration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test authentication flow
+        run: |
+          cd frontend
+          npm run test:memberstack:auth
+
+      - name: Test user sync
+        run: |
+          cd frontend
+          npm run test:memberstack:sync

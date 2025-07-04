@@ -1,0 +1,47 @@
+name: Make.com Integration Testing
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'backend/webhooks/make_scenarios/**'
+      - 'frontend/src/utils/makecom.ts'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'backend/webhooks/make_scenarios/**'
+      - 'frontend/src/utils/makecom.ts'
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  validate-scenarios:
+    name: Validate Make.com Scenarios
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate scenario JSON
+        run: |
+          cd backend/webhooks/make_scenarios
+          for file in *.json; do
+            echo "Validating $file"
+            jq empty "$file" || exit 1
+          done
+
+      - name: Test webhook endpoints
+        run: |
+          cd backend
+          npm run test:webhooks:make

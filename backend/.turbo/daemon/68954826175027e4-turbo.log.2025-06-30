@@ -1,0 +1,276 @@
+2025-06-30T02:36:47.246602Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\cookies"), AnchoredSystemPathBuf(".turbo\\cookies\\1.cookie"), AnchoredSystemPathBuf(".turbo\\daemon")}
+2025-06-30T02:36:47.246734Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:36:47.344106Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo"), AnchoredSystemPathBuf(".turbo\\cookies\\.turbo-cookie"), AnchoredSystemPathBuf(".turbo\\cookies\\1.cookie"), AnchoredSystemPathBuf(".turbo\\cookies")}
+2025-06-30T02:36:47.344135Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:36:47.352723Z  WARN daemon_server: turborepo_lib::commands::daemon: daemon already running
+2025-06-30T02:36:48.236591Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T02:36:48.236622Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:36:48.546498Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T02:36:48.546524Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:36:48.938895Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\cookies")}
+2025-06-30T02:36:48.938922Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:40:50.750683Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T02:40:50.750714Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:05.335971Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T02:41:05.336051Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:06.643436Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T02:41:06.643463Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:06.737663Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T02:41:06.737683Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:36.446820Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests\\supabase\\schema-rls.test.ts")}
+2025-06-30T02:41:36.446841Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:37.145019Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests\\supabase")}
+2025-06-30T02:41:37.145033Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:41.349346Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("node_modules\\.vite-temp"), AnchoredSystemPathBuf("node_modules\\.vite-temp\\vitest.config.ts.timestamp-1751251301242-9e667c7fe4ac.mjs")}
+2025-06-30T02:41:41.349396Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:42.049039Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(""), AnchoredSystemPathBuf("coverage"), AnchoredSystemPathBuf("coverage\\.tmp")}
+2025-06-30T02:41:42.049187Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:44.744481Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-0.json")}
+2025-06-30T02:41:44.744615Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:46.260117Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-2.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-1.json"), AnchoredSystemPathBuf("coverage\\.tmp")}
+2025-06-30T02:41:46.260147Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:46.351461Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-3.json")}
+2025-06-30T02:41:46.351974Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:46.445680Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-4.json")}
+2025-06-30T02:41:46.445708Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:46.538778Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-4.json")}
+2025-06-30T02:41:46.538807Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:46.851223Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-5.json"), AnchoredSystemPathBuf("coverage\\.tmp")}
+2025-06-30T02:41:46.851255Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:46.947775Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-5.json")}
+2025-06-30T02:41:46.947808Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:48.142411Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-6.json")}
+2025-06-30T02:41:48.142447Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:48.339230Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-7.json")}
+2025-06-30T02:41:48.339264Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:48.450537Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-8.json")}
+2025-06-30T02:41:48.450711Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:48.537219Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-9.json")}
+2025-06-30T02:41:48.537247Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:48.951928Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-10.json")}
+2025-06-30T02:41:48.952000Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:49.536429Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("node_modules\\.vite\\vitest\\da39a3ee5e6b4b0d3255bfef95601890afd80709\\results.json"), AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-11.json")}
+2025-06-30T02:41:49.536522Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:49.643044Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("node_modules\\.vite\\vitest\\da39a3ee5e6b4b0d3255bfef95601890afd80709\\results.json")}
+2025-06-30T02:41:49.643077Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:41:51.349902Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-4.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-3.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-11.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-1.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-5.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-0.json"), AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-8.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-9.json"), AnchoredSystemPathBuf(""), AnchoredSystemPathBuf("coverage"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-7.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-6.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-10.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-2.json")}
+2025-06-30T02:41:51.350009Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:42:58.241134Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\cookies\\2.cookie")}
+2025-06-30T02:42:58.241207Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:42:58.346327Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\cookies")}
+2025-06-30T02:42:58.346393Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:01.446187Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("node_modules\\.vite-temp\\vitest.config.ts.timestamp-1751251381359-38b54ef7409d9.mjs"), AnchoredSystemPathBuf("node_modules\\.vite-temp")}
+2025-06-30T02:43:01.446216Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:02.045024Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage"), AnchoredSystemPathBuf("coverage\\.tmp")}
+2025-06-30T02:43:02.045053Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:02.138695Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage"), AnchoredSystemPathBuf("")}
+2025-06-30T02:43:02.139067Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:06.541357Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-0.json")}
+2025-06-30T02:43:06.541385Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:07.456989Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-1.json")}
+2025-06-30T02:43:07.457028Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:07.741874Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-2.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-3.json"), AnchoredSystemPathBuf("coverage\\.tmp")}
+2025-06-30T02:43:07.741905Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:07.976665Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-4.json")}
+2025-06-30T02:43:07.976697Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:08.140692Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-5.json")}
+2025-06-30T02:43:08.140867Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:08.254221Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-5.json")}
+2025-06-30T02:43:08.254249Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:10.144378Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-6.json")}
+2025-06-30T02:43:10.144405Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:10.247916Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-7.json")}
+2025-06-30T02:43:10.247959Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:10.437534Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-8.json")}
+2025-06-30T02:43:10.437565Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:10.640586Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-10.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-9.json"), AnchoredSystemPathBuf("coverage\\.tmp")}
+2025-06-30T02:43:10.640648Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:11.750682Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-11.json")}
+2025-06-30T02:43:11.750717Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:11.843275Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("node_modules\\.vite\\vitest\\da39a3ee5e6b4b0d3255bfef95601890afd80709\\results.json")}
+2025-06-30T02:43:11.843311Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:13.039717Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-11.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-4.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-1.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-3.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-0.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-2.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-7.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-5.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-8.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-9.json"), AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-10.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-6.json")}
+2025-06-30T02:43:13.039753Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:43:13.149802Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("")}
+2025-06-30T02:43:13.149827Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({}))
+2025-06-30T02:44:23.850446Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("node_modules\\.vite-temp"), AnchoredSystemPathBuf("node_modules\\.vite-temp\\vitest.config.ts.timestamp-1751251463767-828b7f19a60bf.mjs")}
+2025-06-30T02:44:23.850468Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:44:24.544310Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf(""), AnchoredSystemPathBuf("coverage")}
+2025-06-30T02:44:24.544341Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:44:24.640304Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage")}
+2025-06-30T02:44:24.640508Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:44:28.755680Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-0.json")}
+2025-06-30T02:44:28.755725Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:44:30.247917Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-1.json"), AnchoredSystemPathBuf("coverage\\.tmp")}
+2025-06-30T02:44:30.248030Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:44:30.353114Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-3.json"), AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-2.json")}
+2025-06-30T02:44:30.353147Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:44:30.647352Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-4.json")}
+2025-06-30T02:44:30.647413Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:44:30.843995Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-5.json"), AnchoredSystemPathBuf("coverage\\.tmp")}
+2025-06-30T02:44:30.844026Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:44:32.936608Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-6.json")}
+2025-06-30T02:44:32.936722Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:44:33.042685Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-7.json")}
+2025-06-30T02:44:33.042714Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:44:33.143715Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-8.json")}
+2025-06-30T02:44:33.143769Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:44:33.339694Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-9.json")}
+2025-06-30T02:44:33.339727Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:44:33.841258Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-10.json")}
+2025-06-30T02:44:33.841298Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:44:34.741830Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-11.json")}
+2025-06-30T02:44:34.741852Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:44:34.836688Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("node_modules\\.vite\\vitest\\da39a3ee5e6b4b0d3255bfef95601890afd80709\\results.json")}
+2025-06-30T02:44:34.836719Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:44:36.238828Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-1.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-3.json"), AnchoredSystemPathBuf(""), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-9.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-5.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-6.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-7.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-4.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-8.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-11.json"), AnchoredSystemPathBuf("coverage"), AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-0.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-10.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-2.json")}
+2025-06-30T02:44:36.238863Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:46:05.341961Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T02:46:05.341986Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:46:08.835855Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T02:46:08.835869Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:46:08.948140Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T02:46:08.948153Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:47:24.737147Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".env.test"), AnchoredSystemPathBuf(".env"), AnchoredSystemPathBuf(".env.local")}
+2025-06-30T02:47:24.737166Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:47:42.850475Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("supabase\\client.js")}
+2025-06-30T02:47:42.850506Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:51:05.346952Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T02:51:05.346973Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:51:06.250210Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T02:51:06.250227Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:51:52.845333Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".env.test"), AnchoredSystemPathBuf(".env"), AnchoredSystemPathBuf(".env.local")}
+2025-06-30T02:51:52.845359Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:52:14.840962Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("node_modules\\.vite-temp"), AnchoredSystemPathBuf("node_modules\\.vite-temp\\vitest.config.ts.timestamp-1751251934756-da67c52063f25.mjs")}
+2025-06-30T02:52:14.840991Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:52:15.538930Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf(""), AnchoredSystemPathBuf("coverage")}
+2025-06-30T02:52:15.538958Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:52:18.651171Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-0.json")}
+2025-06-30T02:52:18.651200Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:52:19.538591Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-1.json")}
+2025-06-30T02:52:19.538692Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:52:19.745116Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-2.json")}
+2025-06-30T02:52:19.745214Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:52:19.939934Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-3.json"), AnchoredSystemPathBuf("coverage\\.tmp")}
+2025-06-30T02:52:19.939971Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:52:20.061745Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-5.json"), AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-4.json")}
+2025-06-30T02:52:20.061773Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:52:21.645068Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-6.json")}
+2025-06-30T02:52:21.645127Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:52:21.754180Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-7.json"), AnchoredSystemPathBuf("coverage\\.tmp")}
+2025-06-30T02:52:21.754211Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:52:21.869482Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-8.json")}
+2025-06-30T02:52:21.869509Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:52:22.045298Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-9.json")}
+2025-06-30T02:52:22.045328Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:52:22.142049Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-10.json")}
+2025-06-30T02:52:22.142081Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:52:22.746775Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-11.json")}
+2025-06-30T02:52:22.746869Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:52:22.835871Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("node_modules\\.vite\\vitest\\da39a3ee5e6b4b0d3255bfef95601890afd80709\\results.json")}
+2025-06-30T02:52:22.835900Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:52:23.950628Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-6.json"), AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-0.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-10.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-3.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-7.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-8.json"), AnchoredSystemPathBuf(""), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-11.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-1.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-9.json"), AnchoredSystemPathBuf("coverage"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-5.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-4.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-2.json")}
+2025-06-30T02:52:23.950658Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:55:21.275169Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".env"), AnchoredSystemPathBuf(".env.local"), AnchoredSystemPathBuf(".env.test")}
+2025-06-30T02:55:21.275195Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:05.343620Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T02:56:05.343636Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:06.347982Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T02:56:06.347997Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:11.850367Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("node_modules\\.vite-temp\\vitest.config.ts.timestamp-1751252171773-0f2b91f692a4e.mjs"), AnchoredSystemPathBuf("node_modules\\.vite-temp")}
+2025-06-30T02:56:11.850415Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:12.638820Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage"), AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("")}
+2025-06-30T02:56:12.638887Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:17.144039Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-0.json")}
+2025-06-30T02:56:17.144143Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:18.137925Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-1.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-3.json"), AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-2.json")}
+2025-06-30T02:56:18.137965Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:18.246608Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-4.json")}
+2025-06-30T02:56:18.246639Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:18.351475Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-5.json")}
+2025-06-30T02:56:18.351506Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:18.440336Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-5.json")}
+2025-06-30T02:56:18.440394Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:20.549668Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-6.json")}
+2025-06-30T02:56:20.549698Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:20.643515Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-7.json"), AnchoredSystemPathBuf("coverage\\.tmp")}
+2025-06-30T02:56:20.643753Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:20.851995Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-8.json")}
+2025-06-30T02:56:20.852032Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:20.943692Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-9.json")}
+2025-06-30T02:56:20.943724Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:21.348978Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-10.json")}
+2025-06-30T02:56:21.349081Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:22.340931Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-11.json")}
+2025-06-30T02:56:22.340958Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:22.437319Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("node_modules\\.vite\\vitest\\da39a3ee5e6b4b0d3255bfef95601890afd80709\\results.json")}
+2025-06-30T02:56:22.437347Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:23.638712Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-8.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-4.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-11.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-2.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-3.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-6.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-7.json"), AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-0.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-1.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-10.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-5.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-9.json")}
+2025-06-30T02:56:23.638757Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:56:23.749185Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("")}
+2025-06-30T02:56:23.749215Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({}))
+2025-06-30T02:57:09.942115Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests\\prompts.test.js")}
+2025-06-30T02:57:09.942250Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:13.640595Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests\\integration\\rls-policies.test.js")}
+2025-06-30T02:57:13.640772Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:17.840976Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests\\integration\\supabase\\prompt-logs.integration.test.ts")}
+2025-06-30T02:57:17.841002Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:20.836480Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests\\integration\\emotionalAnalysis.integration.test.js")}
+2025-06-30T02:57:20.836503Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:25.138707Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests\\unit\\hume.test.js")}
+2025-06-30T02:57:25.138722Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:30.435728Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("tests\\integration\\supabase\\prompt-logs.integration.test.ts")}
+2025-06-30T02:57:30.435772Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:47.445265Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("node_modules\\.vite-temp"), AnchoredSystemPathBuf("node_modules\\.vite-temp\\vitest.config.ts.timestamp-1751252267380-09598fd6b3c86.mjs")}
+2025-06-30T02:57:47.445398Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:48.042011Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage"), AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("")}
+2025-06-30T02:57:48.042043Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:52.060026Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-0.json")}
+2025-06-30T02:57:52.060063Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:52.151852Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-1.json")}
+2025-06-30T02:57:52.151952Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:52.250650Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-2.json")}
+2025-06-30T02:57:52.250757Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:53.655498Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-3.json"), AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-4.json")}
+2025-06-30T02:57:53.655593Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:53.751514Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-5.json")}
+2025-06-30T02:57:53.751560Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:55.365865Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-6.json")}
+2025-06-30T02:57:55.365890Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:55.658945Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-7.json"), AnchoredSystemPathBuf("coverage\\.tmp")}
+2025-06-30T02:57:55.658978Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:56.041433Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-8.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-9.json")}
+2025-06-30T02:57:56.041466Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:56.153817Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-10.json")}
+2025-06-30T02:57:56.153977Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:57.444562Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage\\.tmp\\coverage-11.json"), AnchoredSystemPathBuf("node_modules\\.vite\\vitest\\da39a3ee5e6b4b0d3255bfef95601890afd80709\\results.json")}
+2025-06-30T02:57:57.444654Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T02:57:58.545192Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("coverage"), AnchoredSystemPathBuf(""), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-9.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-5.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-0.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-2.json"), AnchoredSystemPathBuf("coverage\\.tmp"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-4.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-7.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-11.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-8.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-3.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-6.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-1.json"), AnchoredSystemPathBuf("coverage\\.tmp\\coverage-10.json")}
+2025-06-30T02:57:58.545224Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T21:29:27.337024Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\cookies\\1.cookie"), AnchoredSystemPathBuf(".turbo\\cookies")}
+2025-06-30T21:29:27.337395Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T21:29:27.387339Z  WARN daemon_server: turborepo_lib::commands::daemon: daemon already running
+2025-06-30T21:29:27.434346Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\cookies"), AnchoredSystemPathBuf(".turbo"), AnchoredSystemPathBuf(".turbo\\cookies\\.turbo-cookie"), AnchoredSystemPathBuf(".turbo\\cookies\\1.cookie")}
+2025-06-30T21:29:27.434380Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T21:29:28.246196Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\cookies")}
+2025-06-30T21:29:28.246217Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T21:29:28.436279Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T21:29:28.436297Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T21:29:29.736077Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T21:29:29.736093Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T21:29:29.842520Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T21:29:29.842567Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T21:33:03.349174Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T21:33:03.349218Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T21:33:04.554853Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T21:33:04.554876Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T21:38:03.356648Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T21:38:03.356732Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T21:38:04.251633Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T21:38:04.251699Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T21:38:04.356993Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T21:38:04.357093Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T21:43:03.371768Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T21:43:03.371799Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))
+2025-06-30T21:43:04.359281Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".turbo\\daemon\\68954826175027e4-turbo.log.2025-06-30")}
+2025-06-30T21:43:04.359306Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }}))

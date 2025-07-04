@@ -1,0 +1,38 @@
+# Backend Dockerfile for CanAI Platform
+# Updated for full ESM and Render compatibility
+
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nodejs
+
+# Copy backend package files
+COPY backend/package-backend.json ./package.json
+
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy full backend source code
+COPY backend/. ./
+
+# Set correct permissions
+RUN chown -R nodejs:nodejs /app
+USER nodejs
+
+# Expose port 10000 (Render compatible)
+EXPOSE 10000
+
+# Environment variables
+ENV NODE_ENV=production
+ENV PORT=10000
+
+# Health check using the health.js file
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD node -e "const http = require('http'); http.get('http://localhost:10000/', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => { process.exit(1); });"
+
+# Start the application directly with node for ESM support
+CMD ["node", "server.js"]

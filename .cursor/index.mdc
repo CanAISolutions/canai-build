@@ -1,0 +1,115 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: Core linting rules for the CanAI platform repository
+globs: frontend/src/**/*.{ts,tsx}, backend/**/*.{ts,js}, docs/**/*.{md,yaml}, backend/config/*.json, backend/webhooks/make_scenarios/*.json
+alwaysApply: true
+tags: [typescript, react, markdown, api, security, testing, supabase, analytics, llm, accessibility, taskmaster, data-lifecycle, feature-flags, make-automation, error-handling, production]
+---
+{
+  "version": 1.2,
+  "metadata": {
+    "name": "CanAI Platform Configuration",
+    "description": "Comprehensive TypeScript, React, and documentation standards for CanAI platform",
+    "lastUpdated": "2025-06-19",
+    "strictnessLevel": "strict",
+    "platform": "CanAI Solutions",
+    "projectType": "fullstack-typescript-react"
+  },
+  "rules": {
+    "typescript": {
+      "no-explicit-any": "error",
+      "strict-null-checks": "error",
+      "explicit-function-return-type": "error",
+      "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+      "prefer-const": "error",
+      "no-console": ["warn", { "allow": ["error", "warn"] }]
+    },
+    "react": {
+      "react-in-jsx-scope": "off",
+      "prop-types": "off",
+      "hooks-of-rules": "error",
+      "jsx-no-bind": "error"
+    },
+    "markdown": {
+      "require-clear-markdown-docs": "error",
+      "maxParagraphLength": 100,
+      "requiredSections": ["Purpose", "Usage", "Examples"]
+    },
+    "security": {
+      "detect-unsafe-regex": "error",
+      "detect-sql-injection": "error",
+      "detect-xss": "error"
+    },
+    "imports": {
+      "no-default-export": "error",
+      "simple-import-sort": "error",
+      "no-unused-imports": "error"
+    },
+    "performance": {
+      "no-excessive-rerenders": "warn",
+      "prefer-lazy-loading": "warn",
+      "max-bundle-size": ["error", { "limit": "500kb" }]
+    },
+    "accessibility": {
+      "require-aria-labels": "error",
+      "enforce-wcag-contrast": "error",
+      "no-missing-alt-text": "error"
+    },
+    "testing": {
+      "require-test-coverage": ["error", { "minimum": "80%" }],
+      "no-skip-tests": "error"
+    },
+    "llm": {
+      "prompt-length-limit": ["error", { "maxTokens": 1000 }],
+      "no-hardcoded-tokens": "error"
+    },
+    "cursor-ai-optimizations": {
+      "block-any-type": "error",
+      "require-tsdoc": "warn",
+      "enforce-canai-patterns": "error",
+      "supabase-best-practices": "error",
+      "api-consistency": "error",
+      "llm-prompt-quality": "error"
+    }
+  },
+  "ruleIncludes": [
+    "./rules/canai-typescript-rules.mdc",
+    "./rules/canai-structure-rules.mdc",
+    "./rules/canai-api-rules.mdc",
+    "./rules/canai-security-rules.mdc",
+    "./rules/canai-testing-rules.mdc",
+    "./rules/canai-supabase-rules.mdc",
+    "./rules/canai-analytics-rules.mdc",
+    "./rules/canai-cortex-rules.mdc",
+    "./rules/canai-docs-rules.mdc",
+    "./rules/canai-error-handling-rules.mdc",
+    "./rules/canai-performance-rules.mdc",
+    "./rules/canai-observability-rules.mdc",
+    "./rules/canai-user-journey.mdc",
+    "./rules/canai-llm-rules.mdc",
+    "./rules/canai-llm-prompting.mdc",
+    "./rules/canai-make-automation.mdc",
+    "/rules/cursor_rules.mdc
+    "./rules/canai-memberstack-sync.mdc",
+    "./rules/canai-feature-flags-rules.mdc",
+    "./rules/canai-data-lifecycle-rules.mdc",
+    "./rules/canai-production-readiness.mdc",
+    "./rules/canai-taskmaster.mdc"
+  ],
+  "taskmaster": {
+    "enabled": true,
+    "prdPath": ".taskmaster/docs/prd.txt",
+    "tasksPath": "tasks/tasks.json",
+    "aiModel": "claude-3.7-sonnet"
+  }
+}
+
+
+
+
+
+

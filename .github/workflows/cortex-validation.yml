@@ -1,0 +1,70 @@
+name: Cortex Memory Validation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '.cursor/rules/cortex.md'
+      - 'Taskmaster-Tasks.md'
+      - 'INFRASTRUCTURE-IMPLEMENTATION-PLAN.md'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - '.cursor/rules/cortex.md'
+      - 'Taskmaster-Tasks.md'
+      - 'INFRASTRUCTURE-IMPLEMENTATION-PLAN.md'
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight
+
+jobs:
+  validate-cortex:
+    name: Validate Cortex Memory
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate cortex.md structure
+        run: |
+          if [ ! -f ".cursor/rules/cortex.md" ]; then
+            echo "❌ cortex.md not found"
+            exit 1
+          fi
+          echo "✅ cortex.md exists"
+
+      - name: Check milestone tracking
+        run: |
+          grep -q "## Current Milestone" .cursor/rules/cortex.md || exit 1
+          echo "✅ Milestone tracking present"
+
+      - name: Validate task completion tracking
+        run: |
+          grep -q "## Completed Tasks" .cursor/rules/cortex.md || exit 1
+          echo "✅ Task completion tracking present"
+
+      - name: Check project memory consistency
+        run: |
+          grep -q "## Project Memory" .cursor/rules/cortex.md || exit 1
+          echo "✅ Project memory section present"
+
+  validate-taskmaster:
+    name: Validate TaskMaster Tasks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check TaskMaster file exists
+        run: |
+          if [ ! -f "Taskmaster-Tasks.md" ]; then
+            echo "❌ Taskmaster-Tasks.md not found"
+            exit 1
+          fi
+          echo "✅ Taskmaster-Tasks.md exists"
+
+      - name: Validate task structure
+        run: |
+          grep -q "## Backend Implementation" Taskmaster-Tasks.md || exit 1
+          echo "✅ Backend tasks section present"

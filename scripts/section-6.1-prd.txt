@@ -1,0 +1,83 @@
+# CanAI Platform Backend - Section 6.1: Messages and Interactions
+
+## Project Overview
+Implementation of the CanAI Emotional Sovereignty Platform backend API system for messages and user interactions, supporting the initial stages of the 9-stage user journey.
+
+## Technical Requirements
+
+### Core Infrastructure
+- Express.js API framework with TypeScript
+- Supabase for database and authentication with Row Level Security (RLS)
+- Integration with GPT-4o for AI-powered content generation
+- Hume AI integration for emotional resonance validation
+- PostHog for analytics and user interaction tracking
+- Make.com for workflow automation
+- Node-cache for caching with appropriate TTL
+
+### Section 6.1: Messages and Interactions API Endpoints
+
+#### 1. Trust Indicators API (GET /v1/messages)
+- Fetch trust indicators with 5-minute caching
+- Calculate and return statistics from comparisons table
+- Integrate with Supabase to query trust_indicators table
+- Log funnel_step events with PostHog
+- Implement proper error handling and retry logic
+
+#### 2. Interaction Logging API (POST /v1/log-interaction)
+- Log user interactions to session_logs table
+- Integrate with Make.com webhook for interaction processing
+- Validate request data using Joi (interaction_type, details)
+- Store logs in Supabase with proper RLS policies
+- Log pricing_modal_viewed events with PostHog
+
+#### 3. Preview Spark Generation (POST /v1/generate-preview-spark)
+- Generate free preview sparks using GPT-4o
+- Serve sample PDFs from Supabase storage
+- Validate inputs (businessType, tone) with Joi
+- Implement proper prompt engineering for business context
+- Log preview_viewed events with PostHog
+
+#### 4. Error Handling and Retry Middleware
+- Implement retry middleware for API failures (3 attempts, 500ms intervals)
+- Add localStorage fallback for trust indicators
+- Log errors to Supabase error_logs table
+- Integrate with Sentry for critical error tracking
+
+#### 5. Pricing Data API (GET /v1/pricing)
+- Fetch pricing data from Supabase or CMS
+- Implement 1-hour TTL caching for pricing information
+- Support dynamic pricing updates
+- Log pricing_modal_viewed events with PostHog
+
+#### 6. Input Sanitization and Validation
+- Standardize error handling across all APIs with empathetic responses
+- Implement DOMPurify for input sanitization
+- Add comprehensive Joi validation schemas
+- Ensure all inputs are properly sanitized before processing
+
+## Database Schema Requirements
+- trust_indicators table with proper indexing
+- session_logs table for interaction tracking
+- initial_prompt_logs table for funnel data
+- error_logs table with error_type and retry_count fields
+- All tables must implement Row Level Security (RLS)
+
+## Integration Requirements
+- Supabase client configuration with proper authentication
+- PostHog event tracking for all user interactions
+- Make.com webhook integration for data processing
+- GPT-4o integration with proper prompt engineering
+- Hume AI integration with circuit breaker pattern
+
+## Success Criteria
+- All API endpoints respond within acceptable latency limits
+- Proper error handling and user-friendly error messages
+- Comprehensive logging and monitoring
+- Secure data handling with RLS and input sanitization
+- Successful integration with all third-party services
+
+## Technical Constraints
+- Must use approved tech stack (Express.js, Supabase, etc.)
+- All APIs must include proper authentication and authorization
+- Implement caching strategies for performance optimization
+- Follow security best practices for API development

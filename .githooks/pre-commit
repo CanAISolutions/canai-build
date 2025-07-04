@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# TaskMaster Git Integration Pre-commit Hook
+# Validates commits against TaskMaster automation rules
+
+set -e
+
+echo "🔄 Running TaskMaster pre-commit validation..."
+
+# Check if automation config exists
+if [ ! -f ".taskmaster/config/automation.json" ]; then
+  echo "⚠️ TaskMaster automation not configured. Run 'npm run taskmaster:setup'"
+  exit 0
+fi
+
+# Get current branch name
+BRANCH=$(git branch --show-current)
+
+# Check if this is a TaskMaster automated branch
+if echo "$BRANCH" | grep -q "^feature/task-"; then
+  echo "✅ TaskMaster automated branch detected: $BRANCH"
+
+  # Extract task ID from branch name
+  TASK_ID=$(echo "$BRANCH" | sed 's/feature\/task-\([0-9]*\).*/\1/')
+
+  if [ -n "$TASK_ID" ]; then
+    echo "✅ Validated task ID: $TASK_ID"
+  else
+    echo "⚠️ Could not extract task ID from branch name"
+  fi
+else
+  echo "ℹ️ Non-TaskMaster branch, skipping automation validation"
+fi
+
+# Run standard pre-commit checks
+echo "🔄 Running standard linting and formatting..."
+
+# Run lint-staged for staged files
+if command -v npx >/dev/null 2>&1; then
+  npx lint-staged
+else
+  echo "⚠️ npx not found, skipping lint-staged"
+fi
+
+echo "✅ Pre-commit validation complete!"
+
+exit 0

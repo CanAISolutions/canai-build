@@ -1,0 +1,1120 @@
+{
+  "name": "SAAP - Add Client",
+  "flow": [
+    {
+      "id": 2,
+      "module": "memberstack:memberUpdated",
+      "version": 2,
+      "parameters": {
+        "__IMTHOOK__": 1003140
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 150
+        },
+        "restore": {
+          "parameters": {
+            "__IMTHOOK__": {
+              "data": {
+                "editable": "false"
+              },
+              "label": "SaaP Member Updated"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "__IMTHOOK__",
+            "type": "hook:memberstack9",
+            "label": "Webhook",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "filter": {
+        "name": "Name Is Blank",
+        "conditions": [
+          [
+            {
+              "a": "{{2.customFields.name}}",
+              "o": "exist"
+            }
+          ]
+        ]
+      },
+      "mapper": null,
+      "metadata": {
+        "designer": {
+          "x": 300,
+          "y": 150
+        }
+      },
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 4,
+              "module": "webflow:createItem",
+              "version": 2,
+              "parameters": {
+                "__IMTCONN__": 1882634
+              },
+              "filter": {
+                "name": "Member Is New",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{2.customFields.`cms-id`}}",
+                      "o": "notexist"
+                    },
+                    {
+                      "a": "{{2.metaData.`last-updated`}}",
+                      "b": "{{now}}",
+                      "o": "text:notequal"
+                    }
+                  ]
+                ]
+              },
+              "mapper": {
+                "fields": {
+                  "name": "{{2.customFields.name}}",
+                  "email": "{{2.auth.email}}",
+                  "logo-url": "{{2.customFields.`profile-pic-url`}}",
+                  "memberstack-id": "{{2.id}}"
+                },
+                "select": "list",
+                "isDraft": false,
+                "site_id": "656604b87d3f1c1d75e4c392",
+                "isArchived": false,
+                "collection_id": "657104ea8f5a172215e5915a"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 601,
+                  "y": -2
+                },
+                "restore": {
+                  "expect": {
+                    "select": {
+                      "label": "Select from the list"
+                    },
+                    "isDraft": {
+                      "mode": "chose"
+                    },
+                    "site_id": {
+                      "label": "Productized Service Template"
+                    },
+                    "isArchived": {
+                      "mode": "chose"
+                    },
+                    "collection_id": {
+                      "label": "Clients",
+                      "nested": [
+                        {
+                          "name": "fields",
+                          "spec": [
+                            {
+                              "name": "name",
+                              "type": "text",
+                              "label": "Name",
+                              "required": true,
+                              "validate": {
+                                "max": 256
+                              }
+                            },
+                            {
+                              "name": "email",
+                              "type": "email",
+                              "label": "Email",
+                              "required": false
+                            },
+                            {
+                              "name": "memberstack-id",
+                              "type": "text",
+                              "label": "Memberstack ID",
+                              "required": false
+                            },
+                            {
+                              "name": "webflow-id",
+                              "type": "text",
+                              "label": "Webflow ID",
+                              "required": false
+                            },
+                            {
+                              "name": "logo-url",
+                              "type": "text",
+                              "label": "Logo URL",
+                              "required": false
+                            },
+                            {
+                              "help": "Must be alphanumerical and not contain any spaces or special characters",
+                              "name": "slug",
+                              "type": "text",
+                              "label": "Slug",
+                              "required": false,
+                              "validate": {
+                                "max": 256
+                              }
+                            }
+                          ],
+                          "type": "collection",
+                          "label": "Fields"
+                        }
+                      ]
+                    }
+                  },
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "data": {
+                        "scoped": "true",
+                        "connection": "webflow2"
+                      },
+                      "label": "Productized Service Template (julian@memberstack.com)"
+                    }
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "__IMTCONN__",
+                    "type": "account:webflow2",
+                    "label": "Connection",
+                    "required": true
+                  }
+                ],
+                "expect": [
+                  {
+                    "name": "select",
+                    "type": "select",
+                    "label": "Choose Method",
+                    "required": true,
+                    "validate": {
+                      "enum": ["map", "list"]
+                    }
+                  },
+                  {
+                    "name": "isArchived",
+                    "type": "boolean",
+                    "label": "Is Archived"
+                  },
+                  {
+                    "name": "isDraft",
+                    "type": "boolean",
+                    "label": "Is Draft"
+                  },
+                  {
+                    "name": "site_id",
+                    "type": "select",
+                    "label": "Site",
+                    "required": true
+                  },
+                  {
+                    "name": "collection_id",
+                    "type": "select",
+                    "label": "Collection",
+                    "required": true
+                  },
+                  {
+                    "name": "fields",
+                    "spec": [
+                      {
+                        "name": "name",
+                        "type": "text",
+                        "label": "Name",
+                        "required": true,
+                        "validate": {
+                          "max": 256
+                        }
+                      },
+                      {
+                        "name": "email",
+                        "type": "email",
+                        "label": "Email"
+                      },
+                      {
+                        "name": "memberstack-id",
+                        "type": "text",
+                        "label": "Memberstack ID"
+                      },
+                      {
+                        "name": "webflow-id",
+                        "type": "text",
+                        "label": "Webflow ID"
+                      },
+                      {
+                        "name": "logo-url",
+                        "type": "text",
+                        "label": "Logo URL"
+                      },
+                      {
+                        "name": "slug",
+                        "type": "text",
+                        "label": "Slug",
+                        "validate": {
+                          "max": 256
+                        }
+                      }
+                    ],
+                    "type": "collection",
+                    "label": "Fields"
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "id",
+                    "type": "text",
+                    "label": "Item ID"
+                  },
+                  {
+                    "name": "lastPublished",
+                    "type": "text",
+                    "label": "Last Published"
+                  },
+                  {
+                    "name": "lastUpdated",
+                    "type": "date",
+                    "label": "Last Updated"
+                  },
+                  {
+                    "name": "createdOn",
+                    "type": "date",
+                    "label": "Created on"
+                  },
+                  {
+                    "name": "isArchived",
+                    "type": "boolean",
+                    "label": "Is Archived"
+                  },
+                  {
+                    "name": "isDraft",
+                    "type": "boolean",
+                    "label": "Is Draft"
+                  },
+                  {
+                    "name": "fieldData",
+                    "spec": [
+                      {
+                        "name": "name",
+                        "type": "text",
+                        "label": "Name",
+                        "required": true,
+                        "validate": {
+                          "max": 256
+                        }
+                      },
+                      {
+                        "name": "email",
+                        "type": "email",
+                        "label": "Email",
+                        "required": false
+                      },
+                      {
+                        "name": "memberstack-id",
+                        "type": "text",
+                        "label": "Member ID",
+                        "required": false
+                      },
+                      {
+                        "name": "webflow-id",
+                        "type": "text",
+                        "label": "CMS ID",
+                        "required": false
+                      },
+                      {
+                        "name": "logo-url",
+                        "type": "text",
+                        "label": "Logo URL",
+                        "required": false
+                      },
+                      {
+                        "help": "Must be alphanumerical and not contain any spaces or special characters",
+                        "name": "slug",
+                        "type": "text",
+                        "label": "Slug",
+                        "required": false,
+                        "validate": {
+                          "max": 256
+                        }
+                      }
+                    ],
+                    "type": "collection",
+                    "label": "Field Data"
+                  }
+                ]
+              }
+            },
+            {
+              "id": 5,
+              "module": "webflow:updateItem",
+              "version": 2,
+              "parameters": {
+                "__IMTCONN__": 1882634
+              },
+              "mapper": {
+                "fields": {
+                  "name": "{{4.fieldData.name}}",
+                  "webflow-id": "{{4.id}}"
+                },
+                "select": "list",
+                "item_id": "{{4.id}}",
+                "site_id": "656604b87d3f1c1d75e4c392",
+                "collection_id": "657104ea8f5a172215e5915a"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 900,
+                  "y": -39
+                },
+                "restore": {
+                  "expect": {
+                    "select": {
+                      "label": "Select from the list"
+                    },
+                    "isDraft": {
+                      "mode": "chose"
+                    },
+                    "item_id": {
+                      "mode": "edit"
+                    },
+                    "site_id": {
+                      "label": "Productized Service Template"
+                    },
+                    "isArchived": {
+                      "mode": "chose"
+                    },
+                    "collection_id": {
+                      "label": "Clients"
+                    }
+                  },
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "data": {
+                        "scoped": "true",
+                        "connection": "webflow2"
+                      },
+                      "label": "Productized Service Template (julian@memberstack.com)"
+                    }
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "__IMTCONN__",
+                    "type": "account:webflow2",
+                    "label": "Connection",
+                    "required": true
+                  }
+                ],
+                "expect": [
+                  {
+                    "name": "select",
+                    "type": "select",
+                    "label": "Choose Method",
+                    "required": true,
+                    "validate": {
+                      "enum": ["map", "list"]
+                    }
+                  },
+                  {
+                    "name": "isArchived",
+                    "type": "boolean",
+                    "label": "Is Archived"
+                  },
+                  {
+                    "name": "isDraft",
+                    "type": "boolean",
+                    "label": "Is Draft"
+                  },
+                  {
+                    "name": "site_id",
+                    "type": "select",
+                    "label": "Site",
+                    "required": true
+                  },
+                  {
+                    "name": "collection_id",
+                    "type": "select",
+                    "label": "Collection",
+                    "required": true
+                  },
+                  {
+                    "name": "item_id",
+                    "type": "select",
+                    "label": "Item",
+                    "required": true
+                  },
+                  {
+                    "name": "fields",
+                    "spec": [
+                      {
+                        "name": "name",
+                        "type": "text",
+                        "label": "Name",
+                        "required": true,
+                        "validate": {
+                          "max": 256
+                        }
+                      },
+                      {
+                        "name": "email",
+                        "type": "email",
+                        "label": "Email"
+                      },
+                      {
+                        "name": "memberstack-id",
+                        "type": "text",
+                        "label": "Member ID"
+                      },
+                      {
+                        "name": "webflow-id",
+                        "type": "text",
+                        "label": "CMS ID"
+                      },
+                      {
+                        "name": "logo-url",
+                        "type": "text",
+                        "label": "Logo URL"
+                      },
+                      {
+                        "name": "slug",
+                        "type": "text",
+                        "label": "Slug",
+                        "validate": {
+                          "max": 256
+                        }
+                      }
+                    ],
+                    "type": "collection",
+                    "label": "Fields"
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "id",
+                    "type": "text",
+                    "label": "Item ID"
+                  },
+                  {
+                    "name": "lastPublished",
+                    "type": "text",
+                    "label": "Last Published"
+                  },
+                  {
+                    "name": "lastUpdated",
+                    "type": "date",
+                    "label": "Last Updated"
+                  },
+                  {
+                    "name": "createdOn",
+                    "type": "date",
+                    "label": "Created on"
+                  },
+                  {
+                    "name": "isArchived",
+                    "type": "boolean",
+                    "label": "Is Archived"
+                  },
+                  {
+                    "name": "isDraft",
+                    "type": "boolean",
+                    "label": "Is Draft"
+                  },
+                  {
+                    "name": "fieldData",
+                    "spec": [
+                      {
+                        "name": "name",
+                        "type": "text",
+                        "label": "Name",
+                        "required": true,
+                        "validate": {
+                          "max": 256
+                        }
+                      },
+                      {
+                        "name": "email",
+                        "type": "email",
+                        "label": "Email",
+                        "required": false
+                      },
+                      {
+                        "name": "memberstack-id",
+                        "type": "text",
+                        "label": "Member ID",
+                        "required": false
+                      },
+                      {
+                        "name": "webflow-id",
+                        "type": "text",
+                        "label": "CMS ID",
+                        "required": false
+                      },
+                      {
+                        "name": "logo-url",
+                        "type": "text",
+                        "label": "Logo URL",
+                        "required": false
+                      },
+                      {
+                        "help": "Must be alphanumerical and not contain any spaces or special characters",
+                        "name": "slug",
+                        "type": "text",
+                        "label": "Slug",
+                        "required": false,
+                        "validate": {
+                          "max": 256
+                        }
+                      }
+                    ],
+                    "type": "collection",
+                    "label": "Field Data"
+                  }
+                ]
+              }
+            },
+            {
+              "id": 6,
+              "module": "webflow:publishAnItem",
+              "version": 2,
+              "parameters": {
+                "__IMTCONN__": 1882634
+              },
+              "mapper": {
+                "itemIds": "{{5.id}}",
+                "site_id": "656604b87d3f1c1d75e4c392",
+                "collection_id": "657104ea8f5a172215e5915a"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 1205,
+                  "y": -62
+                },
+                "restore": {
+                  "expect": {
+                    "itemIds": {
+                      "mode": "edit"
+                    },
+                    "site_id": {
+                      "mode": "chose",
+                      "label": "Productized Service Template"
+                    },
+                    "collection_id": {
+                      "mode": "chose",
+                      "label": "Clients"
+                    }
+                  },
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "data": {
+                        "scoped": "true",
+                        "connection": "webflow2"
+                      },
+                      "label": "Productized Service Template (julian@memberstack.com)"
+                    }
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "__IMTCONN__",
+                    "type": "account:webflow2",
+                    "label": "Connection",
+                    "required": true
+                  }
+                ],
+                "expect": [
+                  {
+                    "name": "site_id",
+                    "type": "select",
+                    "label": "Site",
+                    "required": true
+                  },
+                  {
+                    "name": "collection_id",
+                    "type": "select",
+                    "label": "Collection",
+                    "required": true
+                  },
+                  {
+                    "name": "itemIds",
+                    "type": "select",
+                    "label": "Item IDs",
+                    "multiple": true,
+                    "required": true
+                  }
+                ]
+              }
+            },
+            {
+              "id": 14,
+              "module": "memberstack:updateMember",
+              "version": 2,
+              "parameters": {
+                "__IMTCONN__": 1882588
+              },
+              "mapper": {
+                "memberId": "{{2.id}}",
+                "customFields": {
+                  "cms-id": "{{5.id}}",
+                  "profile-pic-url": "{{5.fieldData.`logo-url`}}"
+                }
+              },
+              "metadata": {
+                "designer": {
+                  "x": 1505,
+                  "y": -62
+                },
+                "restore": {
+                  "expect": {
+                    "memberId": {
+                      "mode": "edit"
+                    },
+                    "metaData": {
+                      "mode": "chose"
+                    },
+                    "verified": {
+                      "mode": "chose"
+                    }
+                  },
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "data": {
+                        "scoped": "true",
+                        "connection": "memberstack2"
+                      },
+                      "label": "SaaP Template"
+                    }
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "__IMTCONN__",
+                    "type": "account:memberstack2",
+                    "label": "Connection",
+                    "required": true
+                  }
+                ],
+                "expect": [
+                  {
+                    "mode": "edit",
+                    "name": "memberId",
+                    "type": "select",
+                    "label": "Member ID",
+                    "required": true
+                  },
+                  {
+                    "name": "loginRedirect",
+                    "type": "text",
+                    "label": "Login Redirect"
+                  },
+                  {
+                    "name": "customFields",
+                    "spec": [
+                      {
+                        "name": "name",
+                        "type": "any",
+                        "label": "Company Name"
+                      },
+                      {
+                        "name": "profile-pic-url",
+                        "type": "any",
+                        "label": "Profile Pic URL"
+                      },
+                      {
+                        "name": "cms-id",
+                        "type": "any",
+                        "label": "CMS ID"
+                      },
+                      {
+                        "name": "last-name",
+                        "type": "any",
+                        "label": "Last Name"
+                      },
+                      {
+                        "name": "first-name",
+                        "type": "any",
+                        "label": "First Name"
+                      }
+                    ],
+                    "type": "collection",
+                    "label": "Custom Fields"
+                  },
+                  {
+                    "name": "json",
+                    "type": "text",
+                    "label": "Member JSON"
+                  },
+                  {
+                    "name": "metaData",
+                    "spec": [
+                      {
+                        "name": "key",
+                        "type": "text",
+                        "label": "Key"
+                      },
+                      {
+                        "name": "value",
+                        "type": "any",
+                        "label": "Value"
+                      }
+                    ],
+                    "type": "array",
+                    "label": "Metadata"
+                  },
+                  {
+                    "name": "verified",
+                    "type": "boolean",
+                    "label": "Verified"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 9,
+              "module": "webflow:updateItem",
+              "version": 2,
+              "parameters": {
+                "__IMTCONN__": 1882634
+              },
+              "filter": {
+                "name": "Member Exists",
+                "conditions": [
+                  [
+                    {
+                      "a": "{{2.customFields.`cms-id`}}",
+                      "o": "exist"
+                    }
+                  ]
+                ]
+              },
+              "mapper": {
+                "fields": {
+                  "name": "{{2.customFields.name}}",
+                  "email": "{{2.auth.email}}",
+                  "logo-url": "{{2.profileImage}}",
+                  "webflow-id": "{{2.customFields.`cms-id`}}"
+                },
+                "select": "list",
+                "isDraft": false,
+                "item_id": "{{2.customFields.`cms-id`}}",
+                "site_id": "656604b87d3f1c1d75e4c392",
+                "isArchived": false,
+                "collection_id": "657104ea8f5a172215e5915a"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 600,
+                  "y": 308
+                },
+                "restore": {
+                  "expect": {
+                    "select": {
+                      "label": "Select from the list"
+                    },
+                    "isDraft": {
+                      "mode": "chose"
+                    },
+                    "item_id": {
+                      "mode": "edit"
+                    },
+                    "site_id": {
+                      "label": "Productized Service Template"
+                    },
+                    "isArchived": {
+                      "mode": "chose"
+                    },
+                    "collection_id": {
+                      "label": "Clients"
+                    }
+                  },
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "data": {
+                        "scoped": "true",
+                        "connection": "webflow2"
+                      },
+                      "label": "Productized Service Template (julian@memberstack.com)"
+                    }
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "__IMTCONN__",
+                    "type": "account:webflow2",
+                    "label": "Connection",
+                    "required": true
+                  }
+                ],
+                "expect": [
+                  {
+                    "name": "select",
+                    "type": "select",
+                    "label": "Choose Method",
+                    "required": true,
+                    "validate": {
+                      "enum": ["map", "list"]
+                    }
+                  },
+                  {
+                    "name": "isArchived",
+                    "type": "boolean",
+                    "label": "Is Archived"
+                  },
+                  {
+                    "name": "isDraft",
+                    "type": "boolean",
+                    "label": "Is Draft"
+                  },
+                  {
+                    "name": "site_id",
+                    "type": "select",
+                    "label": "Site",
+                    "required": true
+                  },
+                  {
+                    "name": "collection_id",
+                    "type": "select",
+                    "label": "Collection",
+                    "required": true
+                  },
+                  {
+                    "name": "item_id",
+                    "type": "select",
+                    "label": "Item",
+                    "required": true
+                  },
+                  {
+                    "name": "fields",
+                    "spec": [
+                      {
+                        "name": "name",
+                        "type": "text",
+                        "label": "Name",
+                        "required": true,
+                        "validate": {
+                          "max": 256
+                        }
+                      },
+                      {
+                        "name": "email",
+                        "type": "email",
+                        "label": "Email"
+                      },
+                      {
+                        "name": "memberstack-id",
+                        "type": "text",
+                        "label": "Member ID"
+                      },
+                      {
+                        "name": "webflow-id",
+                        "type": "text",
+                        "label": "CMS ID"
+                      },
+                      {
+                        "name": "logo-url",
+                        "type": "text",
+                        "label": "Logo URL"
+                      },
+                      {
+                        "name": "slug",
+                        "type": "text",
+                        "label": "Slug",
+                        "validate": {
+                          "max": 256
+                        }
+                      }
+                    ],
+                    "type": "collection",
+                    "label": "Fields"
+                  }
+                ],
+                "interface": [
+                  {
+                    "name": "id",
+                    "type": "text",
+                    "label": "Item ID"
+                  },
+                  {
+                    "name": "lastPublished",
+                    "type": "text",
+                    "label": "Last Published"
+                  },
+                  {
+                    "name": "lastUpdated",
+                    "type": "date",
+                    "label": "Last Updated"
+                  },
+                  {
+                    "name": "createdOn",
+                    "type": "date",
+                    "label": "Created on"
+                  },
+                  {
+                    "name": "isArchived",
+                    "type": "boolean",
+                    "label": "Is Archived"
+                  },
+                  {
+                    "name": "isDraft",
+                    "type": "boolean",
+                    "label": "Is Draft"
+                  },
+                  {
+                    "name": "fieldData",
+                    "spec": [
+                      {
+                        "name": "name",
+                        "type": "text",
+                        "label": "Name",
+                        "required": true,
+                        "validate": {
+                          "max": 256
+                        }
+                      },
+                      {
+                        "name": "email",
+                        "type": "email",
+                        "label": "Email",
+                        "required": false
+                      },
+                      {
+                        "name": "memberstack-id",
+                        "type": "text",
+                        "label": "Member ID",
+                        "required": false
+                      },
+                      {
+                        "name": "webflow-id",
+                        "type": "text",
+                        "label": "CMS ID",
+                        "required": false
+                      },
+                      {
+                        "name": "logo-url",
+                        "type": "text",
+                        "label": "Logo URL",
+                        "required": false
+                      },
+                      {
+                        "help": "Must be alphanumerical and not contain any spaces or special characters",
+                        "name": "slug",
+                        "type": "text",
+                        "label": "Slug",
+                        "required": false,
+                        "validate": {
+                          "max": 256
+                        }
+                      }
+                    ],
+                    "type": "collection",
+                    "label": "Field Data"
+                  }
+                ]
+              }
+            },
+            {
+              "id": 10,
+              "module": "webflow:publishAnItem",
+              "version": 2,
+              "parameters": {
+                "__IMTCONN__": 1882634
+              },
+              "mapper": {
+                "itemIds": "{{9.id}}",
+                "site_id": "656604b87d3f1c1d75e4c392",
+                "collection_id": "657104ea8f5a172215e5915a"
+              },
+              "metadata": {
+                "designer": {
+                  "x": 900,
+                  "y": 300
+                },
+                "restore": {
+                  "expect": {
+                    "itemIds": {
+                      "mode": "edit"
+                    },
+                    "site_id": {
+                      "mode": "chose",
+                      "label": "Productized Service Template"
+                    },
+                    "collection_id": {
+                      "mode": "chose",
+                      "label": "Clients"
+                    }
+                  },
+                  "parameters": {
+                    "__IMTCONN__": {
+                      "data": {
+                        "scoped": "true",
+                        "connection": "webflow2"
+                      },
+                      "label": "Productized Service Template (julian@memberstack.com)"
+                    }
+                  }
+                },
+                "parameters": [
+                  {
+                    "name": "__IMTCONN__",
+                    "type": "account:webflow2",
+                    "label": "Connection",
+                    "required": true
+                  }
+                ],
+                "expect": [
+                  {
+                    "name": "site_id",
+                    "type": "select",
+                    "label": "Site",
+                    "required": true
+                  },
+                  {
+                    "name": "collection_id",
+                    "type": "select",
+                    "label": "Collection",
+                    "required": true
+                  },
+                  {
+                    "name": "itemIds",
+                    "type": "select",
+                    "label": "Item IDs",
+                    "multiple": true,
+                    "required": true
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "autoCommitTriggerLast": true,
+      "sequential": false,
+      "slots": null,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false,
+      "freshVariables": false
+    },
+    "designer": {
+      "orphans": []
+    },
+    "zone": "us1.make.com"
+  }
+}

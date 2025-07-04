@@ -1,0 +1,67 @@
+﻿# === CURSOR AGENT OPTIMIZATION ===
+# These files are excluded to prevent context overload
+
+# Large documentation files (>50KB)
+.windsurfrules
+taskmaster_tasks.md
+TASKMASTER-AUTOMATION-GUIDE.md
+taskmaster_prep.md
+TASKMASTER_SETUP.md
+
+# Large generated files
+taskmaster-conversion-report.json
+MissingTasks.md
+
+# Dependencies and build artifacts
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+dist/
+build/
+.next/
+out/
+
+# Environment and config files with secrets
+.env
+.env.local
+.env.production
+.cursor/mcp.json
+
+# Database and cache files
+*.db
+*.sqlite
+*.sqlite3
+.cache/
+.temp/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git (only include if workspace is huge)
+# .git/
+
+# Test and coverage
+coverage/
+.nyc_output/
+test-results/
+
+# Logs
+*.log
+logs/
+
+# Large media files
+*.mp4
+*.avi
+*.mov
+*.mp3
+*.wav
+*.zip
+*.tar.gz
+*.rar

@@ -1,0 +1,31 @@
+{
+  "automation": {
+    "git_integration": {
+      "enabled": true,
+      "auto_create_branches": true,
+      "auto_commit_progress": true,
+      "branch_naming_pattern": "feature/task-{id}-{slug}",
+      "commit_message_pattern": "TaskMaster: {action} task {id} - {title}"
+    },
+    "task_lifecycle": {
+      "enforce_dependency_completion": true,
+      "validate_before_completion": true,
+      "auto_move_dependencies": false
+    },
+    "quality_gates": {
+      "require_tests_for_completion": true,
+      "require_documentation": false,
+      "min_code_coverage": 80
+    },
+    "notifications": {
+      "slack_webhook": "",
+      "email_notifications": false,
+      "desktop_notifications": true
+    },
+    "git_hooks": {
+      "pre_commit_validation": true,
+      "commit_message_validation": true,
+      "branch_protection": true
+    }
+  }
+}

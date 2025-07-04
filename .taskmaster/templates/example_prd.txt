@@ -1,0 +1,16 @@
+# Project Requirements Document Template
+
+## Project Overview
+[Project description and goals]
+
+## User Journey
+[Step-by-step user experience]
+
+## Technical Requirements
+[Backend APIs, database, integrations]
+
+## Performance Requirements
+[Response times, scalability, quality metrics]
+
+## Development Standards
+[Code quality, testing, accessibility]

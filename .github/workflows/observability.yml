@@ -1,0 +1,360 @@
+name: Observability & Monitoring
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 */6 * * *' # Every 6 hours
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  health-checks:
+    name: Health Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build applications
+        run: |
+          npm run build:frontend
+          npm run build:backend
+
+      - name: Start applications
+        run: |
+          npm run start:test &
+          sleep 15
+
+      - name: Health check - Backend API
+        run: |
+          curl -f http://localhost:3001/health || exit 1
+          echo "✅ Backend health check passed"
+
+      - name: Health check - Frontend
+        run: |
+          curl -f http://localhost:3000 || exit 1
+          echo "✅ Frontend health check passed"
+
+      - name: Database connectivity check
+        run: |
+          cd backend
+          npm run db:check || exit 1
+          echo "✅ Database connectivity check passed"
+
+      - name: External services check
+        run: |
+          cd backend
+          npm run services:check || exit 1
+          echo "✅ External services check passed"
+
+  performance-monitoring:
+    name: Performance Monitoring
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build applications
+        run: |
+          npm run build:frontend
+          npm run build:backend
+
+      - name: Start applications
+        run: |
+          npm run start:test &
+          sleep 15
+
+      - name: Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli
+          lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Performance baseline check
+        run: |
+          cd frontend
+          npm run perf:baseline
+
+      - name: API performance check
+        run: |
+          cd backend
+          npm run perf:api
+
+  error-monitoring:
+    name: Error Monitoring Setup
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate Sentry configuration
+        run: |
+          cd frontend
+          npm run sentry:validate
+          cd ../backend
+          npm run sentry:validate
+
+      - name: Test error reporting
+        run: |
+          cd backend
+          npm run test:error-reporting
+
+      - name: Validate error boundaries
+        run: |
+          cd frontend
+          npm run test:error-boundaries
+
+  analytics-monitoring:
+    name: Analytics Monitoring
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate PostHog configuration
+        run: |
+          cd frontend
+          npm run posthog:validate
+
+      - name: Test analytics events
+        run: |
+          cd frontend
+          npm run test:analytics
+
+      - name: Validate user journey tracking
+        run: |
+          cd frontend
+          npm run test:journey-tracking
+
+  log-analysis:
+    name: Log Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build applications
+        run: |
+          npm run build:frontend
+          npm run build:backend
+
+      - name: Start applications with logging
+        run: |
+          npm run start:test:logging &
+          sleep 15
+
+      - name: Generate test traffic
+        run: |
+          cd tests
+          npm run generate:traffic
+
+      - name: Analyze logs
+        run: |
+          cd backend
+          npm run logs:analyze
+
+      - name: Check for error patterns
+        run: |
+          cd backend
+          npm run logs:check-errors
+
+  uptime-monitoring:
+    name: Uptime Monitoring
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup monitoring endpoints
+        run: |
+          echo "Setting up uptime monitoring for production endpoints"
+
+      - name: Register with UptimeRobot
+        run: |
+          # This would integrate with UptimeRobot API
+          echo "Registering endpoints with UptimeRobot"
+
+      - name: Setup Pingdom checks
+        run: |
+          # This would integrate with Pingdom API
+          echo "Setting up Pingdom health checks"
+
+  metrics-collection:
+    name: Metrics Collection
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Collect system metrics
+        run: |
+          cd backend
+          npm run metrics:collect
+
+      - name: Collect application metrics
+        run: |
+          cd frontend
+          npm run metrics:collect
+
+      - name: Generate metrics report
+        run: |
+          npm run metrics:report
+
+      - name: Upload metrics to monitoring service
+        run: |
+          npm run metrics:upload
+
+  alerting-setup:
+    name: Alerting Configuration
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate alert configurations
+        run: |
+          cd .github/monitoring
+          npm run alerts:validate
+
+      - name: Setup Slack notifications
+        run: |
+          cd .github/monitoring
+          npm run alerts:slack:setup
+
+      - name: Setup email notifications
+        run: |
+          cd .github/monitoring
+          npm run alerts:email:setup
+
+      - name: Test alert channels
+        run: |
+          cd .github/monitoring
+          npm run alerts:test
+
+  observability-summary:
+    name: Observability Summary
+    runs-on: ubuntu-latest
+    needs:
+      [
+        health-checks,
+        performance-monitoring,
+        error-monitoring,
+        analytics-monitoring,
+        log-analysis,
+        uptime-monitoring,
+        metrics-collection,
+        alerting-setup,
+      ]
+    if: always()
+
+    steps:
+      - name: Generate observability report
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const results = {
+              'Health Checks': '${{ needs.health-checks.result }}',
+              'Performance Monitoring': '${{ needs.performance-monitoring.result }}',
+              'Error Monitoring': '${{ needs.error-monitoring.result }}',
+              'Analytics Monitoring': '${{ needs.analytics-monitoring.result }}',
+              'Log Analysis': '${{ needs.log-analysis.result }}',
+              'Uptime Monitoring': '${{ needs.uptime-monitoring.result }}',
+              'Metrics Collection': '${{ needs.metrics-collection.result }}',
+              'Alerting Setup': '${{ needs.alerting-setup.result }}'
+            };
+
+            const summary = `## 📊 Observability Status Report
+
+            **Monitoring Infrastructure Status:**
+
+            ${Object.entries(results).map(([name, result]) => {
+              const icon = result === 'success' ? '✅' : result === 'failure' ? '❌' : result === 'skipped' ? '⏭️' : '⏳';
+              return `${icon} ${name}`;
+            }).join('\n')}
+
+            **Key Metrics:**
+            - System Health: ${results['Health Checks'] === 'success' ? 'Good' : 'Needs Attention'}
+            - Performance: ${results['Performance Monitoring'] === 'success' ? 'Optimal' : 'Degraded'}
+            - Error Rate: ${results['Error Monitoring'] === 'success' ? 'Low' : 'High'}
+            - Analytics: ${results['Analytics Monitoring'] === 'success' ? 'Tracking' : 'Issues'}
+
+            **Next Actions:**
+            ${Object.values(results).includes('failure') ? '⚠️ Address failed monitoring checks' : '✅ All monitoring systems operational'}
+            `;
+
+            console.log(summary);
+
+            // Post to Slack if configured
+            if (process.env.SLACK_WEBHOOK_URL) {
+              // Send summary to Slack
+            }

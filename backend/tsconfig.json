@@ -1,0 +1,29 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "outDir": "./dist",
+    "rootDir": "./",
+    "allowJs": true,
+    "incremental": true,
+    "paths": {
+      "@/*": ["../*"],
+      "@backend/*": ["./*"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+    "services/**/*",
+    "middleware/**/*",
+    "routes/**/*",
+    "supabase/**/*",
+    "prompts/**/*",
+    "scripts/**/*",
+    "db.js",
+    "server.js",
+    "health.js"
+  ],
+  "exclude": ["node_modules", "dist", "coverage"]
+}

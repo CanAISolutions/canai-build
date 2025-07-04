@@ -1,0 +1,30 @@
+﻿{
+  "terminal.integrated.profiles.windows": {
+    "PowerShell 7": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell",
+      "path": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+      "args": ["-NoLogo", "-ExecutionPolicy", "Bypass"]
+    },
+    "Command Prompt": {
+      "path": "C:\\Windows\\System32\\cmd.exe",
+      "icon": "terminal-cmd"
+    },
+    "Git Bash": {
+      "path": "C:\\Program Files\\Git\\bin\\bash.exe",
+      "args": ["--login"],
+      "icon": "terminal-bash"
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "PowerShell 7",
+  "terminal.integrated.automationProfile.windows": {
+    "path": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+    "args": ["-NoLogo", "-ExecutionPolicy", "Bypass"]
+  },
+  "terminal.integrated.shellIntegration.enabled": true,
+  "terminal.integrated.enableMultiLinePasteWarning": false,
+  "terminal.integrated.scrollback": 10000,
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.cursorBlinking": true,
+  "terminal.integrated.rightClickBehavior": "copyPaste"
+}

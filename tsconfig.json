@@ -1,0 +1,71 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "lib": ["ES2021", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+
+    // CanAI TypeScript Development Rules - Strict Type Checking
+    "strict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+
+    // CanAI Performance & Quality Rules
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // Module Resolution & Imports
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+
+    // Path Mapping for CanAI Platform
+    "baseUrl": ".",
+    "paths": {
+      "@root/*": ["./*"],
+      "@backend/*": ["./backend/*"],
+      "@frontend/*": ["./frontend/*"],
+      "@shared/*": ["./shared/*"],
+      "@types/*": ["./types/*"]
+    },
+
+    // Build Configuration
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "incremental": true,
+    "composite": true,
+
+    // CanAI Platform Specific
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowJs": false,
+    "checkJs": false,
+
+    // Performance Optimizations
+    "assumeChangesOnlyAffectDirectDependencies": true,
+
+    // MDC Compatibility - Additional Strict Checks
+    "useUnknownInCatchVariables": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false
+  },
+  "files": [],
+  "references": [{ "path": "./backend/tsconfig.json" }, { "path": "./frontend/tsconfig.json" }],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
+}

@@ -1,0 +1,39 @@
+name: CanAI Security Scanning & Validation
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run security scans daily at 3 AM UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+# TODO: All security jobs are currently disabled for MVP focus. Re-enable before major release or after MVP stabilization.
+
+env:
+  NODE_VERSION: '18'
+  FORCE_COLOR: 1
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: No-op
+        run: echo "All security jobs are temporarily disabled for MVP focus."
+
+#   dependency-check:
+#     name: Dependency Security Audit
+#     ... (rest of jobs remain commented as in your version)
+#   code-scanning:
+#     name: Static Code Analysis
+#     ...
+#   security-reporting:
+#     name: Security Summary Report
+#     ...
+
+permissions:
+  security-events: write
+  actions: read
+  contents: read

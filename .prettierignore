@@ -1,0 +1,150 @@
+# Dependencies
+node_modules/
+.yarn/
+.pnp/
+.pnp.js
+
+# Build outputs
+dist/
+build/
+coverage/
+.next/
+out/
+
+# Runtime and cache
+.cache/
+.parcel-cache/
+.npm/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.*
+
+# Generated files
+*.generated.ts
+*.generated.tsx
+*.generated.js
+*.generated.jsx
+*.generated.json
+
+# Lock files (preserve exact formatting)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# API documentation (generated)
+docs/api/generated/
+
+# Database files
+databases/
+*.db
+*.sqlite
+
+# Taskmaster generated files
+tasks/generated/
+.taskmaster/temp/
+.taskmaster/cache/
+
+# Configuration files that require specific formatting
+.husky/*
+.github/workflows/*.yml
+.github/workflows/*.yaml
+docker-compose.yml
+docker-compose.*.yml
+.pre-commit-config.yaml
+
+# Markdown files with specific formatting requirements
+CHANGELOG.md
+.cursor/rules/*.mdc
+
+# Log files
+logs/
+*.log
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test coverage reports
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+.temp/
+
+# Ignore CodeRabbit config file
+.coderabbit.yaml
+
+# Ignore Cursor config file
+.cursor.config.json
+
+# Ignore Cursor MCP config file
+.cursor/mcp.json
+
+# Ignore Cursor README file
+.cursor/README.md
+
+# Ignore Cursor cortex file
+.cursor/rules/cortex.md
+
+# Ignore Cursor rules README file
+.cursor/rules/README.md
+
+# Ignore ESLint config file
+.eslintrc.cjs
+
+# Ignore GitHub instructions file
+.github/instructions/dev_workflow.md
+
+# Ignore GitHub instructions file
+.github/instructions/self_improve.md
+
+# Ignore GitHub instructions file
+.github/instructions/taskmaster.md
+
+# Ignore GitHub instructions file
+.github/instructions/vscode_rules.md
+
+# Ignore GitHub monitoring alerts file
+.github/monitoring/alerts.yml
+
+# Ignore GitHub README file
+.github/README.md
+
+# Ignore GitHub templates deployment file
+.github/templates/deployment.md
+
+# Ignore all files in .cursor and .github to prevent Prettier errors on non-source/config files.
+.cursor/
+.github/
+
+# Ignore .roo directory
+.roo/
+
+# Ignore .taskmaster directory
+.taskmaster/
+
+# Ignore .trae directory
+.trae/
+
+# Ignore .windsurf directory
+.windsurf/
+
+# Newly added lines
+.githooks/
+.vscode/
+.yarn/
+coverage/
+
+# Newly added line
+AGENTS.md
+
+# Newly added line
+backend/api/.eslintrc.js

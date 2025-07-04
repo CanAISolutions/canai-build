@@ -1,0 +1,52 @@
+/* CanAI Color Theme Variables */
+:root {
+  /* CanAI Primary Color Palette */
+  --canai-primary-blue: #193c65;
+  --canai-primary-blue-dark: #12294a;
+  --canai-primary-blue-glass: rgba(25, 60, 101, 0.92);
+  --canai-accent-blue-darkest: #101f33;
+  --canai-blue-card: #172b47;
+  --canai-glow-cyan: #00f0ff;
+  --canai-deep-background: #0a0f1c;
+  --canai-light-text: #e6f6ff;
+  --canai-light-text-softer: #cce7fa;
+  --canai-gradient-anchor: #00b2e3;
+
+  /* CanAI Gradients */
+  --canai-gradient-primary: linear-gradient(135deg, #00cfff 0%, #00b2e3 100%);
+
+  /* CanAI Glows */
+  --glow-soft: 0 0 10px rgba(0, 240, 255, 0.4);
+  --glow-medium: 0 0 20px rgba(0, 240, 255, 0.6);
+  --glow-cube: 0 0 30px rgba(0, 207, 255, 0.8);
+  --glow-intense: 0 0 40px rgba(0, 207, 255, 1);
+
+  /* Typography */
+  --font-family-primary: 'Manrope', 'Inter', 'Helvetica Neue', sans-serif;
+  --font-weight-bold: 700;
+  --font-weight-extralight: 200;
+}
+
+/* Dark Theme Overrides */
+.dark {
+  --background: 10 15 28;
+  --foreground: 230 246 255;
+  --card: 10 15 28;
+  --card-foreground: 230 246 255;
+  --popover: 10 15 28;
+  --popover-foreground: 230 246 255;
+  --primary: 0 207 255;
+  --primary-foreground: 10 15 28;
+  --secondary: 0 178 227;
+  --secondary-foreground: 230 246 255;
+  --muted: 20 25 38;
+  --muted-foreground: 200 210 220;
+  --accent: 0 240 255;
+  --accent-foreground: 10 15 28;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 30 35 48;
+  --input: 30 35 48;
+  --ring: 0 207 255;
+  --radius: 0.5rem;
+}

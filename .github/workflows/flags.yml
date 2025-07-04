@@ -1,0 +1,49 @@
+name: Feature Flags Management
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'frontend/src/utils/featureFlags.ts'
+      - 'backend/config/featureFlags.json'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'frontend/src/utils/featureFlags.ts'
+      - 'backend/config/featureFlags.json'
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  validate-flags:
+    name: Validate Feature Flags
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate flag configuration
+        run: |
+          cd frontend
+          npm run flags:validate
+
+      - name: Check flag usage
+        run: |
+          cd frontend
+          npm run flags:check-usage
+
+      - name: Test flag toggles
+        run: |
+          cd frontend
+          npm run test:flags

@@ -1,0 +1,23 @@
+import js from '@eslint/js'
+import globals from 'globals'
+
+export default [
+  js.configs.recommended,
+  {
+    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+    languageOptions: {
+      ecmaVersion: 12,
+      sourceType: 'module',
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        ...globals.es2021
+      }
+    },
+    rules: {
+      'prefer-const': ['error', { destructuring: 'all' }],
+      'no-nested-ternary': 'warn',
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }]
+    }
+  }
+] 

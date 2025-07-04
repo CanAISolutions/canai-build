@@ -1,0 +1,187 @@
+/* CanAI Utility Classes */
+
+/* Color Utilities */
+.text-canai-primary {
+  color: var(--canai-primary-blue);
+}
+.text-canai-cyan {
+  color: var(--canai-glow-cyan);
+}
+.text-canai-light {
+  color: var(--canai-light-text);
+}
+.text-canai-luminescent {
+  color: #e6f6ff;
+}
+.bg-canai-deep {
+  background-color: var(--canai-deep-background);
+}
+.border-canai-primary {
+  border-color: var(--canai-primary-blue);
+}
+
+/* Text Effects */
+.enhanced-text-shadow {
+  text-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(54, 209, 254, 0.2);
+}
+
+.enhanced-text-shadow-subtle {
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    0 0 15px rgba(54, 209, 254, 0.1);
+}
+
+.enhanced-caption-glow {
+  text-shadow: 0 0 15px rgba(54, 209, 254, 0.3);
+}
+
+.text-glow-hero {
+  text-shadow:
+    0 0 22px #36d1fecc,
+    0 0 8px #00cfff99,
+    0 1px 2px #fff;
+}
+
+/* Button Effects */
+.enhanced-cta-glow {
+  box-shadow:
+    0 0 20px rgba(54, 209, 254, 0.4),
+    0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.enhanced-cta-glow:hover {
+  box-shadow:
+    0 0 30px rgba(54, 209, 254, 0.6),
+    0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.canai-btn-glow {
+  box-shadow:
+    0 0 0 0 #00cfff,
+    0 0 20px #00f0ffcc,
+    0 0 30px #00cfff80;
+  transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.canai-btn-glow:hover,
+.canai-btn-glow:focus-visible {
+  box-shadow:
+    0 0 0 4px #00f0ff55,
+    0 0 38px #00f0ffee,
+    0 0 65px #00cfff99;
+  filter: brightness(1.08) drop-shadow(0 0 32px #00cfffcc);
+}
+
+/* Focus Effects */
+.canai-focus-glow:focus-visible {
+  outline: 0 !important;
+  box-shadow:
+    0 0 0 4px #00f0ffcc,
+    0 0 18px #00cfffcc,
+    0 0 32px #00cfffaa,
+    0 0 52px #00f0ff88;
+  border-color: #00cfff;
+}
+
+/* Shadow Utilities */
+.shadow-strong {
+  box-shadow:
+    0 2px 32px 6px #36d1fe44,
+    0 0 18px #00f0ff44;
+}
+
+.drop-shadow-xl {
+  filter: drop-shadow(0 8px 24px #36d1fe44);
+}
+
+/* Ring Utilities */
+.ring-canai-primary {
+  --tw-ring-color: #00cfff;
+  box-shadow:
+    0 0 0 4px rgba(0, 207, 255, 0.4),
+    0 0 20px rgba(0, 207, 255, 0.3);
+}
+
+/* Backdrop Utilities */
+.backdrop-blur-xl {
+  backdrop-filter: blur(12px) saturate(120%);
+}
+
+/* Background Utilities */
+.bg-glass-modal {
+  background: linear-gradient(
+    134deg,
+    var(--canai-primary-blue-glass) 70%,
+    #1b314c 100%
+  );
+  backdrop-filter: blur(10px) saturate(114%);
+  box-shadow: 0 0 55px 16px #36d1fe15;
+}
+
+.bg-feedback-input {
+  background: rgba(25, 60, 101, 0.3);
+  border-color: rgba(54, 209, 254, 0.3);
+}
+
+/* Hover Effects */
+.hover\:scale-102:hover {
+  transform: scale(1.02);
+}
+
+/* Color Specific Utilities */
+.text-green-400 {
+  color: #4ade80;
+}
+
+.bg-green-500\/20 {
+  background-color: rgba(34, 197, 94, 0.2);
+}
+
+.border-green-400\/50 {
+  border-color: rgba(74, 222, 128, 0.5);
+}
+
+.text-regenerate-count {
+  color: #cce7fa;
+  font-size: 0.875rem;
+}
+
+/* Ripple Effect */
+.canai-btn-ripple {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.canai-btn-ripple::after {
+  content: '';
+  position: absolute;
+  display: block;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    #00f0ff66 0%,
+    #00f0ff22 60%,
+    transparent 100%
+  );
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition:
+    width 0.4s,
+    height 0.4s,
+    opacity 0.5s;
+  z-index: 1;
+}
+
+.canai-btn-ripple:active::after {
+  width: 230px;
+  height: 230px;
+  opacity: 0.35;
+  transition: 0s;
+}

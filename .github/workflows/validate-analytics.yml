@@ -1,0 +1,74 @@
+name: Analytics Validation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'frontend/src/utils/analytics.ts'
+      - 'frontend/src/pages/**'
+      - 'frontend/src/components/**'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'frontend/src/utils/analytics.ts'
+      - 'frontend/src/pages/**'
+      - 'frontend/src/components/**'
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  validate-tracking:
+    name: Validate Analytics Tracking
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate PostHog integration
+        run: cd frontend && npm run test:analytics:posthog
+
+      - name: Validate user journey tracking
+        run: cd frontend && npm run test:analytics:journey
+
+      - name: Check analytics events schema
+        run: cd frontend && npm run analytics:validate-schema
+
+      - name: Test conversion funnel tracking
+        run: cd frontend && npm run test:analytics:funnel
+
+  validate-gdpr-compliance:
+    name: GDPR Compliance Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check consent management
+        run: cd frontend && npm run test:gdpr:consent
+
+      - name: Validate data anonymization
+        run: cd frontend && npm run test:gdpr:anonymization
+
+      - name: Check cookie compliance
+        run: cd frontend && npm run test:gdpr:cookies

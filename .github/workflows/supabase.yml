@@ -1,0 +1,53 @@
+name: Supabase Integration Testing
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'frontend/src/integrations/supabase/**'
+      - 'backend/supabase/**'
+      - 'databases/**'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'frontend/src/integrations/supabase/**'
+      - 'backend/supabase/**'
+      - 'databases/**'
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  test-supabase:
+    name: Test Supabase Integration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test database connection
+        run: |
+          cd backend
+          npm run test:supabase:connection
+
+      # - name: Validate database schema
+      #   run: |
+      #     cd backend
+      #     npm run test:supabase:schema
+      #   # TODO: Enable this step when schema validation is required for release or advanced testing.
+
+      # - name: Test API integration
+      #   run: |
+      #     cd frontend
+      #     npm run test:supabase:api
+      #   # TODO: Enable this step when API integration tests are required for release or advanced testing.

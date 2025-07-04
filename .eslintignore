@@ -1,0 +1,66 @@
+# Dependencies
+node_modules/
+.yarn/
+.pnp/
+.pnp.js
+
+# Build outputs
+dist/
+build/
+coverage/
+.next/
+out/
+
+# Runtime and cache
+.cache/
+.parcel-cache/
+.npm/
+.eslintcache
+*.tsbuildinfo
+
+# Environment and config
+.env
+.env.*
+!.env.example
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Log files
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Generated files
+*.generated.ts
+*.generated.tsx
+*.d.ts
+!src/**/*.d.ts
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Taskmaster generated files
+tasks/generated/
+.taskmaster/temp/
+
+# Database
+databases/
+
+# Documentation builds
+docs/api/generated/
+
+# Specific files
+vitest.setup.ts
+vitest.config.ts

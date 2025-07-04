@@ -1,0 +1,234 @@
+{
+  "rules": {
+    "infra": {
+      "canai-supabase-rules": {
+        "path": ".cursor/rules/canai-supabase-rules.mdc",
+        "tags": ["supabase", "typescript", "canai", "prd"],
+        "context": ["backend/**/*", "databases/**/*"]
+      },
+      "canai-security-rules": {
+        "path": ".cursor/rules/canai-security-rules.mdc",
+        "tags": ["security", "canai", "prd"],
+        "context": ["backend/**/*", ".github/workflows/*"]
+      },
+      "canai-sentry-rules.mdc": {
+        "path": ".cursor/rules/canai-sentry-rules.mdc",
+        "tags": ["sentry", "canai"],
+        "context": ["backend/api/*", ".github/workflows/*"]
+    },
+      "canai-ci-cd-rules": {
+        "path": ".cursor/rules/canai-ci-cd-rules.mdc",
+        "tags": ["ci", "cd", "canai", "prd"],
+        "context": [".github/workflows/*"]
+      },
+      "canai-api-rules": {
+        "path": ".cursor/rules/canai-api-rules.mdc",
+        "tags": ["api", "canai", "prd"],
+        "context": ["backend/api/**/*", "backend/routes/**/*"]
+      },
+      "canai-data-lifecycle-rules": {
+        "path": ".cursor/rules/canai-data-lifecycle-rules.mdc",
+        "tags": ["data", "compliance", "canai", "prd"],
+        "context": ["backend/**/*", "databases/**/*"]
+      },
+      "canai-api-client-patterns": {
+        "path": ".cursor/rules/canai-api-client-patterns.mdc",
+        "tags": ["api", "client", "patterns", "canai", "prd"],
+        "context": ["backend/api/**/*", "frontend/src/utils/**/*"]
+      }
+    },
+    "frontend": {
+      "canai-user-journey": {
+        "path": ".cursor/rules/canai-user-journey.mdc",
+        "tags": ["mvp", "ui", "user-journey"],
+        "context": ["frontend/**/*"]
+      },
+      "canai-component-patterns": {
+        "path": ".cursor/rules/canai-component-patterns.mdc",
+        "tags": ["component", "patterns", "frontend", "canai", "prd"],
+        "context": ["frontend/src/components/**/*"]
+      },
+      "canai-form-patterns": {
+        "path": ".cursor/rules/canai-form-patterns.mdc",
+        "tags": ["form", "patterns", "frontend", "canai", "prd"],
+        "context": ["frontend/src/components/**/*", "frontend/src/hooks/**/*"]
+      },
+      "canai-structure-rules": {
+        "path": ".cursor/rules/canai-structure-rules.mdc",
+        "tags": ["structure", "canai", "prd"],
+        "context": ["frontend/**/*", "backend/**/*"]
+      },
+      "canai-feature-flags-rules": {
+        "path": ".cursor/rules/canai-feature-flags-rules.mdc",
+        "tags": ["flags", "canai", "prd"],
+        "context": ["frontend/**/*", "backend/**/*"]
+      }
+    },
+    "llm": {
+      "canai-llm-rules": {
+        "path": ".cursor/rules/canai-llm-rules.mdc",
+        "tags": ["llm", "typescript", "canai", "prd"],
+        "context": ["backend/prompts/**/*", "backend/services/**/*"]
+      },
+      "canai-llm-prompting": {
+        "path": ".cursor/rules/canai-llm-prompting.mdc",
+        "tags": ["llm", "prompting", "canai", "prd"],
+        "context": ["backend/prompts/**/*"]
+      }
+    },
+    "workflow": {
+      "canai-memberstack-sync": {
+        "path": ".cursor/rules/canai-memberstack-sync.mdc",
+        "tags": ["memberstack", "supabase", "canai", "prd"],
+        "context": ["backend/**/*", "frontend/utils/**/*"]
+      },
+      "canai-make-automation": {
+        "path": ".cursor/rules/canai-make-automation.mdc",
+        "tags": ["make", "automation", "canai", "prd"],
+        "context": ["backend/webhooks/**/*"]
+      },
+      "canai-github-rules": {
+        "path": ".cursor/rules/canai-github-rules.mdc",
+        "tags": ["github", "workflow", "canai", "prd"],
+        "context": [".github/**/*", "*.md"]
+      },
+      "canai-taskmaster-rules": {
+        "path": ".cursor/rules/canai-taskmaster-rules.mdc",
+        "tags": ["taskmaster", "project-management", "canai", "prd"],
+        "context": ["**/*"]
+      },
+      "taskmaster-workflow": {
+        "path": ".cursor/rules/dev_workflow.mdc",
+        "tags": ["workflow", "taskmaster", "agent-guide"],
+        "context": [".taskmaster/**/*"],
+        "description": "TaskMaster workflow patterns for AI agents"
+      },
+      "taskmaster-reference": {
+        "path": ".cursor/rules/taskmaster.mdc",
+        "tags": ["taskmaster", "reference", "commands"],
+        "context": [".taskmaster/**/*"],
+        "description": "Comprehensive TaskMaster command reference"
+      }
+    },
+    "analytics": {
+      "canai-analytics-rules": {
+        "path": ".cursor/rules/canai-analytics-rules.mdc",
+        "tags": ["analytics", "posthog", "canai", "prd"],
+        "context": ["backend/**/*", "frontend/utils/**/*"]
+      },
+      "canai-observability-rules": {
+        "path": ".cursor/rules/canai-observability-rules.mdc",
+        "tags": ["observability", "canai", "prd"],
+        "context": ["backend/**/*", "frontend/**/*"]
+      }
+    },
+    "testing": {
+      "canai-testing-rules": {
+        "path": ".cursor/rules/canai-testing-rules.mdc",
+        "tags": ["testing", "jest", "canai", "prd"],
+        "context": ["backend/tests/**/*", "frontend/tests/**/*"]
+      },
+      "canai-integration-testing": {
+        "path": ".cursor/rules/canai-integration-testing.mdc",
+        "tags": ["integration", "testing", "canai", "prd"],
+        "context": ["backend/tests/**/*", "frontend/tests/**/*", "backend/**/*", "frontend/**/*"]
+      }
+    },
+    "memory": {
+      "canai-cortex-rules": {
+        "path": ".cursor/rules/canai-cortex-rules.mdc",
+        "tags": ["memory", "context", "canai", "prd"],
+        "context": [".cursor/rules/cortex.md", ".taskmaster/tasks/tasks.json"]
+      },
+      "cortex-milestones": {
+        "path": ".cursor/rules/cortex.md",
+        "tags": ["memory", "milestones", "context", "taskmaster"],
+        "context": ["**/*"]
+      }
+    },
+    "docs": {
+      "canai-docs-rules": {
+        "path": ".cursor/rules/canai-docs-rules.mdc",
+        "tags": ["docs", "documentation", "canai", "prd"],
+        "context": ["docs/**/*"]
+      }
+    },
+    "performance": {
+      "canai-performance-rules": {
+        "path": ".cursor/rules/canai-performance-rules.mdc",
+        "tags": ["performance", "caching", "canai", "prd"],
+        "context": ["backend/**/*", "frontend/**/*"]
+      }
+    },
+    "error-handling": {
+      "canai-error-handling-rules": {
+        "path": ".cursor/rules/canai-error-handling-rules.mdc",
+        "tags": ["error", "canai", "prd"],
+        "context": ["backend/**/*", "frontend/**/*"]
+      }
+    },
+    "typescript": {
+      "canai-typescript-rules": {
+        "path": ".cursor/rules/canai-typescript-rules.mdc",
+        "tags": ["typescript", "canai", "prd"],
+        "context": ["backend/**/*", "frontend/**/*"],
+        "enforceOnSave": true,
+        "blockCompletionsOnViolation": false,
+        "aiSuggestionFiltering": true
+      }
+    },
+    "meta": {
+      "rule-improvement": {
+        "path": ".cursor/rules/self_improve.mdc",
+        "tags": ["meta", "rules", "improvement"],
+        "context": [".cursor/rules/**/*"],
+        "description": "Guidelines for maintaining and improving rules"
+      },
+      "rule-structure": {
+        "path": ".cursor/rules/cursor_rules.mdc",
+        "tags": ["meta", "rules", "structure"],
+        "context": [".cursor/rules/**/*"],
+        "description": "Rule formatting and structure standards"
+      }
+    },
+    "production": {
+      "production-readiness": {
+        "path": ".cursor/rules/canai-production-readiness.mdc",
+        "tags": ["production", "operations", "enterprise"],
+        "context": ["**/*"],
+        "description": "Production-specific operational requirements and standards"
+      }
+    }
+  },
+  "taskmaster": {
+    "enabled": true,
+    "paths": {
+      "prd": ".taskmaster/docs/prd.txt",
+      "tasks": ".taskmaster/tasks/tasks.json",
+      "cortexMilestones": ".cursor/rules/cortex.md",
+      "cortexRules": ".cursor/rules/canai-cortex-rules.mdc"
+    },
+    "aiModel": "claude-3-7-sonnet-20250219",
+    "fieldNaming": {
+      "convention": "kebab-case",
+      "cursorInstructionsField": "cursor-ai-instructions"
+    },
+    "validationRules": {
+      "enforceTaskStructure": true,
+      "validateDependencies": true,
+      "requirePRDAlignment": true,
+      "mandatoryFields": ["id", "description", "inputs", "outputs", "dependencies", "cursor-ai-instructions"],
+      "optionalFields": ["status", "priority", "complexity", "estimated_hours"]
+    },
+    "yamlToJsonConversion": {
+      "preserveKebabCase": true,
+      "convertToSnakeCase": false
+    },
+    "integration": {
+      "cortexMilestones": true,
+      "prdSectionMapping": true,
+      "dependencyValidation": true,
+      "cursorRulesSync": true
+    }
+  }
+}

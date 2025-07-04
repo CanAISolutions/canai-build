@@ -1,0 +1,347 @@
+@import './styles/themes.css';
+@import './styles/components.css';
+@import './styles/animations.css';
+@import './styles/utilities.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import CanAI Modular Styles */
+
+/* Base Body Styles */
+@layer base {
+  body {
+    font-family: var(--font-family-primary);
+    background-color: rgb(var(--canai-deep-background));
+    color: rgb(var(--canai-light-text));
+    min-height: 100vh;
+  }
+
+  /* WCAG 2.1 AA Focus Indicators */
+  *:focus-visible {
+    outline: 2px solid #36d1fe;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Skip to Content Link */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #36d1fe;
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+    z-index: 1000;
+    transition: top 0.3s ease;
+  }
+
+  .skip-link:focus {
+    top: 6px;
+  }
+
+  /* Screen Reader Only Content */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .sr-only:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* High Contrast Mode Support */
+  @media (prefers-contrast: high) {
+    :root {
+      --canai-primary-blue: #0066cc;
+      --canai-accent-blue: #004499;
+      --canai-light-text: #ffffff;
+    }
+
+    button,
+    .btn {
+      border: 3px solid currentColor;
+    }
+
+    input,
+    textarea,
+    select {
+      border: 2px solid #000000;
+    }
+  }
+
+  /* Reduced Motion Support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+
+    .animate-fade-in,
+    .animate-scale-in,
+    .animate-spin {
+      animation: none;
+    }
+
+    .hover\:scale-105:hover,
+    .hover\:scale-102:hover,
+    .hover\:-translate-y-1:hover,
+    .hover\:-translate-y-0\.5:hover {
+      transform: none;
+    }
+  }
+
+  /* Enhanced Focus for Interactive Elements */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [role='button']:focus-visible {
+    outline: 3px solid #36d1fe;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px rgba(54, 209, 254, 0.3);
+  }
+}
+
+/* Purchase Flow Specific Styles */
+@layer components {
+  /* Processing spinner enhancement */
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Accessible Form Validation */
+  .form-validation-error {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .form-validation-success {
+    color: #10b981;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+}
+
+/* Purchase Flow Utilities */
+@layer utilities {
+  .btn-canai,
+  .canai-btn-glow {
+    font-family: var(--font-family-primary);
+    font-weight: 600;
+    font-size: 1.13rem;
+    padding: 1.25rem 2.25rem;
+    border-radius: 14px;
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+
+  /* Ensure minimum touch targets */
+  button,
+  a,
+  input,
+  textarea,
+  select,
+  [role='button'],
+  [role='link'] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* High contrast text combinations */
+  .text-high-contrast {
+    color: #ffffff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  }
+
+  .bg-high-contrast {
+    background-color: #000000;
+    color: #ffffff;
+  }
+}
+
+/* Ensure proper color contrast ratios (4.5:1 minimum) */
+:root {
+  /* WCAG AA Compliant Colors */
+  --color-text-primary: #ffffff; /* 21:1 ratio on dark backgrounds */
+  --color-text-secondary: #e6f6ff; /* 18.5:1 ratio on dark backgrounds */
+  --color-text-accent: #36d1fe; /* 4.8:1 ratio on dark backgrounds */
+  --color-bg-primary: #0a0f1c; /* Dark background for high contrast */
+  --color-focus-ring: #36d1fe; /* High visibility focus indicator */
+  --color-error: #ff6b6b; /* 4.5:1 ratio on dark backgrounds */
+  --color-success: #51cf66; /* 4.5:1 ratio on dark backgrounds */
+  --color-warning: #ffd43b; /* 4.5:1 ratio on dark backgrounds */
+}
+
+/* API Integration Comments */
+/*
+  TODO: Supabase session_logs schema mapping:
+  
+  CREATE TABLE session_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id),
+    stripe_payment_id TEXT UNIQUE,
+    interaction_type TEXT,
+    interaction_details JSONB,
+    created_at TIMESTAMPTZ DEFAULT now()
+  );
+  
+  Example interaction_details for purchase:
+  {
+    "product": "business_builder",
+    "price": 99,
+    "timestamp": "2024-01-01T12:00:00Z",
+    "payment_method": "stripe",
+    "success": true
+  }
+*/
+
+/*
+  TODO: PostHog Event Mapping:
+  
+  - funnel_step: { step: 'purchase_page_viewed' | 'product_selected' | 'checkout_initiated' | 'purchase_completed' }
+  - price_viewed: { product: string, price: number }
+  - product_switched: { from_product: string, to_product: string, price: number }
+  - purchase_completed: { product: string, price: number, payment_method: 'stripe' }
+  - refund_policy_viewed: {}
+*/
+
+/*
+  TODO: API Endpoints:
+  
+  POST /v1/stripe-session
+  Request: { product: string, price: number }
+  Response: { checkout_url: string, session_id: string }
+  
+  POST /v1/refund
+  Request: { payment_id: string, reason?: string }
+  Response: { success: boolean, refund_id: string }
+  
+  POST /v1/switch-product
+  Request: { from_product: string, to_product: string }
+  Response: { success: boolean }
+*/
+
+/*
+  TODO: Jest Tests (F4-tests):
+  
+  - Product selection flow
+  - Checkout modal functionality
+  - Stripe session creation simulation
+  - Retry logic with exponential backoff
+  - Confirmation page rendering
+  - PostHog event tracking
+  - API error handling
+*/
+
+/*
+  TODO: Supabase spark_logs schema implementation:
+  
+  CREATE TABLE spark_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    initial_prompt_id UUID REFERENCES initial_prompt_logs(id),
+    selected_spark JSONB NOT NULL,
+    product_track TEXT CHECK (product_track IN ('business_builder', 'social_email', 'site_audit')),
+    feedback TEXT,
+    attempt_count INTEGER DEFAULT 1,
+    trust_score NUMERIC,
+    created_at TIMESTAMPTZ DEFAULT now()
+  );
+  
+  Example selected_spark JSONB:
+  {
+    "id": "community_spark",
+    "title": "BUSINESS_BUILDER: The Community Spark", 
+    "tagline": "Unite Denver families with a cozy bakery experience",
+    "productTrack": "business_builder"
+  }
+*/
+
+/*
+  TODO: PostHog Event Mapping for Spark Layer:
+  
+  - spark_selected: { spark_id: string, product: string, selection_time: number }
+  - sparks_regenerated: { attempt_count: number, trust_score: number }
+  - sparks_regenerated_extra: { attempt_count: number, trust_score: number }
+  - funnel_step: { step: 'spark_layer_viewed' | 'spark_selected' | 'regeneration_used' }
+*/
+
+/*
+  TODO: API Endpoints for Spark Layer:
+  
+  POST /v1/generate-sparks
+  Request: { 
+    businessType: string, 
+    tone: string, 
+    outcome: string,
+    attempt_count?: number 
+  }
+  Response: { 
+    sparks: [{ title: string, tagline: string, id: string }], 
+    error: null 
+  }
+  
+  POST /v1/regenerate-sparks  
+  Request: { 
+    businessType: string, 
+    tone: string, 
+    outcome: string, 
+    attempt_count: number,
+    feedback?: string 
+  }
+  Response: { 
+    sparks: [{ title: string, tagline: string, id: string }], 
+    error: null 
+  }
+*/
+
+/*
+  TODO: Jest Tests for Spark Layer (F3-tests):
+  
+  - Spark generation and rendering (<1.5s)
+  - Card selection and purchase navigation
+  - Regeneration with attempt limits (3/4 based on trust score)
+  - Feedback collection and submission
+  - LocalStorage fallback on API failure
+  - PostHog event tracking validation
+  - Edge toggle functionality
+*/
