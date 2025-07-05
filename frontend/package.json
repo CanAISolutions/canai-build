@@ -17,6 +17,7 @@
     "test:ci": "vitest run --reporter=dot --reporter=junit --outputFile=./test-results.xml --silent"
   },
   "dependencies": {
+    "@memberstack/react": "2.0.30",
     "@sentry/react": "9.32.0",
     "@types/dompurify": "3.0.5",
     "dompurify": "3.2.6",

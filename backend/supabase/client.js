@@ -10,5 +10,3 @@ if (!supabaseClient) {
   );
 }
 export default supabaseClient;
-
-

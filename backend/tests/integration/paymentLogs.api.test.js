@@ -12,7 +12,7 @@ const envVarsToLog = [
   'ENV',
 ];
 console.log('--- TEST ENV VARS ---');
-envVarsToLog.forEach((k) => console.log(`${k}:`, process.env[k]));
+envVarsToLog.forEach(k => console.log(`${k}:`, process.env[k]));
 // END: Print all relevant env vars
 
 import { createClient } from '@supabase/supabase-js';
@@ -32,7 +32,7 @@ vi.mock('../../services/gpt4oFallback.js', () => ({
     async analyzeEmotion() {
       return { arousal: 0.7, valence: 0.8, confidence: 0.9, source: 'gpt4o' };
     }
-  }
+  },
 }));
 
 describe('/v1/stripe/payment-logs API', () => {
@@ -69,20 +69,23 @@ describe('/v1/stripe/payment-logs API', () => {
     adminId = adminPayload.sub;
 
     // Insert a payment log for the test user
-    const { data, error } = await serviceClient.from('payment_logs').insert([
-      {
-        user_id: userId,
-        amount: 99.0,
-        currency: 'usd',
-        payment_method: 'card',
-        status: 'completed',
-        stripe_payment_id: 'pi_test_123',
-        event_type: 'checkout.session.created',
-        metadata: { test: true },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      },
-    ]).select();
+    const { data, error } = await serviceClient
+      .from('payment_logs')
+      .insert([
+        {
+          user_id: userId,
+          amount: 99.0,
+          currency: 'usd',
+          payment_method: 'card',
+          status: 'completed',
+          stripe_payment_id: 'pi_test_123',
+          event_type: 'checkout.session.created',
+          metadata: { test: true },
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      ])
+      .select();
     if (error) {
       console.error('Insert error:', error);
       throw error;
@@ -104,16 +107,23 @@ describe('/v1/stripe/payment-logs API', () => {
     }
 
     // After insert, print all payment_logs for diagnostics
-    const { data: allLogs, error: allLogsError } = await serviceClient.from('payment_logs').select('*');
+    const { data: allLogs, error: allLogsError } = await serviceClient
+      .from('payment_logs')
+      .select('*');
     if (allLogsError) {
-      console.error('Error fetching all payment_logs after insert:', allLogsError);
+      console.error(
+        'Error fetching all payment_logs after insert:',
+        allLogsError
+      );
     } else {
       console.log('All payment_logs after insert:', allLogs);
     }
   });
 
   beforeEach(async () => {
-    const { data: logs, error: logsError } = await serviceClient.from('payment_logs').select('*');
+    const { data: logs, error: logsError } = await serviceClient
+      .from('payment_logs')
+      .select('*');
     if (logsError) {
       console.error('Error fetching payment_logs before test:', logsError);
     } else {
@@ -123,9 +133,13 @@ describe('/v1/stripe/payment-logs API', () => {
 
   afterAll(async () => {
     await serviceClient.from('payment_logs').delete().eq('id', testLogId);
-    const { data: logsAfterDelete, error: logsAfterDeleteError } = await serviceClient.from('payment_logs').select('*');
+    const { data: logsAfterDelete, error: logsAfterDeleteError } =
+      await serviceClient.from('payment_logs').select('*');
     if (logsAfterDeleteError) {
-      console.error('Error fetching payment_logs after delete:', logsAfterDeleteError);
+      console.error(
+        'Error fetching payment_logs after delete:',
+        logsAfterDeleteError
+      );
     } else {
       console.log('payment_logs after delete:', logsAfterDelete);
     }
@@ -137,11 +151,19 @@ describe('/v1/stripe/payment-logs API', () => {
       .set('Authorization', `Bearer ${userJwt}`)
       .query({ user_id: userId });
     console.log('userId:', userId, typeof userId);
-    console.log('Returned logs:', res.body.data.map(log => ({ user_id: log.user_id, type: typeof log.user_id })));
+    console.log(
+      'Returned logs:',
+      res.body.data.map(log => ({
+        user_id: log.user_id,
+        type: typeof log.user_id,
+      }))
+    );
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body.data)).toBe(true);
     // Use string comparison to avoid type mismatch
-    expect(res.body.data.some(log => String(log.user_id) === String(userId))).toBe(true);
+    expect(
+      res.body.data.some(log => String(log.user_id) === String(userId))
+    ).toBe(true);
   });
 
   test('should return logs filtered by event_type', async () => {
@@ -194,10 +216,17 @@ describe('/v1/stripe/payment-logs API', () => {
       .get('/v1/stripe/payment-logs')
       .set('Authorization', `Bearer ${adminJwt}`);
     if (res.status !== 200) {
-      console.error('Admin test failed. Status:', res.status, 'Body:', res.body);
+      console.error(
+        'Admin test failed. Status:',
+        res.status,
+        'Body:',
+        res.body
+      );
     }
     // Print admin JWT payload for debugging
-    const adminPayload = JSON.parse(Buffer.from(adminJwt.split('.')[1], 'base64').toString());
+    const adminPayload = JSON.parse(
+      Buffer.from(adminJwt.split('.')[1], 'base64').toString()
+    );
     console.log('Admin JWT payload:', adminPayload);
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body.data)).toBe(true);
@@ -242,10 +271,8 @@ describe('/v1/stripe/payment-logs API', () => {
     });
 
     test('should handle missing/invalid JWT', async () => {
-      const res = await request(app)
-        .get('/v1/stripe/payment-logs/analytics');
+      const res = await request(app).get('/v1/stripe/payment-logs/analytics');
       expect([401, 500]).toContain(res.status);
     });
   });
 });
-

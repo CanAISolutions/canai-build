@@ -2,7 +2,9 @@
 if (typeof require !== 'undefined' && typeof module !== 'undefined') {
   // OK: running in CommonJS mode
 } else {
-  throw new Error('commitlint.config.js must be loaded as CommonJS. If you see this error, rename to commitlint.config.cjs or check your Node.js setup.');
+  throw new Error(
+    'commitlint.config.js must be loaded as CommonJS. If you see this error, rename to commitlint.config.cjs or check your Node.js setup.'
+  );
 }
 
 module.exports = {

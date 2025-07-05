@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 // import { Button } from '@/components/ui/button';
 // import { ArrowLeft } from 'lucide-react';
+import { useMember } from '@memberstack/react';
 import PricingTable from '@/components/PurchaseFlow/PricingTable';
 import CheckoutModal from '@/components/PurchaseFlow/CheckoutModal';
 import ConfirmationSection from '@/components/PurchaseFlow/ConfirmationSection';
 import RefundPolicyModal from '@/components/PurchaseFlow/RefundPolicyModal';
 import ProductSwitchModal from '@/components/PurchaseFlow/ProductSwitchModal';
+import SignupModal from '@/components/PurchaseFlow/SignupModal';
 import StandardBackground from '@/components/StandardBackground';
 import StandardCard from '@/components/StandardCard';
 import PageHeader from '@/components/PageHeader';
@@ -21,6 +23,7 @@ import {
   trackPaymentCompleted,
   trackProductSwitched,
 } from '@/utils/purchaseAnalytics';
+// import { memberstackAuth } from '@/utils/memberstackAuth'; // TODO: Uncomment when ready
 
 // Product types for type safety
 export type ProductType = 'business_builder' | 'social_email' | 'site_audit';
@@ -75,15 +78,37 @@ const PRODUCTS: Product[] = [
 ];
 
 const PurchaseFlow = () => {
+  const { member } = useMember();
   const [selectedProduct, setSelectedProduct] =
     useState<ProductType>('business_builder');
   const [isCheckoutOpen, setCheckoutOpen] = useState(false);
   const [isRefundPolicyOpen, setRefundPolicyOpen] = useState(false);
   const [isProductSwitchOpen, setProductSwitchOpen] = useState(false);
+  const [isSignupOpen, setSignupOpen] = useState(false);
   const [isProcessing, setProcessing] = useState(false);
   const [purchaseComplete, setPurchaseComplete] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
+
+  // Check for existing authentication on mount
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      // TODO: Uncomment when Memberstack is fully integrated
+      // try {
+      //   const authStatus = await memberstackAuth.getAuthStatus();
+      //   if (authStatus.authenticated && authStatus.user) {
+      //     setCurrentUser({
+      //       id: authStatus.user.id,
+      //       email: authStatus.user.email,
+      //     });
+      //   }
+      // } catch (error) {
+      //   console.error('Auth check failed:', error);
+      // }
+    };
+
+    checkAuthStatus();
+  }, []);
 
   // Track page view and price viewing
   useEffect(() => {
@@ -124,6 +149,13 @@ const PurchaseFlow = () => {
     const product = PRODUCTS.find(p => p.id === selectedProduct);
     if (!product) return;
 
+    // Check if user is authenticated first
+    if (!member) {
+      // Show signup modal for unauthenticated users
+      setSignupOpen(true);
+      return;
+    }
+
     // Track checkout started
     trackCheckoutStarted({
       product: selectedProduct,
@@ -148,7 +180,7 @@ const PurchaseFlow = () => {
           product_id: selectedProduct,
           price: product.price,
         },
-        user_id: 'demo-user-123', // TODO: Get from Memberstack
+        user_id: member?.id || 'demo-user-123', // Use authenticated user ID
       });
 
       if (response.error) {
@@ -206,6 +238,21 @@ const PurchaseFlow = () => {
 
   const handleProductChanged = (newProduct: Product) => {
     setSelectedProduct(newProduct.id);
+  };
+
+  const handleSignupSuccess = (_user: { id: string; email: string }) => {
+    // Member state will be updated by Memberstack automatically
+    setSignupOpen(false);
+
+    // Automatically proceed to checkout after successful signup
+    const product = PRODUCTS.find(p => p.id === selectedProduct);
+    if (product) {
+      trackCheckoutStarted({
+        product: selectedProduct,
+        price: product.price,
+      });
+      setCheckoutOpen(true);
+    }
   };
 
   if (purchaseComplete) {
@@ -271,6 +318,13 @@ const PurchaseFlow = () => {
         </div>
 
         {/* Modals */}
+        <SignupModal
+          isOpen={isSignupOpen}
+          onClose={() => setSignupOpen(false)}
+          onSignupSuccess={handleSignupSuccess}
+          isProcessing={isProcessing}
+        />
+
         <CheckoutModal
           isOpen={isCheckoutOpen}
           onClose={() => setCheckoutOpen(false)}

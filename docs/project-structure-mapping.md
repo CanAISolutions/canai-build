@@ -307,7 +307,9 @@ All work is aligned with PRD.md (see Section 7.2 Security Requirements and relat
 - `backend/supabase/migrations/002_logging_tables.sql`
 - `backend/supabase/migrations/003_business_tables.sql`
 - `backend/supabase/migrations/004_rls_policies.sql`
-- `backend/supabase/migrations/010_payment_logs_retention.sql`: Adds a monthly pg_cron job to purge payment_logs older than 24 months (MVP retention policy). See docs/analytics-implementation-log.md for details.
+- `backend/supabase/migrations/010_payment_logs_retention.sql`: Adds a monthly pg_cron job to purge
+  payment_logs older than 24 months (MVP retention policy). See docs/analytics-implementation-log.md
+  for details.
 
 ### Core Tables (Subtask 1: **done**)
 
@@ -572,6 +574,7 @@ SELECT name, description FROM vault.secrets WHERE name = 'openai_api_key';
 ## backend/services/
 
 ### stripe.js
+
 - Stripe payment integration service
 - Supports STRIPE_SECRET_KEY_TEST and STRIPE_SECRET_KEY_LIVE (with STRIPE_SECRET_KEY fallback)
 - Validates key presence and environment
@@ -583,8 +586,10 @@ SELECT name, description FROM vault.secrets WHERE name = 'openai_api_key';
 # Payment Log Querying Service and Endpoint (Task 7.6)
 
 ## Backend Service
+
 - **File:** `backend/services/paymentLogs.js`
-- **Purpose:** Encapsulates all payment log querying logic, supporting filters, pagination, sorting, and RLS enforcement.
+- **Purpose:** Encapsulates all payment log querying logic, supporting filters, pagination, sorting,
+  and RLS enforcement.
 - **Key Function:** `queryPaymentLogs(params, jwtToken, isAdmin)`
   - Filters: `user_id`, `event_type`, `status`, `from`, `to`
   - Pagination: `limit`, `offset`
@@ -592,6 +597,7 @@ SELECT name, description FROM vault.secrets WHERE name = 'openai_api_key';
   - RLS: Only allows users to see their own logs unless admin
 
 ## API Endpoint
+
 - **Route:** `GET /v1/stripe/payment-logs`
 - **Handler Location:** `backend/routes/stripe.js`
 - **Query Parameters:**
@@ -600,13 +606,16 @@ SELECT name, description FROM vault.secrets WHERE name = 'openai_api_key';
 - **Response:** `{ data, metadata: { total } }`
 
 ## Test Coverage
+
 - **File:** `backend/tests/integration/paymentLogs.api.test.js`
 - **Coverage:** Filtering, pagination, sorting, RLS enforcement for user and admin roles
 
 ### API Endpoints
-- /v1/stripe/payment-logs/analytics (GET): Returns payment analytics (total revenue, refunds, event counts) for the requesting user. MVP scope; admin access to all data pending RLS update. See docs/api/endpoints.md for details.
+
+- /v1/stripe/payment-logs/analytics (GET): Returns payment analytics (total revenue, refunds, event
+  counts) for the requesting user. MVP scope; admin access to all data pending RLS update. See
+  docs/api/endpoints.md for details.
 
 ---
+
 _Last updated: 2025-07-03_
-
-

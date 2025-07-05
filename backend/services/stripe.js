@@ -20,7 +20,9 @@ function getStripeSecretKey() {
     key = process.env.STRIPE_SECRET_KEY;
   }
   if (!key) {
-    throw new Error('Stripe secret key is required. Please set STRIPE_SECRET_KEY_TEST, STRIPE_SECRET_KEY_LIVE, or STRIPE_SECRET_KEY in your environment.');
+    throw new Error(
+      'Stripe secret key is required. Please set STRIPE_SECRET_KEY_TEST, STRIPE_SECRET_KEY_LIVE, or STRIPE_SECRET_KEY in your environment.'
+    );
   }
   return key;
 }
@@ -50,16 +52,20 @@ export async function testStripeConnection() {
 export default stripe;
 
 // Allow direct CLI testing of Stripe connection (ESM compatible)
-if (import.meta && import.meta.url && (import.meta.url === `file://${process.cwd().replace(/\\/g, '/')}/backend/services/stripe.js` || import.meta.url === process.argv[1])) {
+if (
+  import.meta &&
+  import.meta.url &&
+  (import.meta.url ===
+    `file://${process.cwd().replace(/\\/g, '/')}/backend/services/stripe.js` ||
+    import.meta.url === process.argv[1])
+) {
   testStripeConnection()
     .then(() => {
       console.log('Stripe connection test successful.');
       import('process').then(p => p.exit(0));
     })
-    .catch((err) => {
+    .catch(err => {
       console.error('Stripe connection test failed:', err.message);
       import('process').then(p => p.exit(1));
     });
 }
-
-

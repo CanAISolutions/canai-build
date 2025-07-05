@@ -183,7 +183,7 @@ describe('Supabase RLS Policies - Core Tables', () => {
     });
 
     // TODO: Skipped due to RLS/JWT admin claim mapping issues. Re-enable after fixing.
-    it.skip('Admin can access all prompt_logs', async function() {
+    it.skip('Admin can access all prompt_logs', async function () {
       const supabase = getClient(anonKey, adminJwt);
       const { data, error } = await supabase.from('prompt_logs').select('*');
       assert(!error, `Admin select error: ${error && error.message}`);
@@ -211,7 +211,7 @@ describe('Supabase RLS Policies - Core Tables', () => {
     });
 
     // TODO: Skipped due to RLS/JWT admin claim mapping issues. Re-enable after fixing.
-    it.skip('Admin can access all comparisons', async function() {
+    it.skip('Admin can access all comparisons', async function () {
       const supabase = getClient(anonKey, adminJwt);
       const { data, error } = await supabase.from('comparisons').select('*');
       assert(!error, `Admin select error: ${error && error.message}`);
