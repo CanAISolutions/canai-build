@@ -1189,15 +1189,6 @@
     axios "^0.21.0"
     jose "^4.3.7"
 
-"@memberstack/dom@1.9.33":
-  version "1.9.33"
-  resolved "https://registry.npmjs.org/@memberstack/dom/-/dom-1.9.33.tgz"
-  integrity sha512-1f1JiCZMh6IQ3sr29WlrWoX4hmUtawiESVB3nzi1rFmr2S7rYd8q6ZhFwUJ5ABNCTmI5PIYXXdXqOAp0wHfI4g==
-  dependencies:
-    axios "^0.27.2"
-    jose "^4.8.1"
-    js-cookie "^3.0.1"
-
 "@memberstack/dom@1.9.38":
   version "1.9.38"
   resolved "https://registry.npmjs.org/@memberstack/dom/-/dom-1.9.38.tgz"
@@ -1206,13 +1197,6 @@
     axios "1.6.8"
     jose "^4.8.1"
     js-cookie "^3.0.1"
-
-"@memberstack/react@^2.0.0", "@memberstack/react@2.0.30":
-  version "2.0.30"
-  resolved "https://registry.npmjs.org/@memberstack/react/-/react-2.0.30.tgz"
-  integrity sha512-Ldj/e/9Wa4+dGdJCqVAJp7HaRUZJwlyINaj1WvApjRRy9FfNSnJUftfbKQDGtVy2XoVd2O2EquPTKfAwAN9+tQ==
-  dependencies:
-    "@memberstack/dom" "1.9.33"
 
 "@memberstack/react@2.0.32":
   version "2.0.32"
@@ -3794,14 +3778,6 @@ axios@^0.21.0:
   dependencies:
     follow-redirects "^1.14.0"
 
-axios@^0.27.2:
-  version "0.27.2"
-  resolved "https://registry.npmjs.org/axios/-/axios-0.27.2.tgz"
-  integrity sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==
-  dependencies:
-    follow-redirects "^1.14.9"
-    form-data "^4.0.0"
-
 axios@1.10.0:
   version "1.10.0"
   resolved "https://registry.npmjs.org/axios/-/axios-1.10.0.tgz"
@@ -4096,7 +4072,7 @@ camelcase@^6.2.0:
     "@dqbd/tiktoken" "1.0.21"
     "@headlessui/react" "^1.7.0"
     "@heroicons/react" "^2.0.0"
-    "@memberstack/react" "^2.0.0"
+    "@memberstack/react" "2.0.32"
     "@sentry/node" "^7.0.0"
     "@sentry/react" "^7.0.0"
     "@stripe/stripe-js" "^2.0.0"
@@ -6092,7 +6068,7 @@ flatted@^3.2.9:
   resolved "https://registry.npmjs.org/flatted/-/flatted-3.3.3.tgz"
   integrity sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==
 
-follow-redirects@^1.14.0, follow-redirects@^1.14.9, follow-redirects@^1.15.6:
+follow-redirects@^1.14.0, follow-redirects@^1.15.6:
   version "1.15.9"
   resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.15.9.tgz"
   integrity sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==

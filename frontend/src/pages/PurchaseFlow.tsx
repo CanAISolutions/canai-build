@@ -24,6 +24,7 @@ import {
   trackProductSwitched,
 } from '@/utils/purchaseAnalytics';
 import { useToast } from '@/hooks/use-toast';
+import * as Sentry from '@sentry/react';
 // import { memberstackAuth } from '@/utils/memberstackAuth'; // TODO: Uncomment when ready
 
 // Product types for type safety
@@ -162,10 +163,11 @@ const PurchaseFlow = () => {
 
       // Check for valid user ID before proceeding
       if (!member?.id) {
+        Sentry.captureException(new Error('Authentication failure: member.id is missing during checkout.'));
         toast({
           title: 'Authentication Error',
           description:
-            'User ID is missing. Please sign in again before checking out.',
+            'Your session has expired or you are not signed in. Please sign in again to continue with your purchase.',
           variant: 'destructive',
         });
         setProcessing(false);
