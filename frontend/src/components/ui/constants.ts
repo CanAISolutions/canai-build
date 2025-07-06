@@ -17,6 +17,8 @@ export const buttonVariants = {
   secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
   ghost: 'hover:bg-accent hover:text-accent-foreground',
   link: 'text-primary underline-offset-4 hover:underline',
+  // Gradient brand button for CanAI
+  canai: 'bg-gradient-to-r from-[#36d1fe] to-[#00b8e6] text-white hover:from-[#4ae3ff] hover:to-[#36d1fe] focus-visible:ring-2 focus-visible:ring-[#36d1fe]/60',
 };
 
 // Constants for enhanced button variants

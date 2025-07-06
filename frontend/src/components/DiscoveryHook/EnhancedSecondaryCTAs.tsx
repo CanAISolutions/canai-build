@@ -26,14 +26,14 @@ const EnhancedSecondaryCTAs: React.FC<EnhancedSecondaryCTAsProps> = ({
             Choose Your Path to Success
           </h3>
           <p className="text-[#cce7fa] opacity-90 mb-4 font-manrope">
-            Join 500+ founders who&apos;ve already raised funding with CanAI
+            CanAI is currently in private beta — features are under active development.
           </p>
           <div
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/20 to-orange-500/20
-                         text-amber-300 px-4 py-2 rounded-full text-sm border border-amber-400/30"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20
+                         text-yellow-300 px-4 py-2 rounded-full text-sm border border-yellow-400/30"
           >
             <Clock size={16} />
-            <span>Limited time: 48-hour delivery guarantee</span>
+            <span>Private beta access</span>
           </div>
         </div>
 
@@ -66,18 +66,15 @@ const EnhancedSecondaryCTAs: React.FC<EnhancedSecondaryCTAsProps> = ({
                                            : ''
                                        }`}
                 />
-                <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                  Popular
-                </div>
               </div>
               <div className="font-bold text-xl mb-2 text-white font-playfair">
                 View Pricing
               </div>
               <div className="text-sm text-[#E6F6FF] opacity-80 mb-4 font-manrope">
-                Transparent rates, no hidden fees
+                Pricing will be published at launch
               </div>
               <div className="text-xs text-[#36d1fe] font-semibold">
-                Starting at $49 • Money-back guarantee
+                Join the waitlist for early-bird pricing
               </div>
             </div>
             <div
@@ -124,7 +121,7 @@ const EnhancedSecondaryCTAs: React.FC<EnhancedSecondaryCTAsProps> = ({
                 See Examples
               </div>
               <div className="text-sm text-[#E6F6FF] opacity-80 mb-4 font-manrope">
-                Real plans that raised millions
+                See example output (work-in-progress)
               </div>
               <div className="text-xs text-[#36d1fe] font-semibold">
                 $50M+ raised by users • Proven results
@@ -178,19 +175,6 @@ const EnhancedSecondaryCTAs: React.FC<EnhancedSecondaryCTAsProps> = ({
               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent
                            translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700"
             />
-          </div>
-        </div>
-
-        {/* Enhanced Trust Signal with social proof */}
-        <div className="text-center mt-8">
-          <div className="inline-flex items-center gap-4 text-[#cce7fa] text-sm opacity-70 mb-4">
-            <span>🔒 Secure checkout</span>
-            <span>💰 Money-back guarantee</span>
-            <span>⚡ Instant delivery</span>
-          </div>
-          <div className="text-xs text-[#cce7fa] opacity-60">
-            Trusted by 500+ founders • Featured in TechCrunch, Forbes • SOC 2
-            Compliant
           </div>
         </div>
       </div>
