@@ -9,7 +9,6 @@
   "dependencies": {
     "@sentry/node": "^9.32.0",
     "@sentry/profiling-node": "^9.32.0",
-    "@sentry/tracing": "^7.120.3",
     "body-parser": "^1.19.1",
     "convict": "^6.2.1",
     "cors": "^2.8.5",
@@ -50,6 +49,6 @@
   },
   "scripts": {
     "start": "node --inspect=0.0.0.0:9229 --preserve-symlinks -r ts-node/register src/Server.ts | pino-pretty",
-    "dev": "tsc-watch --onSuccess \"yarn start\""
+    "dev": "tsc-watch --onSuccess \"npm start\""
   }
 }

@@ -28,6 +28,7 @@ import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import { ArrowRight, Clock, Heart, Lightbulb, Target } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Container from '@/components/Container';
 
 // API and analytics imports
 import {
@@ -154,10 +155,7 @@ const DiscoveryFunnel = () => {
 
   return (
     <StandardBackground>
-      <div
-        id="main-content"
-        className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12"
-      >
+      <Container id="main-content" className="py-8 sm:py-12">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
           <PageTitle className="text-white mb-4">
@@ -291,7 +289,7 @@ const DiscoveryFunnel = () => {
             )}
           </MobileOptimizedCardContent>
         </MobileOptimizedCard>
-      </div>
+      </Container>
 
       {/* Completion Modal */}
       <ResponsiveModal open={isModalOpen} onOpenChange={setIsModalOpen}>

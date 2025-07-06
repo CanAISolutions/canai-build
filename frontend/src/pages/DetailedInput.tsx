@@ -13,6 +13,7 @@ import { FormData } from '@/types/formTypes';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Container from '@/components/Container';
 
 // API and analytics imports
 import { trackFormStep, trackPageView } from '@/utils/analytics';
@@ -132,7 +133,7 @@ const DetailedInput: React.FC = () => {
 
   return (
     <StandardBackground>
-      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <Container className="py-8 sm:py-12">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
           <PageTitle className="text-white mb-4">
@@ -247,7 +248,7 @@ const DetailedInput: React.FC = () => {
             )}
           </CardContent>
         </Card>
-      </div>
+      </Container>
     </StandardBackground>
   );
 };

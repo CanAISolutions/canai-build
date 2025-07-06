@@ -2,13 +2,13 @@ import EnhancedHero from '@/components/DiscoveryHook/EnhancedHero';
 import EnhancedSecondaryCTAs from '@/components/DiscoveryHook/EnhancedSecondaryCTAs';
 import MemberstackLoginButton from '@/components/DiscoveryHook/MemberstackLoginButton';
 import ProductCardsSection from '@/components/DiscoveryHook/ProductCardsSection';
-import PsychologicalTrustIndicators from '@/components/DiscoveryHook/PsychologicalTrustIndicators';
 import PreviewModal from '@/components/PreviewModal';
 import PricingModal from '@/components/PricingModal';
 import { BackgroundImage } from '@/components/ui/background-image';
 import { useAccessibility } from '@/hooks/useAccessibility';
 import { memberstackAuth } from '@/utils/memberstackAuth';
 import React, { useEffect, useState } from 'react';
+import Container from '@/components/Container';
 
 // Import API and analytics utilities
 import {
@@ -56,7 +56,13 @@ const DiscoveryHook: React.FC = () => {
       try {
         setIsLoading(true);
         const data = await getMessages();
-        setMessages(data.messages || []);
+        // Normalize incoming messages to the shape expected by PreviewModal
+        const normalized = (data.messages || []).map((msg: any, idx: number) => ({
+          id: msg.id ?? String(idx),
+          content: msg.content ?? msg.text ?? '',
+          timestamp: msg.timestamp ?? new Date().toISOString(),
+        }));
+        setMessages(normalized);
       } catch (error) {
         console.error('Failed to load messages:', error);
       } finally {
@@ -99,15 +105,15 @@ const DiscoveryHook: React.FC = () => {
         alt="Digital technology background"
       />
 
-      <div className="relative z-10">
+      <Container className="relative z-10">
         <EnhancedHero
           userName={authStatus.userName}
           onStart={handleStartJourney}
         />
 
-        <PsychologicalTrustIndicators />
+        {/* Trust indicators removed for pre-launch */}
 
-        <ProductCardsSection onOpenPricing={handlePricingOpen} />
+        <ProductCardsSection />
 
         <EnhancedSecondaryCTAs
           onOpenPricing={handlePricingOpen}
@@ -119,7 +125,7 @@ const DiscoveryHook: React.FC = () => {
             <MemberstackLoginButton />
           </div>
         )}
-      </div>
+      </Container>
 
       <PricingModal
         isOpen={isPricingOpen}

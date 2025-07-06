@@ -31,14 +31,25 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
           </div>
         ) : (
           <div className="space-y-4">
-            {messages.map(message => (
-              <div key={message.id} className="p-4 bg-gray-100 rounded-lg">
-                <p className="text-gray-800">{message.content}</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  {new Date(message.timestamp).toLocaleString()}
-                </p>
-              </div>
-            ))}
+            {messages.map((message) => {
+              // Support both `content` and legacy `text` fields
+              const content =
+                // @ts-ignore – allow access to `text` for fallback support
+                (message.content as string | undefined) ?? (message as any).text ?? '';
+
+              const date = message.timestamp ? new Date(message.timestamp) : null;
+              const formattedDate =
+                date && !isNaN(date.getTime())
+                  ? date.toLocaleString()
+                  : 'Just now';
+
+              return (
+                <div key={message.id ?? content} className="p-4 bg-gray-100 rounded-lg shadow-sm">
+                  <p className="text-gray-800 font-medium">{content}</p>
+                  <p className="text-sm text-gray-500 mt-2">{formattedDate}</p>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

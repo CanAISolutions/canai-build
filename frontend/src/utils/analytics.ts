@@ -11,6 +11,7 @@ interface BaseAnalyticsProperties {
   correlation_id?: string;
   user_id?: string;
   session_id?: string;
+  [key: string]: any;
 }
 
 interface PageViewProperties extends BaseAnalyticsProperties {
@@ -22,7 +23,7 @@ interface PageViewProperties extends BaseAnalyticsProperties {
 }
 
 interface FunnelStepProperties extends BaseAnalyticsProperties {
-  step: string;
+  step?: string;
   source?: string;
   product?: string;
   spark_id?: string;
