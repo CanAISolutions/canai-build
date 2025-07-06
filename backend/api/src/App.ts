@@ -30,26 +30,32 @@ export default async function startup() {
   // Sentry test route
   app.get('/test-sentry', async (req, res) => {
     // Start a Sentry span for this request (v8+ API)
-    await Sentry.withScope(async (scope) => {
-      const span = Sentry.startSpan({
-        op: 'http.server',
-        name: 'GET /test-sentry',
-      }, async (span) => {
-        try {
-          // Example: Simulate a DB or external API call with a child span
-          await Sentry.startSpan({
-            op: 'db.query',
-            name: 'Simulated DB query',
-          }, async () => {
-            await new Promise(resolve => setTimeout(resolve, 100)); // Simulate latency
-          });
+    await Sentry.withScope(async _scope => {
+      Sentry.startSpan(
+        {
+          op: 'http.server',
+          name: 'GET /test-sentry',
+        },
+        async _span => {
+          try {
+            // Example: Simulate a DB or external API call with a child span
+            await Sentry.startSpan(
+              {
+                op: 'db.query',
+                name: 'Simulated DB query',
+              },
+              async () => {
+                await new Promise(resolve => setTimeout(resolve, 100)); // Simulate latency
+              }
+            );
 
-          throw new Error('Sentry test error!');
-        } catch (e) {
-          Sentry.captureException(e);
-          res.status(500).send('Test error sent to Sentry');
+            throw new Error('Sentry test error!');
+          } catch (e) {
+            Sentry.captureException(e);
+            res.status(500).send('Test error sent to Sentry');
+          }
         }
-      });
+      );
     });
   });
 

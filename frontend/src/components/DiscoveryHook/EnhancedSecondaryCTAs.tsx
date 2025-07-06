@@ -26,7 +26,8 @@ const EnhancedSecondaryCTAs: React.FC<EnhancedSecondaryCTAsProps> = ({
             Choose Your Path to Success
           </h3>
           <p className="text-[#cce7fa] opacity-90 mb-4 font-manrope">
-            CanAI is currently in private beta — features are under active development.
+            CanAI is currently in private beta — features are under active
+            development.
           </p>
           <div
             className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20

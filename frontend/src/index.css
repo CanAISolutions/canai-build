@@ -100,7 +100,7 @@
 
     .animate-fade-in,
     .animate-scale-in,
-    .animate-spin {
+    .anima9te-spin {
       animation: none;
     }
 
@@ -215,7 +215,7 @@
 /* API Integration Comments */
 /*
   TODO: Supabase session_logs schema mapping:
-  
+
   CREATE TABLE session_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id),
@@ -224,7 +224,7 @@
     interaction_details JSONB,
     created_at TIMESTAMPTZ DEFAULT now()
   );
-  
+
   Example interaction_details for purchase:
   {
     "product": "business_builder",
@@ -237,7 +237,7 @@
 
 /*
   TODO: PostHog Event Mapping:
-  
+
   - funnel_step: { step: 'purchase_page_viewed' | 'product_selected' | 'checkout_initiated' | 'purchase_completed' }
   - price_viewed: { product: string, price: number }
   - product_switched: { from_product: string, to_product: string, price: number }
@@ -247,15 +247,15 @@
 
 /*
   TODO: API Endpoints:
-  
+
   POST /v1/stripe-session
   Request: { product: string, price: number }
   Response: { checkout_url: string, session_id: string }
-  
+
   POST /v1/refund
   Request: { payment_id: string, reason?: string }
   Response: { success: boolean, refund_id: string }
-  
+
   POST /v1/switch-product
   Request: { from_product: string, to_product: string }
   Response: { success: boolean }
@@ -263,7 +263,7 @@
 
 /*
   TODO: Jest Tests (F4-tests):
-  
+
   - Product selection flow
   - Checkout modal functionality
   - Stripe session creation simulation
@@ -275,7 +275,7 @@
 
 /*
   TODO: Supabase spark_logs schema implementation:
-  
+
   CREATE TABLE spark_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     initial_prompt_id UUID REFERENCES initial_prompt_logs(id),
@@ -286,11 +286,11 @@
     trust_score NUMERIC,
     created_at TIMESTAMPTZ DEFAULT now()
   );
-  
+
   Example selected_spark JSONB:
   {
     "id": "community_spark",
-    "title": "BUSINESS_BUILDER: The Community Spark", 
+    "title": "BUSINESS_BUILDER: The Community Spark",
     "tagline": "Unite Denver families with a cozy bakery experience",
     "productTrack": "business_builder"
   }
@@ -298,7 +298,7 @@
 
 /*
   TODO: PostHog Event Mapping for Spark Layer:
-  
+
   - spark_selected: { spark_id: string, product: string, selection_time: number }
   - sparks_regenerated: { attempt_count: number, trust_score: number }
   - sparks_regenerated_extra: { attempt_count: number, trust_score: number }
@@ -307,36 +307,36 @@
 
 /*
   TODO: API Endpoints for Spark Layer:
-  
+
   POST /v1/generate-sparks
-  Request: { 
-    businessType: string, 
-    tone: string, 
+  Request: {
+    businessType: string,
+    tone: string,
     outcome: string,
-    attempt_count?: number 
+    attempt_count?: number
   }
-  Response: { 
-    sparks: [{ title: string, tagline: string, id: string }], 
-    error: null 
+  Response: {
+    sparks: [{ title: string, tagline: string, id: string }],
+    error: null
   }
-  
-  POST /v1/regenerate-sparks  
-  Request: { 
-    businessType: string, 
-    tone: string, 
-    outcome: string, 
+
+  POST /v1/regenerate-sparks
+  Request: {
+    businessType: string,
+    tone: string,
+    outcome: string,
     attempt_count: number,
-    feedback?: string 
+    feedback?: string
   }
-  Response: { 
-    sparks: [{ title: string, tagline: string, id: string }], 
-    error: null 
+  Response: {
+    sparks: [{ title: string, tagline: string, id: string }],
+    error: null
   }
 */
 
 /*
   TODO: Jest Tests for Spark Layer (F3-tests):
-  
+
   - Spark generation and rendering (<1.5s)
   - Card selection and purchase navigation
   - Regeneration with attempt limits (3/4 based on trust score)

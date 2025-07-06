@@ -23,6 +23,7 @@ import {
   trackPaymentCompleted,
   trackProductSwitched,
 } from '@/utils/purchaseAnalytics';
+import { useToast } from '@/hooks/use-toast';
 // import { memberstackAuth } from '@/utils/memberstackAuth'; // TODO: Uncomment when ready
 
 // Product types for type safety
@@ -79,6 +80,7 @@ const PRODUCTS: Product[] = [
 
 const PurchaseFlow = () => {
   const { member } = useMember();
+  const { toast } = useToast();
   const [selectedProduct, setSelectedProduct] =
     useState<ProductType>('business_builder');
   const [isCheckoutOpen, setCheckoutOpen] = useState(false);
@@ -90,24 +92,9 @@ const PurchaseFlow = () => {
   const [retryCount, setRetryCount] = useState(0);
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
 
-  // Check for existing authentication on mount
+  // Authentication status is managed by MemberstackProvider
   useEffect(() => {
-    const checkAuthStatus = async () => {
-      // TODO: Uncomment when Memberstack is fully integrated
-      // try {
-      //   const authStatus = await memberstackAuth.getAuthStatus();
-      //   if (authStatus.authenticated && authStatus.user) {
-      //     setCurrentUser({
-      //       id: authStatus.user.id,
-      //       email: authStatus.user.email,
-      //     });
-      //   }
-      // } catch (error) {
-      //   console.error('Auth check failed:', error);
-      // }
-    };
-
-    checkAuthStatus();
+    // No manual auth check needed; MemberstackProvider updates auth state automatically
   }, []);
 
   // Track page view and price viewing
@@ -173,6 +160,18 @@ const PurchaseFlow = () => {
       const product = PRODUCTS.find(p => p.id === selectedProduct);
       if (!product) throw new Error('Product not found');
 
+      // Check for valid user ID before proceeding
+      if (!member?.id) {
+        toast({
+          title: 'Authentication Error',
+          description:
+            'User ID is missing. Please sign in again before checking out.',
+          variant: 'destructive',
+        });
+        setProcessing(false);
+        return;
+      }
+
       // Create Stripe session via API
       const response = await createStripeSession({
         spark: {
@@ -180,7 +179,7 @@ const PurchaseFlow = () => {
           product_id: selectedProduct,
           price: product.price,
         },
-        user_id: member?.id || 'demo-user-123', // Use authenticated user ID
+        user_id: member.id, // Use authenticated user ID only
       });
 
       if (response.error) {

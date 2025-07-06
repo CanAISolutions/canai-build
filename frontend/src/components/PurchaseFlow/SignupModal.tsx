@@ -6,12 +6,28 @@ import { Label } from '@/components/ui/label';
 import { Check, Eye, EyeOff, Mail } from 'lucide-react';
 import { useMemberstack } from '@memberstack/react';
 import React, { useState } from 'react';
+import {
+  trackSignupAttempt,
+  trackSignupSuccess,
+  trackSignupError,
+} from '@/utils/purchaseAnalytics';
+import DOMPurify from 'dompurify';
+import * as Sentry from '@sentry/browser';
 
 interface SignupModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSignupSuccess: (user: { id: string; email: string }) => void;
   isProcessing?: boolean;
+}
+
+// RFC 5321-compliant email validation
+function validateEmail(email: string): boolean {
+  // RFC 5321: max 254 chars, local part max 64, domain max 255
+  if (!email || email.length > 254) return false;
+  const rfc5321Regex =
+    /^(?=.{1,64}@)[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*@([A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,}$/;
+  return rfc5321Regex.test(email);
 }
 
 const SignupModal: React.FC<SignupModalProps> = ({
@@ -43,7 +59,8 @@ const SignupModal: React.FC<SignupModalProps> = ({
   const passwordsMatch = formData['password'] === formData['confirmPassword'];
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    const sanitizedValue = DOMPurify.sanitize(value);
+    setFormData(prev => ({ ...prev, [field]: sanitizedValue }));
     // Clear errors when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -59,7 +76,7 @@ const SignupModal: React.FC<SignupModalProps> = ({
 
     if (!formData['email'].trim()) {
       newErrors['email'] = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData['email'])) {
+    } else if (!validateEmail(formData['email'])) {
       newErrors['email'] = 'Please enter a valid email';
     }
 
@@ -84,23 +101,25 @@ const SignupModal: React.FC<SignupModalProps> = ({
 
     if (!validateForm()) return;
 
+    trackSignupAttempt('purchase_flow');
+
     try {
       // TODO: Replace with actual signup logic when available in Memberstack API
       await memberstack.openModal('SIGNUP');
       // Simulate successful signup for now
       onSignupSuccess({ id: 'demo-id', email: formData['email'] });
+      trackSignupSuccess('demo-id', formData['email'], 'purchase_flow');
     } catch (error: unknown) {
-      console.error('Signup error:', error);
-      let message = 'Signup failed. Please try again.';
-      if (
-        error &&
+      Sentry.captureException(error);
+      const message =
         typeof error === 'object' &&
+        error &&
         'message' in error &&
         typeof (error as { message?: unknown }).message === 'string'
-      ) {
-        message = (error as { message: string }).message;
-      }
+          ? (error as { message: string }).message
+          : 'Signup failed. Please try again.';
       setErrors({ submit: message });
+      trackSignupError(message, 'purchase_flow');
     }
   };
 

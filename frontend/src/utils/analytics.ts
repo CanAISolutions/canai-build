@@ -11,7 +11,7 @@ interface BaseAnalyticsProperties {
   correlation_id?: string;
   user_id?: string;
   session_id?: string;
-  [key: string]: any;
+  [key: string]: string | number | boolean | undefined;
 }
 
 interface PageViewProperties extends BaseAnalyticsProperties {

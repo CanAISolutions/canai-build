@@ -85,7 +85,8 @@ const EnhancedHero = ({
 
           {/* Short genuine tagline */}
           <p className="text-[#E6F6FF] opacity-90 font-manrope mb-6 max-w-3xl mx-auto">
-            We're polishing the experience — sign up below to be among the first to try it.
+            We&apos;re polishing the experience — sign up below to be among the
+            first to try it.
           </p>
         </div>
       </div>

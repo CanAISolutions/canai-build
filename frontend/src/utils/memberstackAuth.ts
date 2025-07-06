@@ -143,7 +143,9 @@ class MemberstackAuthClient {
     try {
       const publicKey = import.meta.env['VITE_MEMBERSTACK_PUBLIC_KEY'];
       if (!publicKey) {
-        throw new Error('Memberstack public key not found');
+        throw new Error(
+          'VITE_MEMBERSTACK_PUBLIC_KEY is not set. Please define it in your environment.'
+        );
       }
 
       // Initialize Memberstack with public key

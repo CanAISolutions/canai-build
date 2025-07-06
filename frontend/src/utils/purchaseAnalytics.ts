@@ -93,3 +93,32 @@ export const trackCheckoutAbandoned = (abandonData: {
     abandon_timestamp: new Date().toISOString(),
   });
 };
+
+// Signup analytics tracking
+export const trackSignupAttempt = (source: string) => {
+  trackEvent('signup_attempt', {
+    source,
+    attempted_at: new Date().toISOString(),
+  });
+};
+
+export const trackSignupSuccess = (
+  userId: string,
+  email: string,
+  source: string
+) => {
+  trackEvent('signup_success', {
+    user_id: userId,
+    email,
+    source,
+    success_at: new Date().toISOString(),
+  });
+};
+
+export const trackSignupError = (errorMessage: string, source: string) => {
+  trackEvent('signup_error', {
+    error_message: errorMessage,
+    source,
+    error_at: new Date().toISOString(),
+  });
+};

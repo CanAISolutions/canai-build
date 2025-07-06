@@ -8,6 +8,7 @@ import {
   queryPaymentLogs,
   getPaymentAnalytics,
 } from '../services/paymentLogs.js';
+import supabase from '../supabase/client.js';
 
 const router = express.Router();
 

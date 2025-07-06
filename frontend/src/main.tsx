@@ -22,7 +22,13 @@ if (!rootElement) throw new Error('Root element not found');
 createRoot(rootElement).render(
   <ErrorBoundary>
     <MemberstackProvider
-      config={{ publicKey: import.meta.env.VITE_MEMBERSTACK_PUBLIC_KEY }}
+      config={{
+        publicKey:
+          import.meta.env['VITE_MEMBERSTACK_PUBLIC_KEY'] ??
+          (() => {
+            throw new Error('Missing VITE_MEMBERSTACK_PUBLIC_KEY');
+          })(),
+      }}
     >
       <BrowserRouter>
         <App />
