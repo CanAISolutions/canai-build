@@ -22,7 +22,7 @@ warn_if_dummy() {
     echo "[WARNING] Replace DUMMY_TOKEN with a real Bearer token for auth endpoints."
   fi
   if [[ "$DUMMY_UUID" == "00000000-0000-4000-8000-000000000000" ]]; then
-    echo "[WARNING] Replace DUMMY_UUID with a real UUID for /analyze-emotion."
+    echo "[WARNING] Replace DUMMY_UUID with a real UUID for /v1/analyze-emotion."
   fi
   if [[ "$DUMMY_USER_ID" == "test-user-id" ]]; then
     echo "[WARNING] Replace DUMMY_USER_ID with a real user_id for /stripe-session."
@@ -43,16 +43,16 @@ echo "Status: $HEALTH_CODE"
 echo "$HEALTH_BODY" | jq . 2>/dev/null || echo "$HEALTH_BODY"
 
 # 2. Emotional Analysis Status
-echo_section "GET /analyze-emotion/status"
-EMO_STATUS_RESP=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer $DUMMY_TOKEN" "$BASE_URL/analyze-emotion/status")
+echo_section "GET /v1/analyze-emotion/status"
+EMO_STATUS_RESP=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer $DUMMY_TOKEN" "$BASE_URL/v1/analyze-emotion/status")
 EMO_STATUS_BODY=$(echo "$EMO_STATUS_RESP" | head -n -1)
 EMO_STATUS_CODE=$(echo "$EMO_STATUS_RESP" | tail -n1)
 echo "Status: $EMO_STATUS_CODE"
 echo "$EMO_STATUS_BODY" | jq . 2>/dev/null || echo "$EMO_STATUS_BODY"
 
 # 3. Emotional Analysis (POST)
-echo_section "POST /analyze-emotion"
-EMO_ANALYZE_RESP=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/analyze-emotion" \
+echo_section "POST /v1/analyze-emotion"
+EMO_ANALYZE_RESP=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/v1/analyze-emotion" \
   -H "Authorization: Bearer $DUMMY_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"text":"I am excited about this project!","comparisonId":"'$DUMMY_UUID'"}')
@@ -62,8 +62,8 @@ echo "Status: $EMO_ANALYZE_CODE"
 echo "$EMO_ANALYZE_BODY" | jq . 2>/dev/null || echo "$EMO_ANALYZE_BODY"
 
 # 4. Stripe Session (POST)
-echo_section "POST /stripe-session"
-STRIPE_SESSION_RESP=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/stripe-session" \
+echo_section "POST /v1/stripe-session"
+STRIPE_SESSION_RESP=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/v1/stripe-session" \
   -H "Content-Type: application/json" \
   -d '{"productTrack":"business-plan-builder","user_id":"'$DUMMY_USER_ID'"}')
 STRIPE_SESSION_BODY=$(echo "$STRIPE_SESSION_RESP" | head -n -1)
@@ -72,8 +72,8 @@ echo "Status: $STRIPE_SESSION_CODE"
 echo "$STRIPE_SESSION_BODY" | jq . 2>/dev/null || echo "$STRIPE_SESSION_BODY"
 
 # 5. Refund (POST)
-echo_section "POST /refund"
-REFUND_RESP=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/refund" \
+echo_section "POST /v1/refund"
+REFUND_RESP=$(curl -s -w "\n%{http_code}" -X POST "$BASE_URL/v1/refund" \
   -H "Content-Type: application/json" \
   -d '{"session_id":"'$DUMMY_SESSION_ID'","reason":"requested_by_customer"}')
 REFUND_BODY=$(echo "$REFUND_RESP" | head -n -1)
@@ -86,9 +86,9 @@ echo_section "Summary Table"
 printf "%-30s %-10s\n" "Endpoint" "Status"
 printf "%-30s %-10s\n" "--------" "------"
 printf "%-30s %-10s\n" "/health" "$HEALTH_CODE"
-printf "%-30s %-10s\n" "/analyze-emotion/status" "$EMO_STATUS_CODE"
-printf "%-30s %-10s\n" "/analyze-emotion (POST)" "$EMO_ANALYZE_CODE"
-printf "%-30s %-10s\n" "/stripe-session (POST)" "$STRIPE_SESSION_CODE"
-printf "%-30s %-10s\n" "/refund (POST)" "$REFUND_CODE"
+printf "%-30s %-10s\n" "/v1/analyze-emotion/status" "$EMO_STATUS_CODE"
+printf "%-30s %-10s\n" "/v1/analyze-emotion (POST)" "$EMO_ANALYZE_CODE"
+printf "%-30s %-10s\n" "/v1/stripe-session (POST)" "$STRIPE_SESSION_CODE"
+printf "%-30s %-10s\n" "/v1/refund (POST)" "$REFUND_CODE"
 
 echo -e "\n[INFO] Replace dummy values with real tokens/IDs for full validation."

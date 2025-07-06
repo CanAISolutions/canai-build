@@ -1,8 +1,7 @@
 import jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
-import Sentry from '../services/instrument.js';
+import * as Sentry from '../services/instrument.js';
 import posthog from '../services/posthog.js';
-import log from '../api/src/Shared/Logger';
 
 // PRD Alignment: Enforces authentication in production (F2: Discovery Funnel, F4: Purchase Flow, F5: Input Collection)
 // - Only allows authenticated users in production
@@ -16,7 +15,7 @@ const MEMBERSTACK_JWKS_URI =
   'https://api.memberstack.com/.well-known/jwks.json';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const MEMBERSTACK_ISSUER = process.env.MEMBERSTACK_ISSUER || 'memberstack.com';
-const MEMBERSTACK_AUDIENCE = process.env.MEMBERSTACK_AUDIENCE || undefined; // Set if required
+const MEMBERSTACK_AUDIENCE = process.env.MEMBERSTACK_AUDIENCE || null; // Set if required
 
 const client = jwksClient({
   jwksUri: MEMBERSTACK_JWKS_URI,
@@ -36,6 +35,15 @@ function getKey(header, callback) {
   });
 }
 
+// Attach a pino logger to Sentry if not already present
+import pino from 'pino';
+if (!Sentry.logger) {
+  Sentry.logger = pino({
+    level: 'debug',
+    redact: ['req.headers.authorization'],
+  });
+}
+
 /**
  * Unified Memberstack JWT authentication middleware
  * Accepts JWTs from both Authorization and x-memberstack-token headers
@@ -45,7 +53,9 @@ function getKey(header, callback) {
 export function memberstackAuthMiddleware(req, res, next) {
   try {
     if (process.env.NODE_ENV !== 'production') {
-      log.debug('[auth] Non-production mode: bypassing Memberstack auth');
+      Sentry.logger.debug(
+        '[auth] Non-production mode: bypassing Memberstack auth'
+      );
       return next();
     }
 
@@ -62,7 +72,7 @@ export function memberstackAuthMiddleware(req, res, next) {
         error: 'Missing authentication token',
         code: 'AUTH_TOKEN_MISSING',
       };
-      log.warn('[auth] ' + error.error);
+      Sentry.logger.warn('[auth] ' + error.error);
       Sentry.captureException(new Error(error.error), { extra: error });
       posthog.capture({
         distinctId: 'system',
@@ -77,8 +87,8 @@ export function memberstackAuthMiddleware(req, res, next) {
       getKey,
       {
         algorithms: ['RS256'],
-        audience: MEMBERSTACK_AUDIENCE,
         issuer: MEMBERSTACK_ISSUER,
+        ...(MEMBERSTACK_AUDIENCE && { audience: MEMBERSTACK_AUDIENCE }),
       },
       (err, decoded) => {
         if (err) {
@@ -92,7 +102,7 @@ export function memberstackAuthMiddleware(req, res, next) {
             error: err.message,
             code: errorCode,
           };
-          log.warn(`[auth] ${error.code}: ${error.error}`);
+          Sentry.logger.warn(`[auth] ${error.code}: ${error.error}`);
           Sentry.captureException(err, { extra: error });
           posthog.capture({
             distinctId: 'system',
@@ -102,7 +112,9 @@ export function memberstackAuthMiddleware(req, res, next) {
           return res.status(status).json(error);
         }
         req.memberstackUser = decoded;
-        log.info(`[auth] Auth success for user ${decoded.id || decoded.sub}`);
+        Sentry.logger.info(
+          `[auth] Auth success for user ${decoded.id || decoded.sub}`
+        );
         posthog.capture({
           distinctId: decoded.id || decoded.sub || 'unknown',
           event: 'auth_success',
@@ -120,14 +132,19 @@ export function memberstackAuthMiddleware(req, res, next) {
       code: 'AUTH_INTERNAL_ERROR',
       message: error.message,
     };
-    log.error(`[auth] ${errorDetails.code}: ${error.message}`);
+    Sentry.logger.error(`[auth] ${errorDetails.code}: ${error.message}`);
     Sentry.captureException(error, { extra: errorDetails });
     posthog.capture({
       distinctId: 'system',
       event: 'auth_failure',
       properties: { ...errorDetails, timestamp: new Date().toISOString() },
     });
-    return res.status(500).json(errorDetails);
+    const isProd = NODE_ENV === 'production';
+    return res.status(500).json({
+      error: isProd ? 'An internal error occurred' : errorDetails.error,
+      code: errorDetails.code,
+      ...(isProd ? {} : { message: errorDetails.message }),
+    });
   }
 }
 

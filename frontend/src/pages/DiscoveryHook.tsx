@@ -25,6 +25,13 @@ interface Message {
   timestamp: string;
 }
 
+interface RawMessage {
+  id?: string;
+  content?: string;
+  text?: string;
+  timestamp?: string;
+}
+
 const DiscoveryHook: React.FC = () => {
   const [isPricingOpen, setIsPricingOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -57,11 +64,13 @@ const DiscoveryHook: React.FC = () => {
         setIsLoading(true);
         const data = await getMessages();
         // Normalize incoming messages to the shape expected by PreviewModal
-        const normalized = (data.messages || []).map((msg: any, idx: number) => ({
-          id: msg.id ?? String(idx),
-          content: msg.content ?? msg.text ?? '',
-          timestamp: msg.timestamp ?? new Date().toISOString(),
-        }));
+        const normalized = (data.messages || []).map(
+          (msg: RawMessage, idx: number) => ({
+            id: msg.id ?? String(idx),
+            content: msg.content ?? msg.text ?? '',
+            timestamp: msg.timestamp ?? new Date().toISOString(),
+          })
+        );
         setMessages(normalized);
       } catch (error) {
         console.error('Failed to load messages:', error);

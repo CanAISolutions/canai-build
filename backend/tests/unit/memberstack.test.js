@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from 'vitest';
 import { memberstackAuthMiddleware } from '../../middleware/auth.js';
 import jwt from 'jsonwebtoken';
-import Sentry from '../../services/instrument.js';
+import * as Sentry from '../../services/instrument.js';
 import posthog from '../../services/posthog.js';
 import log from '../../api/src/Shared/Logger';
 
@@ -11,7 +11,15 @@ vi.mock('jsonwebtoken', () => ({
   },
   verify: vi.fn(),
 }));
-vi.mock('../../services/instrument.js');
+vi.mock('../../services/instrument.js', () => ({
+  logger: {
+    error: vi.fn(),
+    warn: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn(),
+  },
+  captureException: vi.fn(),
+}));
 vi.mock('../../services/posthog.js');
 vi.mock('../../api/src/Shared/Logger');
 

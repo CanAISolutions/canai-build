@@ -12,7 +12,17 @@ const envVarsToLog = [
   'ENV',
 ];
 console.log('--- TEST ENV VARS ---');
-envVarsToLog.forEach(k => console.log(`${k}:`, process.env[k]));
+envVarsToLog.forEach(k => {
+  if (
+    /SUPABASE_(ANON_KEY|SERVICE_ROLE_KEY|JWT_SECRET)/.test(k) ||
+    /JWT/.test(k)
+  ) {
+    // Mask sensitive SUPABASE keys and JWTs
+    console.log(`${k}: ***`);
+  } else {
+    console.log(`${k}:`, process.env[k]);
+  }
+});
 // END: Print all relevant env vars
 
 import { createClient } from '@supabase/supabase-js';
@@ -69,6 +79,7 @@ describe('/v1/stripe/payment-logs API', () => {
     adminId = adminPayload.sub;
 
     // Insert a payment log for the test user
+    const uniqueStripePaymentId = `pi_test_123_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
     const { data, error } = await serviceClient
       .from('payment_logs')
       .insert([
@@ -78,7 +89,7 @@ describe('/v1/stripe/payment-logs API', () => {
           currency: 'usd',
           payment_method: 'card',
           status: 'completed',
-          stripe_payment_id: 'pi_test_123',
+          stripe_payment_id: uniqueStripePaymentId,
           event_type: 'checkout.session.created',
           metadata: { test: true },
           created_at: new Date().toISOString(),
@@ -272,7 +283,7 @@ describe('/v1/stripe/payment-logs API', () => {
 
     test('should handle missing/invalid JWT', async () => {
       const res = await request(app).get('/v1/stripe/payment-logs/analytics');
-      expect([401, 500]).toContain(res.status);
+      expect([401, 403]).toContain(res.status);
     });
   });
 });

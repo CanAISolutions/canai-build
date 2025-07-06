@@ -6,10 +6,7 @@ interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {}
 const Container: React.FC<ContainerProps> = ({ className, ...props }) => {
   return (
     <div
-      className={cn(
-        'w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8',
-        className
-      )}
+      className={cn('w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8', className)}
       {...props}
     />
   );

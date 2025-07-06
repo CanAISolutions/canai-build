@@ -1,4 +1,4 @@
-/// <reference path="./types/express.d.ts" />
+import './types/express';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import type { Request, Response, NextFunction } from 'express';

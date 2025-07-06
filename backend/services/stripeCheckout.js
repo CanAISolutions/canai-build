@@ -44,12 +44,30 @@ export async function createCheckoutSession({
   const amount = config.amount;
   const name = config.name;
 
-  // Use environment-based URLs
-  const success_url =
-    process.env.STRIPE_SUCCESS_URL ||
-    `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`;
-  const cancel_url =
-    process.env.STRIPE_CANCEL_URL || `${process.env.CLIENT_URL}/cancel`;
+  // Use environment-based URLs with safety checks
+  const { STRIPE_SUCCESS_URL, STRIPE_CANCEL_URL, CLIENT_URL } = process.env;
+
+  let success_url, cancel_url;
+
+  if (STRIPE_SUCCESS_URL) {
+    success_url = STRIPE_SUCCESS_URL;
+  } else if (CLIENT_URL) {
+    success_url = `${CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`;
+  } else {
+    throw new Error(
+      'Missing CLIENT_URL and STRIPE_SUCCESS_URL environment variables. Cannot construct Stripe success_url.'
+    );
+  }
+
+  if (STRIPE_CANCEL_URL) {
+    cancel_url = STRIPE_CANCEL_URL;
+  } else if (CLIENT_URL) {
+    cancel_url = `${CLIENT_URL}/cancel`;
+  } else {
+    throw new Error(
+      'Missing CLIENT_URL and STRIPE_CANCEL_URL environment variables. Cannot construct Stripe cancel_url.'
+    );
+  }
 
   // Generate idempotency key (user+track+timestamp or provided)
   const idempotencyKey =
