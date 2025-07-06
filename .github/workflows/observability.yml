@@ -42,7 +42,7 @@ jobs:
 
       - name: Health check - Backend API
         run: |
-          curl -f http://localhost:3001/health || exit 1
+          curl -f http://localhost:10000/health || exit 1
           echo "✅ Backend health check passed"
 
       - name: Health check - Frontend

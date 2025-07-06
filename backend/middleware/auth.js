@@ -35,14 +35,12 @@ function getKey(header, callback) {
   });
 }
 
-// Attach a pino logger to Sentry if not already present
+// Attach a pino logger (do not assign to Sentry.logger)
 import pino from 'pino';
-if (!Sentry.logger) {
-  Sentry.logger = pino({
-    level: 'debug',
-    redact: ['req.headers.authorization'],
-  });
-}
+const logger = pino({
+  level: 'debug',
+  redact: ['req.headers.authorization'],
+});
 
 /**
  * Unified Memberstack JWT authentication middleware
@@ -53,7 +51,7 @@ if (!Sentry.logger) {
 export function memberstackAuthMiddleware(req, res, next) {
   try {
     if (process.env.NODE_ENV !== 'production') {
-      Sentry.logger.debug(
+      logger.debug(
         '[auth] Non-production mode: bypassing Memberstack auth'
       );
       return next();
@@ -72,7 +70,7 @@ export function memberstackAuthMiddleware(req, res, next) {
         error: 'Missing authentication token',
         code: 'AUTH_TOKEN_MISSING',
       };
-      Sentry.logger.warn('[auth] ' + error.error);
+      logger.warn('[auth] ' + error.error);
       Sentry.captureException(new Error(error.error), { extra: error });
       posthog.capture({
         distinctId: 'system',
@@ -102,7 +100,7 @@ export function memberstackAuthMiddleware(req, res, next) {
             error: err.message,
             code: errorCode,
           };
-          Sentry.logger.warn(`[auth] ${error.code}: ${error.error}`);
+          logger.warn(`[auth] ${error.code}: ${error.error}`);
           Sentry.captureException(err, { extra: error });
           posthog.capture({
             distinctId: 'system',
@@ -112,7 +110,7 @@ export function memberstackAuthMiddleware(req, res, next) {
           return res.status(status).json(error);
         }
         req.memberstackUser = decoded;
-        Sentry.logger.info(
+        logger.info(
           `[auth] Auth success for user ${decoded.id || decoded.sub}`
         );
         posthog.capture({
@@ -132,7 +130,7 @@ export function memberstackAuthMiddleware(req, res, next) {
       code: 'AUTH_INTERNAL_ERROR',
       message: error.message,
     };
-    Sentry.logger.error(`[auth] ${errorDetails.code}: ${error.message}`);
+    logger.error(`[auth] ${errorDetails.code}: ${error.message}`);
     Sentry.captureException(error, { extra: errorDetails });
     posthog.capture({
       distinctId: 'system',

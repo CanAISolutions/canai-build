@@ -1030,3 +1030,5 @@ requirements.
 - Unit test frontend: `cd frontend && npm run test:unit`
 - Format diff: `npm run format:diff`
 - Migrate test DB: `cd backend && npm run migrate:test`
+
+> **Note:** The backend always runs on port 10000 in all environments (local, Docker, Render, CI/CD).

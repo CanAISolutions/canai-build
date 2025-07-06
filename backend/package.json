@@ -47,7 +47,7 @@
     "@ai-sdk/hume": "^1.0.0-canary.11",
     "@headlessui/react": "^1.7.0",
     "@heroicons/react": "^2.0.0",
-    "@memberstack/react": "^2.0.0",
+    "@memberstack/react": "2.0.32",
     "@sentry/node": "^7.0.0",
     "@sentry/react": "^7.0.0",
     "@stripe/stripe-js": "^2.0.0",

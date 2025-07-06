@@ -555,3 +555,12 @@ Special thanks to:
   code or logs.
 - Pre-commit and CI checks will block any commit or push containing likely secrets.
 - See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for full guidelines.
+
+## Ports
+
+| Service   | Port   | URL                        |
+|-----------|--------|---------------------------|
+| Backend   | 10000  | http://localhost:10000     |
+| Frontend  | 5173   | http://localhost:5173      |
+| Database  | 5432   | (Postgres)                 |
+| Redis     | 6379   |                           |

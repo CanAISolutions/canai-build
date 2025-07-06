@@ -60,5 +60,5 @@ app.get('/test-rate-limit', rateLimit, (req, res) => {
 app.get('/test-auth', auth, (req, res) => {
   res.send('Auth middleware works');
 });
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 10000;
 app.listen(PORT, () => console.log(`Minimal server running on port ${PORT}`));

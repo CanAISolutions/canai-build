@@ -137,7 +137,7 @@
     "@dqbd/tiktoken": "1.0.21",
     "@hookform/resolvers": "^3.9.0",
     "@memberstack/client": "^1.0.0",
-    "@memberstack/react": "2.0.30",
+    "@memberstack/react": "2.0.32",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "1.1.14",
     "@radix-ui/react-aspect-ratio": "^1.1.0",
