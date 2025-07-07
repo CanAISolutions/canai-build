@@ -5,6 +5,7 @@ import validate from '../middleware/validation.js';
 import rateLimit from '../middleware/rateLimit.js';
 import auth from '../middleware/auth.js';
 import Joi from 'joi';
+import { rbacMiddleware } from '../middleware/rbac.js';
 
 const router = express.Router();
 const humeService = new HumeService();
@@ -16,9 +17,11 @@ const analyzeEmotionSchema = Joi.object({
 
 router.post(
   '/analyze-emotion',
-  [auth, validate({ body: analyzeEmotionSchema }), rateLimit],
+  [auth, rbacMiddleware(['user', 'admin']), validate({ body: analyzeEmotionSchema }), rateLimit],
   async (req, res) => {
     try {
+      const user = req.memberstackUser;
+      console.log('[Route] /analyze-emotion handler called. user:', user);
       const { text, comparisonId } = req.body;
       const result = await humeService.analyzeEmotion(text, comparisonId);
       res.status(200).json({ ...result, error: null });
