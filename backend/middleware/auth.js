@@ -109,15 +109,54 @@ export function memberstackAuthMiddleware(req, res, next) {
           });
           return res.status(status).json(error);
         }
-        req.memberstackUser = decoded;
+        // --- Task 8.2: Standardized user context extraction and validation ---
+        // Strict validation: check original decoded values
+        const isValid =
+          typeof decoded.id === 'string' &&
+          decoded.id.length > 0 &&
+          typeof decoded.email === 'string' &&
+          decoded.email.length > 0 &&
+          Array.isArray(decoded.roles) &&
+          typeof decoded.customFields === 'object' &&
+          decoded.customFields !== null;
+        if (!isValid) {
+          const error = {
+            error: 'Invalid or missing user context fields in JWT',
+            code: 'AUTH_USER_CONTEXT_INVALID',
+            details: {
+              userId: decoded.id,
+              email: decoded.email,
+              roles: decoded.roles,
+              customFields: decoded.customFields,
+            },
+          };
+          logger.warn(`[auth] ${error.code}: ${error.error}`);
+          Sentry.captureException(new Error(error.error), { extra: error });
+          posthog.capture({
+            distinctId: 'system',
+            event: 'auth_failure',
+            properties: { ...error, timestamp: new Date().toISOString() },
+          });
+          return res.status(401).json(error);
+        }
+        // Map and validate user context (after strict validation)
+        const userContext = {
+          userId: decoded.id,
+          email: decoded.email,
+          roles: decoded.roles,
+          customFields: decoded.customFields,
+        };
+        req.memberstackUser = userContext;
+        // Backward compatibility: attach raw JWT for transition period
+        req.memberstackUserRaw = decoded;
         logger.info(
-          `[auth] Auth success for user ${decoded.id || decoded.sub}`
+          `[auth] Auth success for user ${userContext.userId}`
         );
         posthog.capture({
-          distinctId: decoded.id || decoded.sub || 'unknown',
+          distinctId: userContext.userId || 'unknown',
           event: 'auth_success',
           properties: {
-            userId: decoded.id || decoded.sub,
+            userId: userContext.userId,
             timestamp: new Date().toISOString(),
           },
         });
