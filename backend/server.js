@@ -7,6 +7,7 @@ import supabase from './supabase/client.js';
 import Sentry from './services/instrument.js';
 import emotionalAnalysisRouter from './routes/emotionalAnalysis.js';
 import stripeRouter from './routes/stripe.js';
+import authRouter from './routes/auth.js';
 
 dotenv.config();
 
@@ -136,6 +137,10 @@ app.use('/v1', emotionalAnalysisRouter);
 app.use('/v1/stripe', stripeRouter);
 console.log('Registering /v1/stripe stripeRouter');
 
+// Mount authentication API
+console.log('Registering /v1/auth authRouter');
+app.use('/v1/auth', authRouter);
+
 // TODO: Add API routes
 // TODO: Add authentication routes
 // TODO: Add webhook routes
@@ -161,10 +166,11 @@ app.all('*', (req, res) => {
 // Optional fallthrough error handler
 console.log('Registering global error handler at: /');
 app.use((err, req, res, next) => {
-  // The error id is attached to `res.sentry` to be returned
-  // and optionally displayed to the user for support.
-  res.statusCode = 500;
-  res.end(res.sentry + '\n');
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal Server Error',
+    code: err.code || 'INTERNAL_SERVER_ERROR',
+    stack: process.env.NODE_ENV === 'production' ? undefined : err.stack,
+  });
 });
 
 // ==============================================
