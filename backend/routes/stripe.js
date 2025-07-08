@@ -12,6 +12,11 @@ import supabase from '../supabase/client.js';
 
 const router = express.Router();
 
+// --- CORS Preflight Handler ---
+router.options('*', (req, res) => {
+  res.sendStatus(204);
+});
+
 const allowedTracks = [
   'business-plan-builder',
   'social-media-campaign',

@@ -59,15 +59,39 @@ app.use(
 
 // CORS configuration
 console.log('Registering CORS at: / (global middleware)');
+
+// Parse comma-separated origins from env
+function parseOrigins(origins) {
+  if (!origins) return [
+    'http://localhost:3000',
+    'http://localhost:5173',
+  ];
+  if (Array.isArray(origins)) return origins;
+  return origins.split(',').map(o => o.trim()).filter(Boolean);
+}
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || [
-      'http://localhost:3000',
-      'http://localhost:5173',
-    ],
+    origin: function (origin, callback) {
+      const allowedOrigins = parseOrigins(process.env.CORS_ORIGIN);
+      // Allow requests with no origin (like mobile apps, curl, etc.)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('CORS: Origin not allowed: ' + origin));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: [
+      'Authorization',
+      'x-memberstack-token',
+      'x-make-signature',
+      'x-make-timestamp',
+      'Content-Type',
+      'X-Requested-With',
+    ],
+    maxAge: 86400, // 24 hours for preflight cache
   })
 );
 

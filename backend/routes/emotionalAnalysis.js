@@ -6,8 +6,15 @@ import rateLimit from '../middleware/rateLimit.js';
 import auth from '../middleware/auth.js';
 import Joi from 'joi';
 import { rbacMiddleware } from '../middleware/rbac.js';
+import log from '../api/src/Shared/Logger';
 
 const router = express.Router();
+
+// --- CORS Preflight Handler ---
+router.options('*', (req, res) => {
+  res.sendStatus(204);
+});
+
 const humeService = new HumeService();
 
 const analyzeEmotionSchema = Joi.object({
@@ -21,7 +28,12 @@ router.post(
   async (req, res) => {
     try {
       const user = req.memberstackUser;
-      console.log('[Route] /analyze-emotion handler called. user:', user);
+      log.info('[Route] /analyze-emotion handler called', {
+        userId: user?.userId,
+        email: user?.email,
+        roles: user?.roles,
+        // Do not log customFields or the full user object to avoid sensitive data
+      });
       const { text, comparisonId } = req.body;
       const result = await humeService.analyzeEmotion(text, comparisonId);
       res.status(200).json({ ...result, error: null });
