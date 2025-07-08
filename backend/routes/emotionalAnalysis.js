@@ -7,6 +7,7 @@ import auth from '../middleware/auth.js';
 import Joi from 'joi';
 import { rbacMiddleware } from '../middleware/rbac.js';
 import log from '../api/src/Shared/Logger';
+import { analyzeEmotionSchema } from '../schemas/emotionalAnalysis.js';
 
 const router = express.Router();
 
@@ -16,11 +17,6 @@ router.options('*', (req, res) => {
 });
 
 const humeService = new HumeService();
-
-const analyzeEmotionSchema = Joi.object({
-  text: Joi.string().min(1).max(1000).required(),
-  comparisonId: Joi.string().uuid().required(),
-});
 
 router.post(
   '/analyze-emotion',
@@ -38,6 +34,13 @@ router.post(
       const result = await humeService.analyzeEmotion(text, comparisonId);
       res.status(200).json({ ...result, error: null });
     } catch (error) {
+      // BEGIN: Add detailed error logging
+      console.error('[analyze-emotion] Error:', error);
+      if (error && error.details) {
+        console.error('[analyze-emotion] Joi details:', error.details);
+      }
+      console.error('[analyze-emotion] Request body:', req.body);
+      // END: Add detailed error logging
       let status = 500;
       let message = error.message || 'Internal server error';
       if (message === 'Emotional score below thresholds') {
@@ -49,7 +52,9 @@ router.post(
       } else if (message.toLowerCase().includes('not found')) {
         status = 404;
       }
-      res.status(status).json({ error: message });
+      // BEGIN: Return Joi details for debugging
+      res.status(status === 500 ? 400 : status).json({ error: message, joi: error.details, body: req.body });
+      // END: Return Joi details for debugging
     }
   }
 );

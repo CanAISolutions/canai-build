@@ -262,10 +262,13 @@ describe('Emotional Analysis API Logic', () => {
       app.use('/api', router);
       const supertest = (await import('supertest')).default;
       server = app.listen(0);
-      await supertest(app)
+      const response = await supertest(app)
         .post('/api/analyze-emotion')
-        .send({ text: 'test', comparisonId: '123e4567-e89b-12d3-a456-426614174000' })
-        .expect(200);
+        .send({ text: 'test', comparisonId: '123e4567-e89b-12d3-a456-426614174000' });
+      if (response.status !== 200) {
+        console.error('Test failure response body:', response.body);
+      }
+      expect(response.status).toBe(200);
     });
     it('should deny access for user with missing role', async () => {
       process.env.NODE_ENV = 'development';

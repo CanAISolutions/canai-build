@@ -9,6 +9,8 @@ import {
   getPaymentAnalytics,
 } from '../services/paymentLogs.js';
 import supabase from '../supabase/client.js';
+import { checkoutSessionSchema } from '../schemas/stripe.js';
+import validate from '../middleware/validation.js';
 
 const router = express.Router();
 
@@ -22,25 +24,10 @@ const allowedTracks = [
   'social-media-campaign',
   'website-audit-feedback',
 ];
-const checkoutSessionSchema = Joi.object({
-  productTrack: Joi.string()
-    .valid(...allowedTracks)
-    .required(),
-  user_id: Joi.string().required(),
-  metadata: Joi.object().optional(),
-});
 
-router.post('/stripe-session', async (req, res) => {
+router.post('/stripe-session', validate({ body: checkoutSessionSchema }), async (req, res) => {
   try {
-    const { error, value } = checkoutSessionSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({
-        error: {
-          message: `Input validation failed: ${error.details.map(d => d.message).join(', ')}`,
-        },
-      });
-    }
-    const { productTrack, user_id, metadata = {} } = value;
+    const { productTrack, user_id, metadata = {} } = req.body;
     const session = await createCheckoutSession({
       productTrack,
       userId: user_id,
