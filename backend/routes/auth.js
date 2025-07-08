@@ -6,6 +6,11 @@ import axios from 'axios';
 
 const router = express.Router();
 
+// --- CORS Preflight Handler ---
+router.options('*', (req, res) => {
+  res.sendStatus(204);
+});
+
 /**
  * POST /refresh-token
  * Body: { refreshToken }
@@ -14,7 +19,14 @@ const router = express.Router();
 router.post('/refresh-token', rateLimit, async (req, res) => {
   try {
     const { refreshToken } = req.body;
-    if (!refreshToken || typeof refreshToken !== 'string' || refreshToken.length < 10) {
+    // JWT format: three base64url segments separated by dots
+    const jwtFormatRegex = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
+    if (
+      !refreshToken ||
+      typeof refreshToken !== 'string' ||
+      refreshToken.length < 10 ||
+      !jwtFormatRegex.test(refreshToken)
+    ) {
       const error = {
         error: 'Missing or invalid refresh token',
         code: 'AUTH_TOKEN_MISSING',

@@ -5,6 +5,31 @@
 This directory contains API documentation for the CanAI Emotional Sovereignty Platform backend
 services.
 
+## CORS Configuration & Environment Variables
+
+The CanAI backend enforces strict CORS (Cross-Origin Resource Sharing) policies to ensure only trusted origins can access protected API endpoints. This is critical for security and compliance with PRD requirements.
+
+### Setting Allowed Origins
+- Allowed origins are configured via the `CORS_ORIGIN` environment variable in your `.env` or `.env.example` file.
+- This variable should be a comma-separated list of trusted origins (e.g., frontend, Make.com, staging domains).
+- Example:
+  ```env
+  CORS_ORIGIN=http://localhost:3000,http://localhost:5173,https://canai.so,https://hook.us1.make.com
+  ```
+- See `.env.example` in the project root for the latest format and required values.
+
+### How CORS Works in the Backend
+- The backend reads `CORS_ORIGIN` and only allows requests from these origins.
+- Credentials (cookies, JWTs) are supported for authentication flows.
+- Allowed methods: `GET, POST, PUT, DELETE, OPTIONS`
+- Allowed headers: `Authorization, x-memberstack-token, x-make-signature, x-make-timestamp, Content-Type, X-Requested-With`
+- Preflight (OPTIONS) requests are handled for all protected endpoints.
+- See `backend/server.js` for implementation details.
+
+### Error Handling
+- Requests from disallowed origins receive a clear CORS error response.
+- All CORS errors are logged for monitoring and compliance.
+
 ## Contents
 
 - **endpoints.md** - Complete API endpoint documentation

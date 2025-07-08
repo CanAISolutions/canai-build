@@ -12,42 +12,29 @@ import { hasRequiredRole, checkScenarioAccess, rbacMiddleware } from '../../midd
 import { scenarioPermissions } from '../../config/rolePermissions.js';
 
 vi.mock('jsonwebtoken', () => {
+  // Define the mock functions once
+  const verify = vi.fn();
+  const sign = (payload, secret) => {
+    const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64');
+    const body = Buffer.from(JSON.stringify(payload)).toString('base64');
+    return `${header}.${body}.signature`;
+  };
+  const decode = (token) => {
+    if (!token) return null;
+    const parts = token.split('.');
+    if (parts.length < 2) return null;
+    try {
+      return JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+    } catch {
+      return null;
+    }
+  };
+  // Export only once, both as named and default for compatibility
   return {
-    default: {
-      verify: vi.fn(),
-      sign: (payload, secret) => {
-        // Create a fake JWT: header.payload.signature
-        const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64');
-        const body = Buffer.from(JSON.stringify(payload)).toString('base64');
-        return `${header}.${body}.signature`;
-      },
-      decode: (token) => {
-        if (!token) return null;
-        const parts = token.split('.');
-        if (parts.length < 2) return null;
-        try {
-          return JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-        } catch {
-          return null;
-        }
-      },
-    },
-    verify: vi.fn(),
-    sign: (payload, secret) => {
-      const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64');
-      const body = Buffer.from(JSON.stringify(payload)).toString('base64');
-      return `${header}.${body}.signature`;
-    },
-    decode: (token) => {
-      if (!token) return null;
-      const parts = token.split('.');
-      if (parts.length < 2) return null;
-      try {
-        return JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-      } catch {
-        return null;
-      }
-    },
+    default: { verify, sign, decode },
+    verify,
+    sign,
+    decode,
   };
 });
 vi.mock('../../services/instrument.js', () => {
@@ -382,7 +369,7 @@ describe('/v1/auth/refresh-token endpoint', () => {
     axios.post.mockResolvedValue({ data: { accessToken: 'new.jwt.token' } });
     const res = await request(app)
       .post('/v1/auth/refresh-token')
-      .send({ refreshToken: 'valid-refresh-token' });
+      .send({ refreshToken: 'header.payload.signature' });
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ accessToken: 'new.jwt.token' });
   });
@@ -411,7 +398,7 @@ describe('/v1/auth/refresh-token endpoint', () => {
     axios.post.mockRejectedValue({ response: { data: { error: 'invalid' } } });
     const res = await request(app)
       .post('/v1/auth/refresh-token')
-      .send({ refreshToken: 'bad-token-123' });
+      .send({ refreshToken: 'header.payload.signature' });
     expect(res.status).toBe(401);
     expect(res.body.code).toBe('AUTH_TOKEN_REFRESH_FAILED');
     expect(Sentry.default.captureException).toHaveBeenCalled();
@@ -424,7 +411,7 @@ describe('/v1/auth/refresh-token endpoint', () => {
     axios.post.mockResolvedValue({ data: {} });
     const res = await request(app)
       .post('/v1/auth/refresh-token')
-      .send({ refreshToken: 'valid-refresh-token' });
+      .send({ refreshToken: 'header.payload.signature' });
     expect(res.status).toBe(401);
     expect(res.body.code).toBe('AUTH_TOKEN_REFRESH_FAILED');
     expect(Sentry.default.captureException).toHaveBeenCalled();
@@ -434,23 +421,32 @@ describe('/v1/auth/refresh-token endpoint', () => {
   });
 
   it('returns 429 if rate limit exceeded', async () => {
-    // Simulate rate limiter throwing
-    const origRateLimit = authRouter.stack[0].handle;
-    authRouter.stack[0].handle = (req, res, next) => res.status(429).json({ error: 'Rate limit exceeded' });
+    // Find the correct layer for POST /refresh-token
+    const layer = authRouter.stack.find(
+      l => l.route && l.route.path === '/refresh-token' && l.route.methods.post
+    );
+    if (!layer) {
+      // Add logging for debugging if the correct layer is not found
+      console.error('Could not find POST /refresh-token route layer in authRouter.stack');
+      console.error('authRouter.stack:', authRouter.stack.map(l => l.route && l.route.path));
+      throw new Error('Test setup error: Could not find POST /refresh-token route layer');
+    }
+    const origHandle = layer.route.stack[0].handle;
+    layer.route.stack[0].handle = (req, res, next) => res.status(429).json({ error: 'Rate limit exceeded' });
     const res = await request(app)
       .post('/v1/auth/refresh-token')
-      .send({ refreshToken: 'valid-refresh-token' });
+      .send({ refreshToken: 'header.payload.signature' });
     expect(res.status).toBe(429);
     expect(res.body.error).toBe('Rate limit exceeded');
     // Restore
-    authRouter.stack[0].handle = origRateLimit;
+    layer.route.stack[0].handle = origHandle;
   });
 
   it('logs and returns 500 for internal errors', async () => {
     axios.post.mockImplementation(() => { throw new Error('unexpected'); });
     const res = await request(app)
       .post('/v1/auth/refresh-token')
-      .send({ refreshToken: 'valid-refresh-token' });
+      .send({ refreshToken: 'header.payload.signature' });
     expect(res.status).toBe(401); // Should be 401 for refresh failure, 500 for true internal
     // (depends on error path)
   });
