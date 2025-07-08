@@ -8,6 +8,14 @@ import Sentry from './services/instrument.js';
 import emotionalAnalysisRouter from './routes/emotionalAnalysis.js';
 import stripeRouter from './routes/stripe.js';
 import authRouter from './routes/auth.js';
+import messagesRouter from './routes/messages.js';
+import validateInputRouter from './routes/validateInput.js';
+import generateSparksRouter from './routes/generateSparks.js';
+import saveProgressRouter from './routes/saveProgress.js';
+import intentMirrorRouter from './routes/intentMirror.js';
+import requestRevisionRouter from './routes/requestRevision.js';
+import sparkSplitRouter from './routes/sparkSplit.js';
+import feedbackRouter from './routes/feedback.js';
 
 dotenv.config();
 
@@ -164,6 +172,38 @@ console.log('Registering /v1/stripe stripeRouter');
 // Mount authentication API
 console.log('Registering /v1/auth authRouter');
 app.use('/v1/auth', authRouter);
+
+// Mount messages API
+console.log('Registering /v1/messages messagesRouter');
+app.use('/v1', messagesRouter);
+
+// Mount validate input API
+console.log('Registering /v1 validateInputRouter');
+app.use('/v1', validateInputRouter);
+
+// Mount generate sparks API
+console.log('Registering /v1 generateSparksRouter');
+app.use('/v1', generateSparksRouter);
+
+// Mount save progress API
+console.log('Registering /v1 saveProgressRouter');
+app.use('/v1', saveProgressRouter);
+
+// Mount intent mirror API
+console.log('Registering /v1 intentMirrorRouter');
+app.use('/v1', intentMirrorRouter);
+
+// Mount request revision API
+console.log('Registering /v1 requestRevisionRouter');
+app.use('/v1', requestRevisionRouter);
+
+// Mount spark split API
+console.log('Registering /v1 sparkSplitRouter');
+app.use('/v1', sparkSplitRouter);
+
+// Mount feedback API
+console.log('Registering /v1 feedbackRouter');
+app.use('/v1', feedbackRouter);
 
 // TODO: Add API routes
 // TODO: Add authentication routes

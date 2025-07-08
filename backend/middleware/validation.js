@@ -41,7 +41,7 @@ export default function validate(schemas = {}) {
       if (schemas[source]) {
         const { error } = schemas[source].validate(req[source]);
         if (error) {
-          // Generic error message to avoid leaking schema details
+          // Restore: Only return generic error message
           return res
             .status(400)
             .json({ error: 'Invalid request. Please check your input.' });
