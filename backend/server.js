@@ -70,12 +70,12 @@ console.log('Registering CORS at: / (global middleware)');
 
 // Parse comma-separated origins from env
 function parseOrigins(origins) {
-  if (!origins) return [
-    'http://localhost:3000',
-    'http://localhost:5173',
-  ];
+  if (!origins) return ['http://localhost:3000', 'http://localhost:5173'];
   if (Array.isArray(origins)) return origins;
-  return origins.split(',').map(o => o.trim()).filter(Boolean);
+  return origins
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
 }
 
 app.use(

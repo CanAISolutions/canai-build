@@ -20,7 +20,12 @@ const humeService = new HumeService();
 
 router.post(
   '/analyze-emotion',
-  [auth, rbacMiddleware(['user', 'admin']), validate({ body: analyzeEmotionSchema }), rateLimit],
+  [
+    auth,
+    rbacMiddleware(['user', 'admin']),
+    validate({ body: analyzeEmotionSchema }),
+    rateLimit,
+  ],
   async (req, res) => {
     try {
       const user = req.memberstackUser;

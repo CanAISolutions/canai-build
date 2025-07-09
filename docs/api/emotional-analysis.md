@@ -44,8 +44,9 @@ and 14.1.
 
 - **Authentication:** Memberstack JWT required (user context)
 
-**User Context Extraction (Task 8.2):**
-All authenticated requests require a valid Memberstack JWT. The backend middleware extracts and validates a standardized user context object, available as `req.memberstackUser`:
+**User Context Extraction (Task 8.2):** All authenticated requests require a valid Memberstack JWT.
+The backend middleware extracts and validates a standardized user context object, available as
+`req.memberstackUser`:
 
 ```js
 {
@@ -178,10 +179,12 @@ documentation.
 
 ### POST /v1/auth/refresh-token
 
-**Purpose:**
-Refresh a Memberstack JWT using a valid refresh token. Enforces rate limiting and logs all events/errors to Sentry and PostHog. Follows PRD and MVP requirements for secure session management.
+**Purpose:** Refresh a Memberstack JWT using a valid refresh token. Enforces rate limiting and logs
+all events/errors to Sentry and PostHog. Follows PRD and MVP requirements for secure session
+management.
 
 **Request Body:**
+
 ```json
 {
   "refreshToken": "<refresh_token_string>"
@@ -189,6 +192,7 @@ Refresh a Memberstack JWT using a valid refresh token. Enforces rate limiting an
 ```
 
 **Response (Success):**
+
 ```json
 {
   "accessToken": "<new_jwt_access_token>"
@@ -196,6 +200,7 @@ Refresh a Memberstack JWT using a valid refresh token. Enforces rate limiting an
 ```
 
 **Response (Error):**
+
 ```json
 {
   "error": "<error_message>",
@@ -204,15 +209,20 @@ Refresh a Memberstack JWT using a valid refresh token. Enforces rate limiting an
 ```
 
 **Error Codes:**
+
 - `AUTH_TOKEN_MISSING`: Missing or invalid refresh token in request
-- `AUTH_TOKEN_REFRESH_FAILED`: Refresh failed (invalid/expired token, Memberstack API/network error, or no accessToken returned)
+- `AUTH_TOKEN_REFRESH_FAILED`: Refresh failed (invalid/expired token, Memberstack API/network error,
+  or no accessToken returned)
 - `AUTH_INTERNAL_ERROR`: Internal server error during refresh
 - `Rate limit exceeded`: Too many requests from the same IP (HTTP 429)
 
 **Logging:**
-- All errors and events are logged to Sentry and PostHog using the same conventions as the main authentication middleware.
+
+- All errors and events are logged to Sentry and PostHog using the same conventions as the main
+  authentication middleware.
 
 **References:**
+
 - [docs/task-8.3-token-refresh-implementation-plan.md](../task-8.3-token-refresh-implementation-plan.md)
 - [docs/task-8-memberstack-auth-middleware.md](../task-8-memberstack-auth-middleware.md)
 - PRD.md (Sections 6, 8.3, 8.5, 14)

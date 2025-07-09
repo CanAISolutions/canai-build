@@ -75,21 +75,27 @@ PRD.md requirements for authentication, automation, and user journey support (F1
 
 ## CORS Configuration & Rationale (Task 8.5)
 
-To ensure secure, PRD-aligned integration between the frontend, Memberstack authentication, and Make.com automations, the backend now enforces a robust CORS (Cross-Origin Resource Sharing) policy:
+To ensure secure, PRD-aligned integration between the frontend, Memberstack authentication, and
+Make.com automations, the backend now enforces a robust CORS (Cross-Origin Resource Sharing) policy:
 
 - **Only trusted origins are allowed:**
-  - Origins are defined in the `CORS_ORIGIN` environment variable (comma-separated list, see `.env.example`).
+  - Origins are defined in the `CORS_ORIGIN` environment variable (comma-separated list, see
+    `.env.example`).
   - Requests from unlisted origins are blocked with a clear error message and logged for monitoring.
 - **Credentialed and preflight requests are supported:**
   - `credentials: true` is set for all CORS requests, enabling secure authentication flows.
-  - All required methods and headers are allowed, and preflight (OPTIONS) requests are handled for every protected endpoint.
+  - All required methods and headers are allowed, and preflight (OPTIONS) requests are handled for
+    every protected endpoint.
 - **Error handling and logging:**
-  - CORS violations return actionable error messages and are logged for observability and compliance.
+  - CORS violations return actionable error messages and are logged for observability and
+    compliance.
 - **Configuration and updates:**
-  - To update allowed origins, modify `CORS_ORIGIN` in your environment config and restart the backend.
+  - To update allowed origins, modify `CORS_ORIGIN` in your environment config and restart the
+    backend.
   - See `docs/api/README.md` for full documentation and rationale.
 
 **References:**
+
 - [Task 8.5 CORS Implementation Plan](./task-8.5-cors-implementation-plan.md)
 - [Backend API CORS Documentation](./api/README.md)
 - [PRD.md Sections 6, 8.3, 8.5, 14]

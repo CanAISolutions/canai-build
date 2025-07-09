@@ -43,10 +43,14 @@ router.post('/refresh-token', rateLimit, async (req, res) => {
     // Request new token from Memberstack
     let response;
     try {
-      response = await axios.post('https://auth.memberstack.com/refresh', { refreshToken }, {
-        headers: { 'Content-Type': 'application/json' },
-        timeout: 10000,
-      });
+      response = await axios.post(
+        'https://auth.memberstack.com/refresh',
+        { refreshToken },
+        {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 10000,
+        }
+      );
     } catch (err) {
       // Always return 401 for any Memberstack API error, regardless of err.response status
       const error = {
