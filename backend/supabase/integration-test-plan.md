@@ -44,8 +44,7 @@ etc.):
 
 ## 3. Test Implementation Approach
 
-- **Framework**: Use [Vitest](https://vitest.dev/) or [Jest](https://jestjs.io/) for integration
-  tests.
+- **Framework**: Use [Vitest](https://vitest.dev/) for integration tests.
 - **API Layer**: Use backend API endpoints for all operations (no direct DB writes/reads in tests
   except for setup/teardown).
 - **Test Data**: Use test users with different roles (user, admin, support).
@@ -56,8 +55,7 @@ etc.):
 
 ## 4. Test Suite Structure
 
-**Directory:**  
-`backend/tests/integration/supabase/`
+**Directory:** `backend/tests/integration/supabase/`
 
 **Files:**
 
@@ -139,7 +137,7 @@ etc.):
 ## 8. Documentation & Reporting
 
 - **Document**: Each test file should have a header mapping it to PRD.md and schema requirements.
-- **Output**: Generate a test report (e.g., with Vitest/Jest reporters).
+- **Output**: Generate a test report (e.g., with Vitest reporters).
 - **Update**: After running tests, update `docs/project-structure-mapping.md` and `cortex.md` with
   new/changed files and test coverage.
 
@@ -156,3 +154,7 @@ etc.):
 ---
 
 **Maintainer:** [Your Name] **Created:** [Date] **Last Updated:** [Date]
+
+**Testing Framework Note (2025-07-09):** The CanAI platform standardises on **Vitest** for all
+unit/integration tests. Any prior reference to _Jest_ in this document or related files should be
+read as _Vitest_.

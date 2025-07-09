@@ -29,13 +29,13 @@ addressing uncertainties.
 
 ## Assumptions
 
-| Assumption                           | Validation Strategy                                                                                         |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| API Uptime (99.9%)                   | Monitor with Sentry, validate with health checks (`/health`).                                               |
-| User Familiarity with AI             | Provide tooltips (`/v1/generate-tooltip`), conduct UX testing (logged via `/v1/feedback`).                  |
-| Webflow CMS Supports Dynamic Updates | Cache in Supabase (`databases/`), fallback to localStorage. Test with Jest (`backend/tests/cache.test.js`). |
-| Hume AI Latency (<500ms)             | Monitor with PostHog, fallback to GPT-4o if exceeded.                                                       |
-| GPT-4o Token Limits (128K)           | Implement MapReduce, test with Jest (`backend/tests/gpt4o.test.js`).                                        |
+| Assumption                           | Validation Strategy                                                                                           |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| API Uptime (99.9%)                   | Monitor with Sentry, validate with health checks (`/health`).                                                 |
+| User Familiarity with AI             | Provide tooltips (`/v1/generate-tooltip`), conduct UX testing (logged via `/v1/feedback`).                    |
+| Webflow CMS Supports Dynamic Updates | Cache in Supabase (`databases/`), fallback to localStorage. Test with Vitest (`backend/tests/cache.test.ts`). |
+| Hume AI Latency (<500ms)             | Monitor with PostHog, fallback to GPT-4o if exceeded.                                                         |
+| GPT-4o Token Limits (128K)           | Implement MapReduce, test with Vitest (`backend/tests/gpt4o.test.ts`).                                        |
 
 ## Status
 

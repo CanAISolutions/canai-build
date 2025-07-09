@@ -10,7 +10,8 @@ export const patterns = {
     .valid('retail', 'service', 'tech', 'creative', 'other')
     .required()
     .messages({
-      'any.only': 'Business type must be one of: retail, service, tech, creative, other',
+      'any.only':
+        'Business type must be one of: retail, service, tech, creative, other',
       'any.required': 'Business type is required',
     }),
   phoneNumber: Joi.string()
@@ -18,17 +19,21 @@ export const patterns = {
     .messages({
       'string.pattern.base': 'Please enter a valid phone number',
     }),
-  primaryChallenge: Joi.string()
-    .min(5)
-    .max(50)
-    .required()
-    .messages({
-      'string.min': 'Challenge must be at least 5 characters',
-      'string.max': 'Challenge must be at most 50 characters',
-      'any.required': 'Primary challenge is required',
-    }),
+  primaryChallenge: Joi.string().min(5).max(50).required().messages({
+    'string.min': 'Challenge must be at least 5 characters',
+    'string.max': 'Challenge must be at most 50 characters',
+    'any.required': 'Primary challenge is required',
+  }),
   preferredTone: Joi.string()
-    .valid('warm', 'bold', 'optimistic', 'professional', 'playful', 'inspirational', 'custom')
+    .valid(
+      'warm',
+      'bold',
+      'optimistic',
+      'professional',
+      'playful',
+      'inspirational',
+      'custom'
+    )
     .required()
     .messages({
       'any.only': 'Preferred tone must be one of the allowed values',

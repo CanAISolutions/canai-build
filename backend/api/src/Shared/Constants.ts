@@ -5,3 +5,10 @@ export const allowedTracks = [
   'social-media-campaign',
   'website-audit-feedback',
 ];
+
+export function sampleFunction(input: string): string {
+  if (!input) {
+    throw new Error('Empty input');
+  }
+  return input.toUpperCase();
+}

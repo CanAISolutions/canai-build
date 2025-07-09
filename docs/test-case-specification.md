@@ -11,7 +11,7 @@ journey.
 
 - **Test Types**: Unit, integration, accessibility, emotional resonance, load, scenario testing.
 - **Test Coverage**: All 25+ APIs, AI services, and user journey stages with TaskMaster alignment.
-- **Tools & Framework**: Jest, Vitest, Supatest, axe-core, Locust, Hume AI validation.
+- **Tools & Framework**: Vitest, Supatest, axe-core, Locust, Hume AI validation.
 - **Performance Targets**: PRD-aligned metrics with automated validation and CI/CD integration.
 
 ## Test Pyramid and Coverage Requirements

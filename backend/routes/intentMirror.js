@@ -10,7 +10,8 @@ router.post(
   async (req, res) => {
     // Stub: In production, call AI service for summary and confidence
     res.status(200).json({
-      summary: 'Your business is ready to launch with a strong value proposition.',
+      summary:
+        'Your business is ready to launch with a strong value proposition.',
       confidenceScore: 0.92,
       clarifyingQuestions: [],
       error: null,

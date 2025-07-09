@@ -35,6 +35,18 @@
         "path": ".cursor/rules/canai-api-client-patterns.mdc",
         "tags": ["api", "client", "patterns", "canai", "prd"],
         "context": ["backend/api/**/*", "frontend/src/utils/**/*"]
+      },
+      "canai-test-debugging-best-practices": {
+        "path": ".cursor/rules/canai-test-debugging-best-practices.mdc",
+        "tags": ["testing", "debugging", "canai", "best-practices", "prd"],
+        "context": [
+          "backend/tests/**/*",
+          "frontend/tests/**/*",
+          "**/*.test.{js,ts,tsx}",
+          "**/*.spec.{js,ts,tsx}",
+          "docs/**/*test*.md",
+          ".taskmaster/tasks/**/*.json"
+        ]
       }
     },
     "frontend": {
@@ -125,13 +137,18 @@
     "testing": {
       "canai-testing-rules": {
         "path": ".cursor/rules/canai-testing-rules.mdc",
-        "tags": ["testing", "jest", "canai", "prd"],
+        "tags": ["testing", "vitest", "canai", "prd"],
         "context": ["backend/tests/**/*", "frontend/tests/**/*"]
       },
       "canai-integration-testing": {
         "path": ".cursor/rules/canai-integration-testing.mdc",
         "tags": ["integration", "testing", "canai", "prd"],
         "context": ["backend/tests/**/*", "frontend/tests/**/*", "backend/**/*", "frontend/**/*"]
+      },
+      "canai-test-plan-skeleton-rule": {
+        "path": ".cursor/rules/canai-test-plan-skeleton-rule.mdc",
+        "tags": ["testing", "planning", "canai", "best-practices"],
+        "context": ["docs/**/*test-plan.md", ".taskmaster/tasks/**/*.json"]
       }
     },
     "memory": {

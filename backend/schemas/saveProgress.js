@@ -3,7 +3,9 @@ import { patterns } from './common.js';
 
 // Joi schema for POST /v1/save-progress (F5 Detailed Input Collection)
 export const saveProgressSchema = Joi.object({
-  prompt_id: Joi.string().guid({ version: ['uuidv4'] }).optional(),
+  prompt_id: Joi.string()
+    .guid({ version: ['uuidv4'] })
+    .optional(),
   payload: Joi.object({
     businessName: Joi.string().min(3).max(50).required().messages({
       'string.min': 'Business name must be at least 3 characters',
@@ -44,8 +46,10 @@ export const saveProgressSchema = Joi.object({
     planPurpose: Joi.string().min(3).max(100).optional(),
     location: Joi.string().min(2).max(100).optional(),
     uniqueValue: Joi.string().min(3).max(100).optional(),
-  }).required().messages({
-    'object.base': 'Payload must be an object',
-    'any.required': 'Payload is required',
-  }),
+  })
+    .required()
+    .messages({
+      'object.base': 'Payload must be an object',
+      'any.required': 'Payload is required',
+    }),
 });

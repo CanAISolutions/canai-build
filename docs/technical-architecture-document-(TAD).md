@@ -102,7 +102,7 @@ graph LR
 
 - **GitHub Actions**: Build/test/deploy pipelines (`.github/workflows/`) with TaskMaster validation.
 - **OWASP ZAP, Semgrep**: Security scans in `.github/workflows/security.yml`.
-- **Coverage Requirements**: >80% Jest test coverage with Supatest integration testing.
+- **Coverage Requirements**: >80% Vitest test coverage with Supatest integration testing.
 
 ## Component Interactions
 

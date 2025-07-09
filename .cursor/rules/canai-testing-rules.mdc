@@ -1,9 +1,4 @@
 ---
-description:
-globs: backend/tests/**/*.{test.js}, frontend/src/tests/**/*.{test.tsx,ts}
-alwaysApply: false
----
----
 description: Enforces comprehensive testing strategies
 globs: backend/tests/**/*.{test.js}, frontend/src/tests/**/*.{test.tsx,ts}
 alwaysApply: true
@@ -48,6 +43,14 @@ Promote robust testing for the CanAI Emotional Sovereignty Platform to ensure qu
 - Leverage Vitest, React Testing Library, and Cypress for frontend and E2E testing.
 - Employ accessibility tools like axe-core to ensure WCAG compliance.
 - Configure mocking and coverage tools to support efficient testing.
+
+**Unified Framework Standard (2025-07-09)**
+
+* **Vitest is the mandatory unit-test framework** for both backend (Node) and frontend (browser/React) code.
+* Integration tests continue to use **Supertest** (APIs) and **Locust** (load), with Vitest as the runner where possible.
+* E2E/UI tests remain on **Cypress** (or Playwright once adopted).
+
+> Legacy documentation that references **Jest** is deprecated.  Any previous mention of Jest should be interpreted as *Vitest* going forward.
 
 ### Accessibility
 - Ensure user-facing components meet WCAG 2.2 AA standards for accessibility.
@@ -95,6 +98,11 @@ Promote robust testing for the CanAI Emotional Sovereignty Platform to ensure qu
 - Support PRD requirements for testing, performance, and accessibility.
 - Align with quality and user journey specifications in the PRD.
 - Prioritize PRD guidance, adapting these guidelines to avoid conflicts.
+
+---
+
+**Created**: June 19, 2025
+**Version**: 1.0.0
 
 ---
 

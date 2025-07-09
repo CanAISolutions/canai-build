@@ -7,14 +7,19 @@ export const messagesQuerySchema = Joi.object({
 
 // Response schema for documentation/testing
 export const messagesResponseSchema = Joi.object({
-  messages: Joi.array().items(
-    Joi.object({
-      text: Joi.string().required().messages({
-        'string.base': 'Message text must be a string',
-        'any.required': 'Message text is required'
-      }),
-      user_id: Joi.string().guid({ version: ['uuidv4'] }).allow(null).optional()
-    })
-  ).required(),
-  error: Joi.string().allow(null)
+  messages: Joi.array()
+    .items(
+      Joi.object({
+        text: Joi.string().required().messages({
+          'string.base': 'Message text must be a string',
+          'any.required': 'Message text is required',
+        }),
+        user_id: Joi.string()
+          .guid({ version: ['uuidv4'] })
+          .allow(null)
+          .optional(),
+      })
+    )
+    .required(),
+  error: Joi.string().allow(null),
 });
