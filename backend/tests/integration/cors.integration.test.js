@@ -17,6 +17,14 @@ vi.mock('../../services/hume.js', () => ({
     circuitBreaker: { isOpen: vi.fn().mockReturnValue(false), state: 'CLOSED' },
   })),
 }));
+vi.mock('../../services/instrument.js', () => ({
+  captureException: vi.fn(),
+  default: { captureException: vi.fn() },
+}));
+vi.mock('../../services/posthog.js', () => ({
+  capture: vi.fn(),
+  default: { capture: vi.fn() },
+}));
 
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import request from 'supertest';

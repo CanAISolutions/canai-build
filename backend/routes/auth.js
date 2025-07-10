@@ -3,6 +3,8 @@ import rateLimit from '../middleware/rateLimit.js';
 import * as Sentry from '../services/instrument.js';
 import posthog from '../services/posthog.js';
 import axios from 'axios';
+import Joi from 'joi';
+import { refreshTokenSchema } from '../schemas/auth.js';
 
 const router = express.Router();
 
@@ -36,20 +38,49 @@ function logDefensiveAuth(msg, meta) {
 router.post('/refresh-token', rateLimit, async (req, res) => {
   logDefensiveAuth('Received /refresh-token request', { body: req.body });
   try {
-    const { refreshToken } = req.body;
+    // --- NEW: Validate with Joi schema, catch all validation errors ---
+    let validated;
+    try {
+      validated = await refreshTokenSchema.validateAsync(req.body, {
+        abortEarly: false,
+      });
+    } catch (err) {
+      const error = {
+        error: 'Missing or invalid refresh token',
+        code: 'AUTH_TOKEN_MISSING',
+        details: err.details || err.message,
+      };
+      logDefensiveAuth('[DEBUG] Joi validation failed', {
+        ...error,
+        refreshToken: req.body.refreshToken,
+      });
+      Sentry.captureException(err, { extra: error });
+      posthog.capture({
+        distinctId: 'system',
+        event: 'auth_failure',
+        properties: { ...error, timestamp: new Date().toISOString() },
+      });
+      return res.status(400).json(error);
+    }
+    const { refreshToken } = validated;
+
     // JWT format: three base64url segments separated by dots
     const jwtFormatRegex = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
     if (
       !refreshToken ||
       typeof refreshToken !== 'string' ||
       refreshToken.length < 10 ||
+      refreshToken.length > 512 || // Defensive: max length
       !jwtFormatRegex.test(refreshToken)
     ) {
       const error = {
         error: 'Missing or invalid refresh token',
         code: 'AUTH_TOKEN_MISSING',
       };
-      logDefensiveAuth('Validation failed', { ...error, refreshToken });
+      logDefensiveAuth('[DEBUG] Validation failed (length or format)', {
+        ...error,
+        refreshToken,
+      });
       Sentry.captureException(new Error(error.error), { extra: error });
       posthog.capture({
         distinctId: 'system',
