@@ -11,7 +11,6 @@ import {
 import supabase from '../supabase/client.js';
 import { checkoutSessionSchema } from '../schemas/stripe.js';
 import validate from '../middleware/validation.js';
-import { allowedTracks } from '../api/src/Shared/Constants.ts';
 
 const router = express.Router();
 
@@ -19,6 +18,12 @@ const router = express.Router();
 router.options('*', (req, res) => {
   res.sendStatus(204);
 });
+
+const allowedTracks = [
+  'business-plan-builder',
+  'social-media-campaign',
+  'website-audit-feedback',
+];
 
 router.post(
   '/stripe-session',

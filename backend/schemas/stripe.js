@@ -1,5 +1,11 @@
 import Joi from 'joi';
-import { allowedTracks } from '../api/src/Shared/Constants.ts';
+import { patterns } from './common.js';
+
+const allowedTracks = [
+  'business-plan-builder',
+  'social-media-campaign',
+  'website-audit-feedback',
+];
 
 export const checkoutSessionSchema = Joi.object({
   productTrack: Joi.string()
