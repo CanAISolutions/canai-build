@@ -1,7 +1,9 @@
 import Joi from 'joi';
 import { sanitize } from './sanitize.js';
-import { sanitizeWithSchema } from './sanitize.js';
+import { sanitizeWithSchema, ValidationError } from './sanitize.js';
 import { createRequire } from 'module';
+import posthog, { safeCapture } from '../services/posthog.js';
+import Sentry from '../services/instrument.js';
 let _logger;
 try {
   const require = createRequire(import.meta.url);
@@ -40,53 +42,61 @@ function logDebug(msg, meta) {
   }
 }
 
-// Recursively sanitize all string fields in an object, respecting schema if provided
-function deepSanitize(obj, schema = {}, path = []) {
-  if (!obj || typeof obj !== 'object') return obj;
-  for (const key of Object.keys(obj)) {
-    const value = obj[key];
-    const fieldPath = [...path, key].join('.');
-    const fieldRule = schema[key] || { sanitize: true, mode: 'plain' };
-    if (fieldRule && fieldRule.sanitize) {
-      if (typeof value === 'string') {
-        obj[key] = sanitize(value, fieldRule);
-      } else if (value && typeof value === 'object') {
-        obj[key] = deepSanitize(value, schema[key] || {}, [...path, key]);
-      } else if (value === null || value === undefined) {
-        // User-centric error for null/undefined
-        throw new Error(`Invalid input: field '${fieldPath}' is required.`);
-      }
-    }
-  }
-  return obj;
-}
-
 function validate(schemas = {}, options = {}) {
   return (req, res, next) => {
     logDebug('[validation] invoked', { method: req.method, path: req.path });
-    const sanitizeSchema =
-      options.sanitizeSchema || inferSanitizeSchema(req.body);
+    // Accept per-part sanitize schemas or fallback to default
+    const sanitizeSchemas = options.sanitizeSchemas || {
+      body: options.sanitizeSchema || inferSanitizeSchema(req.body),
+      query: options.sanitizeSchema || inferSanitizeSchema(req.query),
+      params: options.sanitizeSchema || inferSanitizeSchema(req.params),
+      headers: options.sanitizeSchema || inferSanitizeSchema(req.headers),
+    };
     try {
-      req.body = deepSanitize(req.body, sanitizeSchema);
-      req.query = deepSanitize(req.query, sanitizeSchema);
-      req.params = deepSanitize(req.params, sanitizeSchema);
-      req.headers = deepSanitize(req.headers, sanitizeSchema);
+      req.body = sanitizeWithSchema(req.body, sanitizeSchemas.body);
+      req.query = sanitizeWithSchema(req.query, sanitizeSchemas.query);
+      req.params = sanitizeWithSchema(req.params, sanitizeSchemas.params);
+      req.headers = sanitizeWithSchema(req.headers, sanitizeSchemas.headers);
     } catch (err) {
-      logDebug('[validation] error', { error: err.message });
-      if (typeof res.status === 'function') {
-        return res.status(400).json({ error: err.message || 'Invalid input.' });
-      } else {
-        // In test/mock environments, throw so tests can catch
-        throw err;
+      logDebug('[validation] error', { error: err.message, field: err.field });
+      // Integrate PostHog/Sentry analytics for all failures
+      const context = {
+        method: req.method,
+        path: req.path,
+        user: req.user ? { id: req.user.id, email: req.user.email } : undefined,
+        error: err.message,
+        stack: err.stack,
+        type: err.name,
+        source: 'sanitize',
+      };
+      if (safeCapture) {
+        safeCapture({
+          event: 'error_occurred',
+          properties: {
+            errorType: err.name || 'SanitizationError',
+            stackTrace: err.stack,
+            context,
+            sessionId:
+              req.sessionId || (req.user && req.user.sessionId) || 'unknown',
+            timestamp: new Date().toISOString(),
+          },
+        });
       }
-    }
-    // Logging for debugging: warn if a field is sanitized but not in schema
-    for (const key in req.body) {
-      if (typeof req.body[key] === 'string' && !sanitizeSchema[key]) {
-        console.warn(
-          `[Sanitize] Field '${key}' sanitized with default plain mode (no schema provided).`
+      if (Sentry && typeof Sentry.captureException === 'function') {
+        Sentry.captureException(err, { extra: context });
+      }
+      res
+        .status(400)
+        .json(
+          err instanceof ValidationError
+            ? { error: err.message, field: err.field }
+            : { error: err.message || 'Invalid input.' }
         );
-      }
+      logDebug('[validation] error response sent', {
+        error: err.message,
+        field: err.field,
+      });
+      return; // Explicitly stop middleware chain
     }
     // Validate each part if schema provided
     const sources = ['body', 'query', 'params', 'headers'];
@@ -94,6 +104,35 @@ function validate(schemas = {}, options = {}) {
       if (schemas[source]) {
         const { error } = schemas[source].validate(req[source]);
         if (error) {
+          // Integrate analytics/logging for validation errors
+          const context = {
+            method: req.method,
+            path: req.path,
+            user: req.user
+              ? { id: req.user.id, email: req.user.email }
+              : undefined,
+            error: error.message,
+            stack: error.stack,
+            type: error.name,
+            source,
+          };
+          if (safeCapture)
+            safeCapture({
+              event: 'error_occurred',
+              properties: {
+                errorType: error.name || 'ValidationError',
+                stackTrace: error.stack,
+                context,
+                sessionId:
+                  req.sessionId ||
+                  (req.user && req.user.sessionId) ||
+                  'unknown',
+                timestamp: new Date().toISOString(),
+              },
+            });
+          if (Sentry && typeof Sentry.captureException === 'function') {
+            Sentry.captureException(error, { extra: context });
+          }
           return res
             .status(400)
             .json({ error: 'Invalid request. Please check your input.' });

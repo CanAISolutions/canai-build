@@ -25,18 +25,6 @@ envVarsToLog.forEach(k => {
 });
 // END: Print all relevant env vars
 
-import { createClient } from '@supabase/supabase-js';
-import request from 'supertest';
-import app from '../../server.js'; // Adjust import if needed
-import { vi } from 'vitest';
-import jwt from 'jsonwebtoken';
-
-const anonKey = process.env.SUPABASE_ANON_KEY;
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const url = process.env.SUPABASE_URL;
-
-const serviceClient = createClient(url, serviceKey);
-
 vi.mock('../../services/gpt4oFallback.js', () => ({
   default: class {
     async analyzeEmotion() {
@@ -44,6 +32,67 @@ vi.mock('../../services/gpt4oFallback.js', () => ({
     }
   },
 }));
+
+import { createClient } from '@supabase/supabase-js';
+import request from 'supertest';
+import {
+  vi,
+  beforeEach,
+  afterEach,
+  describe,
+  test,
+  expect,
+  beforeAll,
+  afterAll,
+} from 'vitest';
+import jwt from 'jsonwebtoken';
+
+let server;
+let app;
+
+console.log('[DEBUG] Top-level: Instantiating Supabase client');
+const anonKey = process.env.SUPABASE_ANON_KEY;
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const url = process.env.SUPABASE_URL;
+const serviceClient = createClient(url, serviceKey);
+
+beforeEach(async () => {
+  console.log('[DEBUG] beforeEach: start');
+  vi.clearAllMocks();
+  vi.resetModules();
+  const mod = await import('../../server.js');
+  app = mod.createApp();
+  server = app.listen(0);
+  // Only fetch payment_logs if strictly necessary
+  try {
+    const { data: logs, error: logsError } = await serviceClient
+      .from('payment_logs')
+      .select('*');
+    if (logsError) {
+      console.error(
+        '[DEBUG] Error fetching payment_logs before test:',
+        logsError
+      );
+    } else {
+      console.log('[DEBUG] payment_logs before test:', logs);
+    }
+  } catch (err) {
+    console.error('[DEBUG] Exception in beforeEach payment_logs fetch:', err);
+  }
+  console.log('[DEBUG] beforeEach: end');
+}, 30000);
+
+afterEach(async () => {
+  console.log('[DEBUG] afterEach: start');
+  if (server && server.close) {
+    await new Promise(resolve => server.close(resolve));
+    server = null;
+    console.log('[DEBUG] afterEach: server closed');
+  }
+  // Optionally, print open handles for leak diagnosis
+  // console.log('[DEBUG] Active handles:', process._getActiveHandles());
+  console.log('[DEBUG] afterEach: end');
+});
 
 describe('/v1/stripe/payment-logs API', () => {
   let testLogId;
@@ -157,7 +206,7 @@ describe('/v1/stripe/payment-logs API', () => {
   });
 
   test('should return logs filtered by user_id', async () => {
-    const res = await request(app)
+    const res = await request(server)
       .get('/v1/stripe/payment-logs')
       .set('Authorization', `Bearer ${userJwt}`)
       .query({ user_id: userId });
@@ -178,7 +227,7 @@ describe('/v1/stripe/payment-logs API', () => {
   });
 
   test('should return logs filtered by event_type', async () => {
-    const res = await request(app)
+    const res = await request(server)
       .get('/v1/stripe/payment-logs')
       .set('Authorization', `Bearer ${userJwt}`)
       .query({ event_type: 'checkout.session.created' });
@@ -187,7 +236,7 @@ describe('/v1/stripe/payment-logs API', () => {
   });
 
   test('should return logs filtered by status', async () => {
-    const res = await request(app)
+    const res = await request(server)
       .get('/v1/stripe/payment-logs')
       .set('Authorization', `Bearer ${userJwt}`)
       .query({ status: 'completed' });
@@ -196,7 +245,7 @@ describe('/v1/stripe/payment-logs API', () => {
   });
 
   test('should support pagination', async () => {
-    const res = await request(app)
+    const res = await request(server)
       .get('/v1/stripe/payment-logs')
       .set('Authorization', `Bearer ${userJwt}`)
       .query({ limit: 1, offset: 0 });
@@ -206,7 +255,7 @@ describe('/v1/stripe/payment-logs API', () => {
   });
 
   test('should support sorting', async () => {
-    const res = await request(app)
+    const res = await request(server)
       .get('/v1/stripe/payment-logs')
       .set('Authorization', `Bearer ${userJwt}`)
       .query({ sort: 'created_at.desc' });
@@ -215,7 +264,7 @@ describe('/v1/stripe/payment-logs API', () => {
   });
 
   test('should only allow users to see their own logs (RLS)', async () => {
-    const res = await request(app)
+    const res = await request(server)
       .get('/v1/stripe/payment-logs')
       .set('Authorization', `Bearer ${userJwt}`);
     expect(res.status).toBe(200);
@@ -223,7 +272,7 @@ describe('/v1/stripe/payment-logs API', () => {
   });
 
   test.skip('should allow admin to see all logs', async () => {
-    const res = await request(app)
+    const res = await request(server)
       .get('/v1/stripe/payment-logs')
       .set('Authorization', `Bearer ${adminJwt}`);
     if (res.status !== 200) {
@@ -247,7 +296,7 @@ describe('/v1/stripe/payment-logs API', () => {
   // Add analytics endpoint tests here so they have access to JWTs
   describe('/v1/stripe/payment-logs/analytics API', () => {
     test('should return analytics for user', async () => {
-      const res = await request(app)
+      const res = await request(server)
         .get('/v1/stripe/payment-logs/analytics')
         .set('Authorization', `Bearer ${userJwt}`)
         .query({ user_id: userId });
@@ -260,7 +309,7 @@ describe('/v1/stripe/payment-logs API', () => {
 
     // Skipped for MVP: RLS policy does not yet allow admin to access all analytics data
     test.skip('should return analytics for admin (all users)', async () => {
-      const res = await request(app)
+      const res = await request(server)
         .get('/v1/stripe/payment-logs/analytics')
         .set('Authorization', `Bearer ${adminJwt}`);
       expect(res.status).toBe(200);
@@ -271,7 +320,7 @@ describe('/v1/stripe/payment-logs API', () => {
     });
 
     test('should enforce RLS for user (cannot see other users)', async () => {
-      const res = await request(app)
+      const res = await request(server)
         .get('/v1/stripe/payment-logs/analytics')
         .set('Authorization', `Bearer ${userJwt}`)
         .query({ user_id: 'some-other-user-id' });
@@ -282,7 +331,9 @@ describe('/v1/stripe/payment-logs API', () => {
     });
 
     test('should handle missing/invalid JWT', async () => {
-      const res = await request(app).get('/v1/stripe/payment-logs/analytics');
+      const res = await request(server).get(
+        '/v1/stripe/payment-logs/analytics'
+      );
       expect([401, 403]).toContain(res.status);
     });
   });

@@ -1,6 +1,6 @@
 // Vitest skeleton for sanitize.js
 import { describe, it, expect } from 'vitest';
-import { sanitize } from './sanitize.js';
+import { sanitize, sanitizeWithSchema, ValidationError } from './sanitize.js';
 
 // Arrange-Act-Assert (AAA) pattern
 
@@ -103,5 +103,114 @@ describe('sanitize.js', () => {
     // Cleanup
     console.log = origLog;
     console.debug = origDebug;
+  });
+});
+
+describe('sanitizeWithSchema', () => {
+  it('should recursively sanitize deeply nested objects/arrays with mixed plain/rich/skip fields', () => {
+    const input = {
+      a: '<b>Safe</b><img src=x onerror=evil()>',
+      b: [
+        '<script>bad()</script>',
+        { c: '<i>ok</i>', d: '<svg/onload=evil()>' },
+      ],
+      e: { f: 'plain', g: '<b>rich</b>' },
+      h: 'should skip',
+    };
+    const schema = {
+      a: { sanitize: true, mode: 'rich' },
+      b: {
+        sanitize: true,
+        schema: {
+          0: { sanitize: true, mode: 'plain' },
+          1: {
+            sanitize: true,
+            schema: {
+              c: { sanitize: true, mode: 'rich' },
+              d: { sanitize: true, mode: 'plain' },
+            },
+          },
+        },
+      },
+      e: {
+        sanitize: true,
+        schema: {
+          f: { sanitize: true, mode: 'plain' },
+          g: { sanitize: true, mode: 'rich' },
+        },
+      },
+      h: { sanitize: false },
+    };
+    const result = sanitizeWithSchema(input, schema);
+    expect((result as any).a).toContain('<b>Safe</b>');
+    expect((result as any).a).not.toContain('<img');
+    expect((result as any).b[0]).toBe('');
+    expect((result as any).b[1].c).toContain('<i>ok</i>');
+    expect((result as any).b[1].d).toBe('evil()');
+    expect((result as any).e.f).toBe('plain');
+    expect((result as any).e.g).toContain('<b>rich</b>');
+    expect((result as any).h).toBe('should skip');
+  });
+
+  it('should throw ValidationError for missing or null fields', () => {
+    const input = { a: null };
+    const schema = { a: { sanitize: true, mode: 'plain' } };
+    expect(() => sanitizeWithSchema(input, schema)).toThrow(ValidationError);
+  });
+
+  it('should throw ValidationError for non-string fields', () => {
+    const input = { a: 123 };
+    const schema = { a: { sanitize: true, mode: 'plain' } };
+    expect(() => sanitizeWithSchema(input, schema)).toThrow(ValidationError);
+  });
+
+  it('should handle empty, long, and unicode fields', () => {
+    const input = {
+      a: '',
+      b: 'a'.repeat(10000) + '<script>bad()</script>',
+      c: '\ud835\udcaf\ud835\udc52\ud835\udcc8\ud835\udcc9 <b>\ud835\udccd\ud835\udcc8\ud835\udcc8</b>\u200B',
+    };
+    const schema = {
+      a: { sanitize: true, mode: 'plain' },
+      b: { sanitize: true, mode: 'plain' },
+      c: { sanitize: true, mode: 'rich' },
+    };
+    const result = sanitizeWithSchema(input, schema);
+    expect((result as any).a).toBe('');
+    expect((result as any).b).not.toContain('<script>');
+    expect((result as any).c).toContain('<b>𝓍𝓈𝓈</b>');
+    expect((result as any).c).not.toContain('\u200B');
+  });
+
+  it('should neutralize malicious payloads in nested fields', () => {
+    const input = {
+      a: '<img src=x onerror=alert(1)>',
+      b: {
+        c: '<svg/onload=evil()>',
+        d: '<a href="javascript:alert(1)">bad</a>',
+      },
+    };
+    const schema = {
+      a: { sanitize: true, mode: 'rich' },
+      b: {
+        sanitize: true,
+        schema: {
+          c: { sanitize: true, mode: 'plain' },
+          d: { sanitize: true, mode: 'rich' },
+        },
+      },
+    };
+    const result = sanitizeWithSchema(input, schema);
+    expect((result as any).a).not.toMatch(/onerror|<img/i);
+    expect(((result as any).b as any).c).not.toMatch(/<svg/i);
+    expect(((result as any).b as any).d).not.toMatch(/javascript:/i);
+  });
+
+  it('should log and handle errors for nested validation errors', () => {
+    const input = { a: { b: null } };
+    const schema = {
+      a: { sanitize: true, schema: { b: { sanitize: true, mode: 'plain' } } },
+    };
+    expect(() => sanitizeWithSchema(input, schema)).toThrow(ValidationError);
   });
 });

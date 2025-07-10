@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { render, screen, waitFor, fireEvent } from './test-utils';
 import type { Mock } from 'vitest';
 import { beforeEach, describe, expect, test, vi } from 'vitest';

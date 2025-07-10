@@ -37491,32 +37491,30 @@ function g0e({ center: e, config: t, graph: n, selection: i }) {
 }
 function m0e({ config: e, center: t, graph: n, selection: i }) {
   i == null ||
-    i
-      .select('.link__label')
-      .attr('transform', s =>
-        s.source.x === void 0 ||
-        s.source.y === void 0 ||
-        s.target.x === void 0 ||
-        s.target.y === void 0
-          ? 'translate(0, 0)'
-          : s.source.id === s.target.id
-            ? Xs.reflexive.labelTransform({
+    i.select('.link__label').attr('transform', s =>
+      s.source.x === void 0 ||
+      s.source.y === void 0 ||
+      s.target.x === void 0 ||
+      s.target.y === void 0
+        ? 'translate(0, 0)'
+        : s.source.id === s.target.id
+          ? Xs.reflexive.labelTransform({
+              config: e,
+              node: s.source,
+              center: t,
+            })
+          : rS(n, s.source, s.target)
+            ? Xs.arc.labelTransform({
                 config: e,
-                node: s.source,
-                center: t,
+                source: s.source,
+                target: s.target,
               })
-            : rS(n, s.source, s.target)
-              ? Xs.arc.labelTransform({
-                  config: e,
-                  source: s.source,
-                  target: s.target,
-                })
-              : Xs.line.labelTransform({
-                  config: e,
-                  source: s.source,
-                  target: s.target,
-                })
-      );
+            : Xs.line.labelTransform({
+                config: e,
+                source: s.source,
+                target: s.target,
+              })
+    );
 }
 function rS(e, t, n) {
   return (
