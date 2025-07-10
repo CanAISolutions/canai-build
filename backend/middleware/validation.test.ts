@@ -24,7 +24,7 @@ describe('validation.js', () => {
     validate({}, {})({}, {}, () => {}); // warmup for coverage
     validate({}, {})({}, {}, () => {}); // warmup for coverage
     validate({}, {})({}, {}, () => {}); // warmup for coverage
-    validate({}, {})({ ...req }, res, next);
+    validate({}, {})(req, res, next);
     // Assert
     expect(req.body.a).toBe('1');
     expect(req.body.b).toBe('plain');
@@ -47,7 +47,7 @@ describe('validation.js', () => {
     };
     const sanitizeSchema = { html: { sanitize: true, mode: 'rich' } };
     // Act
-    validate({}, { sanitizeSchema })({ ...req }, res, next);
+    validate({}, { sanitizeSchema })(req, res, next);
     // Assert
     expect(req.body.html).toContain('<b>ok</b>');
     expect(req.body.html).not.toContain('<script>');
@@ -55,20 +55,27 @@ describe('validation.js', () => {
   });
 
   // TODO: Error handling - throws/returns ValidationError on failure
-  it('should throw or return ValidationError on sanitization failure', () => {
+  it('should throw or return ValidationError on sanitization failure', done => {
     // Arrange
     const req = { body: { a: null }, query: {}, params: {}, headers: {} };
-    let json: { error?: string } | undefined;
     const res = {
-      json: (j: unknown) => {
-        json = j as { error?: string } | undefined;
+      status: function () {
+        return this;
+      },
+      json: function (j: any) {
+        try {
+          expect(j).toHaveProperty('error');
+          expect(typeof j.error).toBe('string');
+          done();
+        } catch (err) {
+          done(err);
+        }
+        return this;
       },
     };
     const next = () => {};
     // Act
-    validate({}, {})({ ...req }, res, next);
-    // Assert
-    expect(json).toBeDefined();
+    validate({}, {})(req, res, next);
   });
 
   // TODO: Integration - all endpoints using middleware sanitize input
@@ -86,7 +93,7 @@ describe('validation.js', () => {
       nextCalled = true;
     };
     // Act
-    validate({}, {})({ ...req }, res, next);
+    validate({}, {})(req, res, next);
     // Assert
     expect(req.body.a).toBe('ok');
     expect(nextCalled).toBe(true);
@@ -109,7 +116,7 @@ describe('validation.js', () => {
     const res = {};
     const next = () => {};
     // Act
-    validate({}, {})({ ...req }, res, next);
+    validate({}, {})(req, res, next);
     // Assert
     expect(logged.join(' ')).toMatch(/sanitize/i);
     // Cleanup
@@ -118,20 +125,26 @@ describe('validation.js', () => {
   });
 
   // TODO: Error responses - user-centric, actionable messages
-  it('should return user-centric, actionable error messages', () => {
+  it('should return user-centric, actionable error messages', done => {
     // Arrange
     const req = { body: { a: null }, query: {}, params: {}, headers: {} };
-    let json: { error?: string } | undefined;
     const res = {
-      json: (j: unknown) => {
-        json = j as { error?: string } | undefined;
+      status: function () {
+        return this;
+      },
+      json: function (j: any) {
+        try {
+          expect(j).toHaveProperty('error');
+          expect(typeof j.error).toBe('string');
+          done();
+        } catch (err) {
+          done(err);
+        }
+        return this;
       },
     };
     const next = () => {};
     // Act
-    validate({}, {})({ ...req }, res, next);
-    // Assert
-    expect(json!).toHaveProperty('error');
-    expect(typeof json!.error).toBe('string');
+    validate({}, {})(req, res, next);
   });
 });

@@ -138,7 +138,12 @@
       "canai-testing-rules": {
         "path": ".cursor/rules/canai-testing-rules.mdc",
         "tags": ["testing", "vitest", "canai", "prd"],
-        "context": ["backend/tests/**/*", "frontend/tests/**/*"]
+        "context": [
+          "backend/tests/**/*",
+          "frontend/tests/**/*",
+          "**/*.test.{js,ts,tsx}",
+          "**/*.spec.{js,ts,tsx}"
+        ]
       },
       "canai-integration-testing": {
         "path": ".cursor/rules/canai-integration-testing.mdc",
@@ -147,8 +152,13 @@
       },
       "canai-test-plan-skeleton-rule": {
         "path": ".cursor/rules/canai-test-plan-skeleton-rule.mdc",
-        "tags": ["testing", "planning", "canai", "best-practices"],
-        "context": ["docs/**/*test-plan.md", ".taskmaster/tasks/**/*.json"]
+        "tags": ["testing", "test-plan", "canai", "prd"],
+        "context": [
+          "backend/tests/**/*",
+          "frontend/tests/**/*",
+          "**/*.test.{js,ts,tsx}",
+          "**/*.spec.{js,ts,tsx}"
+        ]
       }
     },
     "memory": {

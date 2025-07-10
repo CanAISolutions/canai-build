@@ -11,12 +11,30 @@ router.options('*', (req, res) => {
   res.sendStatus(204);
 });
 
+// Defensive logging utility
+function logDefensiveAuth(msg, meta) {
+  try {
+    // Redact refreshToken in logs
+    if (meta && meta.refreshToken) meta.refreshToken = '[REDACTED]';
+    // Use structured logging if available
+    if (typeof console.debug === 'function') {
+      console.debug(`[auth.js][defensive] ${msg}`, meta);
+    } else {
+      console.log(`[auth.js][defensive] ${msg}`, meta);
+    }
+  } catch (e) {
+    // Fallback to basic log
+    console.log(`[auth.js][defensive] ${msg}`);
+  }
+}
+
 /**
  * POST /refresh-token
  * Body: { refreshToken }
  * Returns: { accessToken } on success, or error with code on failure
  */
 router.post('/refresh-token', rateLimit, async (req, res) => {
+  logDefensiveAuth('Received /refresh-token request', { body: req.body });
   try {
     const { refreshToken } = req.body;
     // JWT format: three base64url segments separated by dots
@@ -31,6 +49,7 @@ router.post('/refresh-token', rateLimit, async (req, res) => {
         error: 'Missing or invalid refresh token',
         code: 'AUTH_TOKEN_MISSING',
       };
+      logDefensiveAuth('Validation failed', { ...error, refreshToken });
       Sentry.captureException(new Error(error.error), { extra: error });
       posthog.capture({
         distinctId: 'system',
@@ -58,6 +77,7 @@ router.post('/refresh-token', rateLimit, async (req, res) => {
         code: 'AUTH_TOKEN_REFRESH_FAILED',
         details: err.response?.data || err.message,
       };
+      logDefensiveAuth('Memberstack API error', { ...error, refreshToken });
       Sentry.captureException(err, { extra: error });
       posthog.capture({
         distinctId: 'system',
@@ -74,6 +94,7 @@ router.post('/refresh-token', rateLimit, async (req, res) => {
         error: 'Token refresh failed: No accessToken returned',
         code: 'AUTH_TOKEN_REFRESH_FAILED',
       };
+      logDefensiveAuth('No accessToken returned', { ...error, refreshToken });
       Sentry.captureException(new Error(error.error), { extra: error });
       posthog.capture({
         distinctId: 'system',
@@ -84,6 +105,7 @@ router.post('/refresh-token', rateLimit, async (req, res) => {
     }
 
     // Success: log and return new accessToken
+    logDefensiveAuth('Token refresh successful', { accessToken });
     posthog.capture({
       distinctId: 'system',
       event: 'auth_token_refreshed',
@@ -96,6 +118,7 @@ router.post('/refresh-token', rateLimit, async (req, res) => {
       code: 'AUTH_INTERNAL_ERROR',
       message: error.message,
     };
+    logDefensiveAuth('Internal server error', { ...errorDetails });
     Sentry.captureException(error, { extra: errorDetails });
     posthog.capture({
       distinctId: 'system',

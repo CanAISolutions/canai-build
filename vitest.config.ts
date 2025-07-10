@@ -7,7 +7,7 @@ dotenv.config();
 
 export default defineConfig({
   test: {
-    environment: 'jsdom',
+    environment: 'node', // Use Node.js environment for all tests to support backend/integration tests and OpenAI SDK
     globals: true,
     testTimeout: 10000,
     setupFiles: ['./vitest.setup.ts', './vitest.setup.js'],

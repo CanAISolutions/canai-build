@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('../../../testEnvSetup');
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

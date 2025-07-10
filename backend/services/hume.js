@@ -36,6 +36,12 @@ class HumeService {
     this.initializeRateLimiter();
 
     this.scorer = new EmotionalScorer();
+    if (typeof GPT4oFallbackService !== 'function') {
+      console.error(
+        'GPT4oFallbackService is not a constructor:',
+        GPT4oFallbackService
+      );
+    }
     this.fallback = fallback || new GPT4oFallbackService();
   }
 

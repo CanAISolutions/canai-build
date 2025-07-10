@@ -51,8 +51,49 @@ const logger = pino({
 export function memberstackAuthMiddleware(req, res, next) {
   try {
     if (process.env.NODE_ENV !== 'production') {
-      logger.debug('[auth] Non-production mode: bypassing Memberstack auth');
+      // In test/dev, attach a default user context if a JWT is present, or always
+      let token = req.headers['x-memberstack-token'];
+      if (!token) {
+        const authHeader =
+          req.headers['authorization'] || req.headers['Authorization'] || '';
+        token = authHeader.replace(/^Bearer\s+/i, '');
+      }
+      let userContext;
+      if (token) {
+        try {
+          const decoded = jwt.decode(token);
+          if (
+            decoded &&
+            decoded.id &&
+            decoded.email &&
+            Array.isArray(decoded.roles)
+          ) {
+            userContext = {
+              userId: decoded.id,
+              email: decoded.email,
+              roles: decoded.roles,
+              customFields: decoded.customFields || {},
+            };
+          }
+        } catch (e) {
+          // ignore decode errors in test
+        }
+      }
+      if (!userContext) {
+        // fallback: always attach a default user for test/dev
+        userContext = {
+          userId: 'test-user',
+          email: 'test@example.com',
+          roles: ['user'],
+          customFields: {},
+        };
+      }
+      req.memberstackUser = userContext;
       return next();
+    }
+
+    if (process.env.NODE_ENV === 'production') {
+      logger.debug('[auth] Production mode: enforcing Memberstack auth');
     }
 
     // Accept token from either header

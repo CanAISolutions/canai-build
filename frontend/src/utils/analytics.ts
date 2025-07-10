@@ -136,7 +136,7 @@ const POSTHOG_HOST =
   import.meta.env['VITE_POSTHOG_HOST'] || 'https://app.posthog.com';
 
 let analyticsClient;
-if (POSTHOG_API_KEY) {
+if (typeof window !== 'undefined' && POSTHOG_API_KEY) {
   // Real PostHog client
   posthog.init(POSTHOG_API_KEY, { api_host: POSTHOG_HOST });
   analyticsClient = posthog;
@@ -145,7 +145,7 @@ if (POSTHOG_API_KEY) {
   // Fallback mock
   analyticsClient = mockPostHog;
   console.log(
-    '[Analytics] Using mock analytics client (no VITE_POSTHOG_API_KEY)'
+    '[Analytics] Using mock analytics client (no VITE_POSTHOG_API_KEY or not in browser)'
   );
 }
 
