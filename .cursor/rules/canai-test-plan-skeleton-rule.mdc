@@ -1,0 +1,39 @@
+# CanAI Test-Plan & Skeleton Enforcement Rule
+
+## Purpose
+Guarantee that *every* new feature or code-implementation task begins with a documented test strategy and a Vitest skeleton, eliminating downstream debugging waste.
+
+## Requirements
+1. **Test Design Doc (`<feature>-test-plan.md`)** must exist *before* the related implementation task moves to `in-progress`.
+   - Must outline scope, unit vs. integration vs. e2e layers, edge-cases, negative scenarios, logging/observability hooks.
+2. **Taskmaster Skeleton Subtask**
+   - For each implementation task, add a dependent subtask titled `Create Vitest skeleton for <module>`.
+   - Parent task cannot transition to `done` until the skeleton subtask is `done`.
+3. **Skeleton Test Template**
+   - Skeleton spec files must be derived from `tests/_example.gold.spec.ts`.
+   - Must compile & pass `vitest --typecheck` even if assertions are TODO placeholders.
+4. **CI / Pre-Commit Guards**
+   - Commits containing new `*.ts/tsx/js` files are blocked if they lack a matching `*.spec|test.*` file *or* an open skeleton subtask.
+   - Taskmaster validation should fail if requirement (1) or (2) is missing.
+
+## Rationale
+- Forces early thinking about testing and edge-cases.
+- Ensures the canai-test-debugging-best-practices rule triggers at planning time.
+- Reduces flake risk by seeding AAA-structured, template-based tests from day one.
+
+## Validation
+- Cursor will flag PRs/commits lacking the required doc and skeleton.
+- CI pipeline must run `scripts/validate-test-plan.sh` (to be authored) to enforce the commit guard.
+
+## References
+- [test-debugging-best-practices.md](mdc:docs/test-debugging-best-practices.md)
+- [canai-test-debugging-best-practices.mdc](mdc:.cursor/rules/canai-test-debugging-best-practices.mdc)
+
+---
+**Created:** 2025-07-09
+**Version:** 1.0.0
+
+description:
+globs:
+alwaysApply: false
+---

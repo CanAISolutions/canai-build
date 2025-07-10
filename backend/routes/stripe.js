@@ -25,40 +25,45 @@ const allowedTracks = [
   'website-audit-feedback',
 ];
 
-router.post('/stripe-session', validate({ body: checkoutSessionSchema }), async (req, res) => {
-  try {
-    const { productTrack, user_id, metadata = {} } = req.body;
-    const session = await createCheckoutSession({
-      productTrack,
-      userId: user_id,
-      metadata,
-    });
-    // Log session in Supabase payment_logs
+router.post(
+  '/stripe-session',
+  validate({ body: checkoutSessionSchema }),
+  async (req, res) => {
     try {
-      await supabase.from('payment_logs').insert([
-        {
-          user_id,
-          amount: session.amount_total ? session.amount_total / 100 : null, // Stripe returns amount in cents
-          currency: session.currency || 'usd',
-          payment_method:
-            (session.payment_method_types && session.payment_method_types[0]) ||
-            'card',
-          status: 'pending',
-          stripe_payment_id: session.payment_intent || session.id, // fallback to session.id if payment_intent missing
-          event_type: 'checkout.session.created',
-          metadata: session,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ]);
-    } catch (logErr) {
-      console.error('Failed to log payment event:', logErr.message);
+      const { productTrack, user_id, metadata = {} } = req.body;
+      const session = await createCheckoutSession({
+        productTrack,
+        userId: user_id,
+        metadata,
+      });
+      // Log session in Supabase payment_logs
+      try {
+        await supabase.from('payment_logs').insert([
+          {
+            user_id,
+            amount: session.amount_total ? session.amount_total / 100 : null, // Stripe returns amount in cents
+            currency: session.currency || 'usd',
+            payment_method:
+              (session.payment_method_types &&
+                session.payment_method_types[0]) ||
+              'card',
+            status: 'pending',
+            stripe_payment_id: session.payment_intent || session.id, // fallback to session.id if payment_intent missing
+            event_type: 'checkout.session.created',
+            metadata: session,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+        ]);
+      } catch (logErr) {
+        console.error('Failed to log payment event:', logErr.message);
+      }
+      res.json({ session });
+    } catch (error) {
+      res.status(500).json({ error: { message: error.message } });
     }
-    res.json({ session });
-  } catch (error) {
-    res.status(500).json({ error: { message: error.message } });
   }
-});
+);
 
 router.post('/refund', async (req, res) => {
   try {

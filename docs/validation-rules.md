@@ -3,17 +3,22 @@
 ---
 
 ## Purpose
-Document all Joi validation schemas, shared patterns, and error handling conventions for backend API endpoints, supporting trust, security, and maintainability per PRD and Task 9.1 implementation plan.
+
+Document all Joi validation schemas, shared patterns, and error handling conventions for backend API
+endpoints, supporting trust, security, and maintainability per PRD and Task 9.1 implementation plan.
 
 ---
 
 ## Shared Patterns (backend/schemas/common.js)
+
 - **Email:** Joi.string().email().required()
 - **BusinessType:** Joi.string().valid('retail', 'service', 'tech', 'creative', 'other').required()
 - **PhoneNumber:** Joi.string().pattern(/^[+][1-9]\d{1,14}$/)
 - **PrimaryChallenge:** Joi.string().min(5).max(50).required()
-- **PreferredTone:** Joi.string().valid('warm', 'bold', 'optimistic', 'professional', 'playful', 'inspirational', 'custom').required()
-- **CustomTone:** Joi.string().min(1).max(50).when('preferredTone', { is: 'custom', then: Joi.required() })
+- **PreferredTone:** Joi.string().valid('warm', 'bold', 'optimistic', 'professional', 'playful',
+  'inspirational', 'custom').required()
+- **CustomTone:** Joi.string().min(1).max(50).when('preferredTone', { is: 'custom', then:
+  Joi.required() })
 - **Custom Error Messages:** All patterns provide actionable, empathetic error messages.
 
 ---
@@ -21,6 +26,7 @@ Document all Joi validation schemas, shared patterns, and error handling convent
 ## Endpoint Schemas
 
 ### `/v1/messages` (GET)
+
 - **Query:** None (reserved for future)
 - **Response:**
   ```json
@@ -34,6 +40,7 @@ Document all Joi validation schemas, shared patterns, and error handling convent
 ---
 
 ### `/v1/validate-input` (POST)
+
 - **Schema:**
   - email (required, valid email)
   - businessType (required, shared pattern)
@@ -51,6 +58,7 @@ Document all Joi validation schemas, shared patterns, and error handling convent
 ---
 
 ### `/v1/generate-sparks` (POST)
+
 - **Schema:**
   - All fields as in `/v1/validate-input`
   - Used for spark generation (F3)
@@ -62,6 +70,7 @@ Document all Joi validation schemas, shared patterns, and error handling convent
 ---
 
 ### `/v1/save-progress` (POST)
+
 - **Schema:**
   - prompt_id (optional, uuid)
   - payload: object with fields:
@@ -76,8 +85,11 @@ Document all Joi validation schemas, shared patterns, and error handling convent
 ---
 
 ### `/v1/intent-mirror` (POST)
+
 - **Schema:**
-  - businessName, targetAudience, primaryGoal, competitiveContext, brandVoice, resourceConstraints, currentStatus, businessDescription, revenueModel, planPurpose, location, uniqueValue (all required, min/max as per PRD)
+  - businessName, targetAudience, primaryGoal, competitiveContext, brandVoice, resourceConstraints,
+    currentStatus, businessDescription, revenueModel, planPurpose, location, uniqueValue (all
+    required, min/max as per PRD)
 - **Example Error:**
   ```json
   { "field": "primaryGoal", "message": "Primary goal is required" }
@@ -86,6 +98,7 @@ Document all Joi validation schemas, shared patterns, and error handling convent
 ---
 
 ### `/v1/request-revision` (POST)
+
 - **Schema:**
   - prompt_id (required, uuid)
   - revisionReason (required, min 5/max 200)
@@ -98,6 +111,7 @@ Document all Joi validation schemas, shared patterns, and error handling convent
 ---
 
 ### `/v1/spark-split` (POST)
+
 - **Schema:**
   - prompt_id (required, uuid)
   - canaiOutput (required, min 10/max 2000)
@@ -111,6 +125,7 @@ Document all Joi validation schemas, shared patterns, and error handling convent
 ---
 
 ### `/v1/feedback` (POST)
+
 - **Schema:**
   - user_id (required, uuid)
   - feedbackText (required, min 5/max 1000)
@@ -124,13 +139,16 @@ Document all Joi validation schemas, shared patterns, and error handling convent
 ---
 
 ## Error Handling & Logging
+
 - All validation errors are returned in a consistent, user-friendly format with actionable messages.
 - Errors are logged to Sentry/PostHog for monitoring and analytics.
-- See `backend/middleware/validation.js` and `docs/task-9-input-validation-middleware.md` for details.
+- See `backend/middleware/validation.js` and `docs/task-9-input-validation-middleware.md` for
+  details.
 
 ---
 
 ## References
+
 - [Task 9.1 Implementation Plan](./task-9.1-joi-validation-schemas.md)
 - [Input Validation Middleware](./task-9-input-validation-middleware.md)
 - PRD.md (Sections 5, 6, 7.2, 9, 12)

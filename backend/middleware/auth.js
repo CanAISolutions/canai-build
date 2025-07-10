@@ -51,9 +51,7 @@ const logger = pino({
 export function memberstackAuthMiddleware(req, res, next) {
   try {
     if (process.env.NODE_ENV !== 'production') {
-      logger.debug(
-        '[auth] Non-production mode: bypassing Memberstack auth'
-      );
+      logger.debug('[auth] Non-production mode: bypassing Memberstack auth');
       return next();
     }
 
@@ -149,9 +147,7 @@ export function memberstackAuthMiddleware(req, res, next) {
         req.memberstackUser = userContext;
         // Backward compatibility: attach raw JWT for transition period
         req.memberstackUserRaw = decoded;
-        logger.info(
-          `[auth] Auth success for user ${userContext.userId}`
-        );
+        logger.info(`[auth] Auth success for user ${userContext.userId}`);
         posthog.capture({
           distinctId: userContext.userId || 'unknown',
           event: 'auth_success',

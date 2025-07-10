@@ -8,18 +8,24 @@ import authRouter from '../../routes/auth.js';
 import request from 'supertest';
 import * as jwtUtils from '../../middleware/jwtUtils.js';
 import axios from 'axios';
-import { hasRequiredRole, checkScenarioAccess, rbacMiddleware } from '../../middleware/rbac.js';
+import {
+  hasRequiredRole,
+  checkScenarioAccess,
+  rbacMiddleware,
+} from '../../middleware/rbac.js';
 import { scenarioPermissions } from '../../config/rolePermissions.js';
 
 vi.mock('jsonwebtoken', () => {
   // Define the mock functions once
   const verify = vi.fn();
   const sign = (payload, secret) => {
-    const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64');
+    const header = Buffer.from(
+      JSON.stringify({ alg: 'HS256', typ: 'JWT' })
+    ).toString('base64');
     const body = Buffer.from(JSON.stringify(payload)).toString('base64');
     return `${header}.${body}.signature`;
   };
-  const decode = (token) => {
+  const decode = token => {
     if (!token) return null;
     const parts = token.split('.');
     if (parts.length < 2) return null;
@@ -107,7 +113,12 @@ describe('memberstackAuthMiddleware', () => {
   it('accepts token from Authorization header', () => {
     req.headers['authorization'] = 'Bearer validtoken';
     vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) =>
-      cb(null, { id: 'user123', email: 'user123@example.com', roles: [], customFields: {} })
+      cb(null, {
+        id: 'user123',
+        email: 'user123@example.com',
+        roles: [],
+        customFields: {},
+      })
     );
     memberstackAuthMiddleware(req, res, next);
     expect(jwt.verify).toHaveBeenCalledWith(
@@ -123,7 +134,12 @@ describe('memberstackAuthMiddleware', () => {
       roles: [],
       customFields: {},
     });
-    expect(req.memberstackUserRaw).toEqual({ id: 'user123', email: 'user123@example.com', roles: [], customFields: {} });
+    expect(req.memberstackUserRaw).toEqual({
+      id: 'user123',
+      email: 'user123@example.com',
+      roles: [],
+      customFields: {},
+    });
     expect(posthog.capture).toHaveBeenCalledWith(
       expect.objectContaining({ event: 'auth_success' })
     );
@@ -133,7 +149,12 @@ describe('memberstackAuthMiddleware', () => {
   it('accepts token from x-memberstack-token header', () => {
     req.headers['x-memberstack-token'] = 'validtoken';
     vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) =>
-      cb(null, { id: 'user456', email: 'user456@example.com', roles: [], customFields: {} })
+      cb(null, {
+        id: 'user456',
+        email: 'user456@example.com',
+        roles: [],
+        customFields: {},
+      })
     );
     memberstackAuthMiddleware(req, res, next);
     expect(jwt.verify).toHaveBeenCalledWith(
@@ -149,7 +170,12 @@ describe('memberstackAuthMiddleware', () => {
       roles: [],
       customFields: {},
     });
-    expect(req.memberstackUserRaw).toEqual({ id: 'user456', email: 'user456@example.com', roles: [], customFields: {} });
+    expect(req.memberstackUserRaw).toEqual({
+      id: 'user456',
+      email: 'user456@example.com',
+      roles: [],
+      customFields: {},
+    });
     expect(posthog.capture).toHaveBeenCalledWith(
       expect.objectContaining({ event: 'auth_success' })
     );
@@ -216,7 +242,9 @@ describe('memberstackAuthMiddleware', () => {
       roles: ['user', 'admin'],
       customFields: { foo: 'bar' },
     };
-    vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) => cb(null, decoded));
+    vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) =>
+      cb(null, decoded)
+    );
     memberstackAuthMiddleware(req, res, next);
     expect(next).toHaveBeenCalled();
     expect(req.memberstackUser).toEqual({
@@ -233,8 +261,14 @@ describe('memberstackAuthMiddleware', () => {
   it('returns 401 if roles or customFields are missing', () => {
     req.headers['authorization'] = 'Bearer validtoken';
     // Missing roles
-    let decoded = { id: 'user101', email: 'user101@example.com', customFields: {} };
-    vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) => cb(null, decoded));
+    let decoded = {
+      id: 'user101',
+      email: 'user101@example.com',
+      customFields: {},
+    };
+    vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) =>
+      cb(null, decoded)
+    );
     memberstackAuthMiddleware(req, res, next);
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith(
@@ -247,7 +281,9 @@ describe('memberstackAuthMiddleware', () => {
 
     // Missing customFields
     decoded = { id: 'user102', email: 'user102@example.com', roles: [] };
-    vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) => cb(null, decoded));
+    vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) =>
+      cb(null, decoded)
+    );
     memberstackAuthMiddleware(req, res, next);
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith(
@@ -266,7 +302,9 @@ describe('memberstackAuthMiddleware', () => {
       roles: ['user'],
       customFields: {},
     };
-    vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) => cb(null, decoded));
+    vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) =>
+      cb(null, decoded)
+    );
     memberstackAuthMiddleware(req, res, next);
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith(
@@ -288,7 +326,9 @@ describe('memberstackAuthMiddleware', () => {
       roles: ['user'],
       customFields: {},
     };
-    vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) => cb(null, decoded));
+    vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) =>
+      cb(null, decoded)
+    );
     memberstackAuthMiddleware(req, res, next);
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith(
@@ -311,7 +351,9 @@ describe('memberstackAuthMiddleware', () => {
       roles: 'not-an-array',
       customFields: {},
     };
-    vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) => cb(null, decoded));
+    vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) =>
+      cb(null, decoded)
+    );
     memberstackAuthMiddleware(req, res, next);
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith(
@@ -335,7 +377,9 @@ describe('memberstackAuthMiddleware', () => {
       roles: [],
       customFields: 'not-an-object',
     };
-    vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) => cb(null, decoded));
+    vi.spyOn(jwt, 'verify').mockImplementation((token, getKey, opts, cb) =>
+      cb(null, decoded)
+    );
     memberstackAuthMiddleware(req, res, next);
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith(
@@ -375,9 +419,7 @@ describe('/v1/auth/refresh-token endpoint', () => {
   });
 
   it('returns 400 for missing refreshToken', async () => {
-    const res = await request(app)
-      .post('/v1/auth/refresh-token')
-      .send({});
+    const res = await request(app).post('/v1/auth/refresh-token').send({});
     expect(res.status).toBe(400);
     expect(res.body.code).toBe('AUTH_TOKEN_MISSING');
     expect(Sentry.default.captureException).toHaveBeenCalled();
@@ -427,12 +469,20 @@ describe('/v1/auth/refresh-token endpoint', () => {
     );
     if (!layer) {
       // Add logging for debugging if the correct layer is not found
-      console.error('Could not find POST /refresh-token route layer in authRouter.stack');
-      console.error('authRouter.stack:', authRouter.stack.map(l => l.route && l.route.path));
-      throw new Error('Test setup error: Could not find POST /refresh-token route layer');
+      console.error(
+        'Could not find POST /refresh-token route layer in authRouter.stack'
+      );
+      console.error(
+        'authRouter.stack:',
+        authRouter.stack.map(l => l.route && l.route.path)
+      );
+      throw new Error(
+        'Test setup error: Could not find POST /refresh-token route layer'
+      );
     }
     const origHandle = layer.route.stack[0].handle;
-    layer.route.stack[0].handle = (req, res, next) => res.status(429).json({ error: 'Rate limit exceeded' });
+    layer.route.stack[0].handle = (req, res, next) =>
+      res.status(429).json({ error: 'Rate limit exceeded' });
     const res = await request(app)
       .post('/v1/auth/refresh-token')
       .send({ refreshToken: 'header.payload.signature' });
@@ -443,7 +493,9 @@ describe('/v1/auth/refresh-token endpoint', () => {
   });
 
   it('logs and returns 500 for internal errors', async () => {
-    axios.post.mockImplementation(() => { throw new Error('unexpected'); });
+    axios.post.mockImplementation(() => {
+      throw new Error('unexpected');
+    });
     const res = await request(app)
       .post('/v1/auth/refresh-token')
       .send({ refreshToken: 'header.payload.signature' });
@@ -481,22 +533,34 @@ describe('RBAC Utilities', () => {
     const user = { roles: ['admin'] };
     expect(checkScenarioAccess(user, 'admin_add_project')).toBe(true);
     expect(checkScenarioAccess({ roles: ['user'] }, 'add_project')).toBe(true);
-    expect(checkScenarioAccess({ roles: ['superadmin'] }, 'admin_add_project')).toBe(true);
+    expect(
+      checkScenarioAccess({ roles: ['superadmin'] }, 'admin_add_project')
+    ).toBe(true);
   });
   it('checkScenarioAccess returns false for disallowed scenario', () => {
-    expect(checkScenarioAccess({ roles: ['user'] }, 'admin_add_project')).toBe(false);
+    expect(checkScenarioAccess({ roles: ['user'] }, 'admin_add_project')).toBe(
+      false
+    );
     expect(checkScenarioAccess({ roles: [] }, 'add_project')).toBe(false);
-    expect(checkScenarioAccess({ roles: ['guest'] }, 'add_project')).toBe(false);
+    expect(checkScenarioAccess({ roles: ['guest'] }, 'add_project')).toBe(
+      false
+    );
   });
   it('checkScenarioAccess returns false for unknown scenario', () => {
-    expect(checkScenarioAccess({ roles: ['admin'] }, 'unknown_scenario')).toBe(false);
+    expect(checkScenarioAccess({ roles: ['admin'] }, 'unknown_scenario')).toBe(
+      false
+    );
   });
   it('checkScenarioAccess reflects dynamic scenarioPermissions changes', () => {
     const original = { ...scenarioPermissions };
     scenarioPermissions['test_scenario'] = ['user'];
-    expect(checkScenarioAccess({ roles: ['user'] }, 'test_scenario')).toBe(true);
+    expect(checkScenarioAccess({ roles: ['user'] }, 'test_scenario')).toBe(
+      true
+    );
     scenarioPermissions['test_scenario'] = ['admin'];
-    expect(checkScenarioAccess({ roles: ['user'] }, 'test_scenario')).toBe(false);
+    expect(checkScenarioAccess({ roles: ['user'] }, 'test_scenario')).toBe(
+      false
+    );
     Object.assign(scenarioPermissions, original);
   });
 });

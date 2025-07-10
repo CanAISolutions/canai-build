@@ -4,7 +4,10 @@
 
 ## Purpose
 
-Implement a secure, maintainable, and PRD-aligned Role-Based Access Control (RBAC) system for the CanAI backend, leveraging roles extracted from Memberstack JWTs. This ensures that only users with appropriate permissions can access protected routes and features, supporting both frontend and automation (Make.com) flows.
+Implement a secure, maintainable, and PRD-aligned Role-Based Access Control (RBAC) system for the
+CanAI backend, leveraging roles extracted from Memberstack JWTs. This ensures that only users with
+appropriate permissions can access protected routes and features, supporting both frontend and
+automation (Make.com) flows.
 
 ---
 
@@ -44,7 +47,8 @@ Implement a secure, maintainable, and PRD-aligned Role-Based Access Control (RBA
 
 ### 4. **Route Integration**
 
-- `/analyze-emotion` route in `backend/routes/emotionalAnalysis.js` now uses `rbacMiddleware(['user', 'admin'])` after `auth` middleware.
+- `/analyze-emotion` route in `backend/routes/emotionalAnalysis.js` now uses
+  `rbacMiddleware(['user', 'admin'])` after `auth` middleware.
 - Ensures only users with correct roles can access the endpoint.
 
 ---
@@ -60,7 +64,8 @@ Implement a secure, maintainable, and PRD-aligned Role-Based Access Control (RBA
 
 ## Alignment with PRD & MVP
 
-- **Strictly follows** `docs/task-8-memberstack-auth-middleware.md` and PRD.md requirements for RBAC, security, and user journey support.
+- **Strictly follows** `docs/task-8-memberstack-auth-middleware.md` and PRD.md requirements for
+  RBAC, security, and user journey support.
 - **Supports both frontend and Make.com automation flows**.
 - **Ensures maintainable, testable, and extensible RBAC logic**.
 

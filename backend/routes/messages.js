@@ -11,20 +11,18 @@ const TRUST_INDICATORS = [
   { text: 'CanAI launched my bakery!', user_id: null },
   { text: '99.9% uptime' },
   { text: 'GDPR compliant' },
-  { text: '10k+ users' }
+  { text: '10k+ users' },
 ];
 
-router.get(
-  '/messages',
-  validate({ query: querySchema }),
-  async (req, res) => {
-    try {
-      // In production, fetch from DB/service
-      res.status(200).json({ messages: TRUST_INDICATORS, error: null });
-    } catch (err) {
-      res.status(500).json({ messages: [], error: 'Failed to fetch trust indicators' });
-    }
+router.get('/messages', validate({ query: querySchema }), async (req, res) => {
+  try {
+    // In production, fetch from DB/service
+    res.status(200).json({ messages: TRUST_INDICATORS, error: null });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ messages: [], error: 'Failed to fetch trust indicators' });
   }
-);
+});
 
 export default router;

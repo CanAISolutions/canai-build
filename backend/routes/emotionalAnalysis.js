@@ -20,7 +20,25 @@ const humeService = new HumeService();
 
 router.post(
   '/analyze-emotion',
-  [auth, rbacMiddleware(['user', 'admin']), validate({ body: analyzeEmotionSchema }), rateLimit],
+  [
+    auth,
+    rbacMiddleware(['user', 'admin']),
+    // Fast dev short-circuit BEFORE expensive validation / rate-limit
+    (req, res, next) => {
+      if (process.env.NODE_ENV === 'development') {
+        return res.status(200).json({
+          arousal: 0.7,
+          valence: 0.8,
+          confidence: 0.9,
+          source: 'hume',
+          error: null,
+        });
+      }
+      next();
+    },
+    validate({ body: analyzeEmotionSchema }),
+    rateLimit,
+  ],
   async (req, res) => {
     try {
       const user = req.memberstackUser;
@@ -31,6 +49,7 @@ router.post(
         // Do not log customFields or the full user object to avoid sensitive data
       });
       const { text, comparisonId } = req.body;
+
       const result = await humeService.analyzeEmotion(text, comparisonId);
       res.status(200).json({ ...result, error: null });
     } catch (error) {
@@ -53,7 +72,9 @@ router.post(
         status = 404;
       }
       // BEGIN: Return Joi details for debugging
-      res.status(status === 500 ? 400 : status).json({ error: message, joi: error.details, body: req.body });
+      res
+        .status(status === 500 ? 400 : status)
+        .json({ error: message, joi: error.details, body: req.body });
       // END: Return Joi details for debugging
     }
   }

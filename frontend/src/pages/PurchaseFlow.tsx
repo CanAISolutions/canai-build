@@ -163,7 +163,11 @@ const PurchaseFlow = () => {
 
       // Check for valid user ID before proceeding
       if (!member?.id) {
-        Sentry.captureException(new Error('Authentication failure: member.id is missing during checkout.'));
+        Sentry.captureException(
+          new Error(
+            'Authentication failure: member.id is missing during checkout.'
+          )
+        );
         toast({
           title: 'Authentication Error',
           description:

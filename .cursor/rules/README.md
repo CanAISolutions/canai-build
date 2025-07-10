@@ -257,6 +257,17 @@ with business goals and user experience objectives.
 - **Applies To**: Project documentation
 - **Cursor Support**: Supports doc creation
 
+#### 23. **canai-test-debugging-best-practices.mdc** - Test Debugging Best Practices
+
+- **Purpose**: Enforces a scientific, logging-first, research-based approach to test debugging and test file changes, referencing [test-debugging-best-practices.md](mdc:docs/test-debugging-best-practices.md)
+- **Key Features**:
+  - Requires robust logging and diagnostics before code changes
+  - Mandates review of recent code changes and scope
+  - Encourages frequent, incremental testing
+  - Aligns with PRD and project QA standards
+- **Applies To**: All test files and debugging workflows
+- **Cursor Support**: Ensures best practices are followed for test reliability
+
 ## 🔄 Guideline Relationships
 
 ### Key Connections
@@ -352,5 +363,5 @@ with business goals and user experience objectives.
 
 ---
 
-**Version**: 2.2.0 **Last Updated**: June 19, 2025 **Guidelines**: 22 flexible recommendations
+**Version**: 2.2.0 **Last Updated**: June 19, 2025 **Guidelines**: 23 flexible recommendations
 **Coverage**: Full 9-stage journey **Optimization**: Balanced for Cursor AI and innovation

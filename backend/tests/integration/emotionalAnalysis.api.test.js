@@ -255,16 +255,28 @@ describe('Emotional Analysis API Logic', () => {
       const app = express();
       app.use(express.json());
       // Inject user with "user" role before router
-      const payload = { userId: 'u1', email: 'u1@example.com', roles: ['user'], customFields: {} };
-      app.use((req, res, next) => { req.memberstackUser = payload; next(); });
+      const payload = {
+        userId: 'u1',
+        email: 'u1@example.com',
+        roles: ['user'],
+        customFields: {},
+      };
+      app.use((req, res, next) => {
+        req.memberstackUser = payload;
+        next();
+      });
       // Mount router after user context middleware
-      const router = (await import('../../routes/emotionalAnalysis.js')).default;
+      const router = (await import('../../routes/emotionalAnalysis.js'))
+        .default;
       app.use('/api', router);
       const supertest = (await import('supertest')).default;
       server = app.listen(0);
       const response = await supertest(app)
         .post('/api/analyze-emotion')
-        .send({ text: 'test', comparisonId: '123e4567-e89b-12d3-a456-426614174000' });
+        .send({
+          text: 'test',
+          comparisonId: '123e4567-e89b-12d3-a456-426614174000',
+        });
       if (response.status !== 200) {
         console.error('Test failure response body:', response.body);
       }
@@ -275,15 +287,27 @@ describe('Emotional Analysis API Logic', () => {
       const express = (await import('express')).default;
       const app = express();
       app.use(express.json());
-      const payload = { userId: 'u2', email: 'u2@example.com', roles: ['guest'], customFields: {} };
-      app.use((req, res, next) => { req.memberstackUser = payload; next(); });
-      const router = (await import('../../routes/emotionalAnalysis.js')).default;
+      const payload = {
+        userId: 'u2',
+        email: 'u2@example.com',
+        roles: ['guest'],
+        customFields: {},
+      };
+      app.use((req, res, next) => {
+        req.memberstackUser = payload;
+        next();
+      });
+      const router = (await import('../../routes/emotionalAnalysis.js'))
+        .default;
       app.use('/api', router);
       const supertest = (await import('supertest')).default;
       server = app.listen(0);
       await supertest(app)
         .post('/api/analyze-emotion')
-        .send({ text: 'test', comparisonId: '123e4567-e89b-12d3-a456-426614174000' })
+        .send({
+          text: 'test',
+          comparisonId: '123e4567-e89b-12d3-a456-426614174000',
+        })
         .expect(403)
         .expect(res => {
           expect(res.body.code).toBe('AUTH_ROLE_INSUFFICIENT');
@@ -294,14 +318,21 @@ describe('Emotional Analysis API Logic', () => {
       const express = (await import('express')).default;
       const app = express();
       app.use(express.json());
-      app.use((req, res, next) => { req.memberstackUser = undefined; next(); });
-      const router = (await import('../../routes/emotionalAnalysis.js')).default;
+      app.use((req, res, next) => {
+        req.memberstackUser = undefined;
+        next();
+      });
+      const router = (await import('../../routes/emotionalAnalysis.js'))
+        .default;
       app.use('/api', router);
       const supertest = (await import('supertest')).default;
       server = app.listen(0);
       await supertest(app)
         .post('/api/analyze-emotion')
-        .send({ text: 'test', comparisonId: '123e4567-e89b-12d3-a456-426614174000' })
+        .send({
+          text: 'test',
+          comparisonId: '123e4567-e89b-12d3-a456-426614174000',
+        })
         .expect(401)
         .expect(res => {
           expect(res.body.code).toBe('AUTH_USER_CONTEXT_INVALID');

@@ -1,14 +1,3 @@
----
-description:
-globs:
-alwaysApply: false
----
----
-description: Core linting rules for the CanAI platform repository
-globs: frontend/src/**/*.{ts,tsx}, backend/**/*.{ts,js}, docs/**/*.{md,yaml}, backend/config/*.json, backend/webhooks/make_scenarios/*.json
-alwaysApply: true
-tags: [typescript, react, markdown, api, security, testing, supabase, analytics, llm, accessibility, taskmaster, data-lifecycle, feature-flags, make-automation, error-handling, production]
----
 {
   "version": 1.2,
   "metadata": {
@@ -93,12 +82,14 @@ tags: [typescript, react, markdown, api, security, testing, supabase, analytics,
     "./rules/canai-llm-rules.mdc",
     "./rules/canai-llm-prompting.mdc",
     "./rules/canai-make-automation.mdc",
-    "/rules/cursor_rules.mdc
+    "/rules/cursor_rules.mdc",
     "./rules/canai-memberstack-sync.mdc",
     "./rules/canai-feature-flags-rules.mdc",
     "./rules/canai-data-lifecycle-rules.mdc",
     "./rules/canai-production-readiness.mdc",
-    "./rules/canai-taskmaster.mdc"
+    "./rules/canai-taskmaster.mdc",
+    "./rules/canai-test-debugging-best-practices.mdc",
+    "./rules/canai-test-plan-skeleton-rule.mdc"
   ],
   "taskmaster": {
     "enabled": true,
@@ -107,6 +98,17 @@ tags: [typescript, react, markdown, api, security, testing, supabase, analytics,
     "aiModel": "claude-3.7-sonnet"
   }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
