@@ -17,21 +17,61 @@ env:
   FORCE_COLOR: 1
 
 jobs:
-  noop:
+  semgrep:
+    name: Semgrep Static Analysis (SAST)
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Semgrep Scan
+        run: |
+          semgrep ci \
+            --config "p/typescript" \
+            --config "p/nodejs" \
+            --config "p/owasp-top-ten" \
+            --output semgrep-results.json \
+            --json
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+      - name: Process Semgrep Results
+        run: |
+          node scripts/process-semgrep-results.js
+
+  npm_audit:
+    name: Dependency Security Audit (npm audit)
     runs-on: ubuntu-latest
     steps:
-      - name: No-op
-        run: echo "All security jobs are temporarily disabled for MVP focus."
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run npm audit
+        run: |
+          npm audit --json > audit-results.json || true
+      - name: Process Audit Results
+        run: |
+          node scripts/process-audit-results.js
 
-#   dependency-check:
-#     name: Dependency Security Audit
-#     ... (rest of jobs remain commented as in your version)
-#   code-scanning:
-#     name: Static Code Analysis
-#     ...
-#   security-reporting:
-#     name: Security Summary Report
-#     ...
+  zap_scan:
+    name: OWASP ZAP API Scan (DAST)
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.event_name == 'schedule'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: ZAP API Scan
+        uses: zaproxy/action-api-scan@v0.5.0
+        with:
+          target: 'https://api.staging.yourapp.com' # TODO: Set to your staging API endpoint
+          format: 'json'
+          cmd_options: '-c config.yaml' # TODO: Provide config.yaml if needed
+          allow_issue_writing: true
+          fail_action: false
+      - name: Process ZAP Results
+        run: |
+          node scripts/process-zap-results.js
 
 permissions:
   security-events: write
