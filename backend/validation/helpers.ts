@@ -11,7 +11,7 @@ import validator from 'validator';
  */
 export function validateBusinessType(value: string) {
   if (BUSINESS_TYPE_REGEX.test(value)) return true;
-  console.warn('Business type validation failed:', value);
+  console.warn('Business type validation failed');
   return { error: 'Invalid business type category.' };
 }
 
@@ -20,7 +20,7 @@ export function validateBusinessType(value: string) {
  */
 export function validateEnhancedEmail(value: string) {
   if (typeof value !== 'string' || !validator.isEmail(value)) {
-    console.warn('Enhanced email validation failed:', value);
+    console.warn('Enhanced email validation failed');
     return { error: 'Invalid email address.' };
   }
   return true;
@@ -73,8 +73,12 @@ export function validateInternationalPhone(
 
 /**
  * Validates a postal code for a given country.
+ *
+ * If country is 'any', validation is bypassed and the function always returns true (postal code validation is disabled).
  * For CA/GB, only returns true if BOTH strict regex and validator.js pass. For others, only if validator.js passes.
+ *
  * See docs/pattern-library-debugging-log.md for test policy and rationale.
+ * Related test cases: See validation.test.ts and pattern-library-debugging-log.md for edge cases and bypass logic.
  */
 export function validatePostalCode(
   value: string,
@@ -116,18 +120,34 @@ export function validateBusinessUrl(value: string) {
     typeof value !== 'string' ||
     !validator.isURL(value, { require_protocol: true })
   ) {
-    console.warn('Business URL validation failed:', value);
+    console.warn('Business URL validation failed');
     return { error: 'Invalid business website URL.' };
   }
   return true;
 }
 
+const SOCIAL_HANDLE_DENYLIST = [
+  'null',
+  'undefined',
+  'test',
+  'admin',
+  'user',
+  'root',
+  'system',
+];
+
 /**
  * Validates a social media handle.
  */
 export function validateSocialHandle(value: string) {
-  if (SOCIAL_HANDLE_REGEX.test(value)) return true;
-  console.warn('Social handle validation failed:', value);
+  if (SOCIAL_HANDLE_REGEX.test(value)) {
+    if (SOCIAL_HANDLE_DENYLIST.includes(value.toLowerCase())) {
+      console.warn('Social handle validation failed: reserved word');
+      return { error: 'Invalid social media handle.' };
+    }
+    return true;
+  }
+  console.warn('Social handle validation failed');
   return { error: 'Invalid social media handle.' };
 }
 

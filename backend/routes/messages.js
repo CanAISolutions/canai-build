@@ -1,4 +1,5 @@
 import express from 'express';
+import Joi from 'joi';
 import validate from '../middleware/validation.js';
 
 const router = express.Router();
@@ -25,4 +26,26 @@ router.get('/messages', validate({ query: querySchema }), async (req, res) => {
   }
 });
 
+// ---
+// POST /v1/messages (Planned/Experimental)
+// Accepts: { messageText: string, subject?: string, user_id: uuid }
+// Returns: 501 Not Implemented (stub for future user messaging)
+const postMessageSchema = Joi.object({
+  messageText: Joi.string().min(1).max(1000).required(),
+  subject: Joi.string().max(200).optional(),
+  user_id: Joi.string().guid({ version: 'uuidv4' }).required(),
+});
+
+router.post('/', validate({ body: postMessageSchema }), (req, res) => {
+  // This is a stub endpoint for future user messaging features.
+  // It is fully validated and sanitized, but not implemented yet.
+  res.status(501).json({
+    error:
+      'POST /v1/messages is not implemented yet. This endpoint is planned for future user messaging features.',
+    code: 'NOT_IMPLEMENTED',
+  });
+});
+
+// Ensure this router handles both GET and POST at '/'
+// and is exported as default for mounting at /v1/messages
 export default router;

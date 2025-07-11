@@ -141,7 +141,7 @@ export function createApp() {
   app.use('/v1', emotionalAnalysisRouter);
   app.use('/v1/stripe', stripeRouter);
   app.use('/v1/auth', authRouter);
-  app.use('/v1', messagesRouter);
+  app.use('/v1/messages', messagesRouter);
   app.use('/v1', validateInputRouter);
   app.use('/v1', generateSparksRouter);
   app.use('/v1', saveProgressRouter);
