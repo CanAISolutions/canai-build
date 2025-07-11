@@ -29,12 +29,14 @@ endpoints, supporting trust, security, and maintainability per PRD and Task 9.1 
 
 - **Query:** None (reserved for future)
 - **Response:**
+
   ```json
   {
     "messages": [{ "text": "string", "user_id": "uuid|null" }],
     "error": null
   }
   ```
+
 - **Validation:** No input required. Response schema defined for testing/documentation.
 
 ---
@@ -51,6 +53,7 @@ endpoints, supporting trust, security, and maintainability per PRD and Task 9.1 
   - businessName (required, min 3/max 50)
   - targetAudience (required, min 3/max 100)
 - **Example Error:**
+
   ```json
   { "field": "email", "message": "Please enter a valid email address" }
   ```
@@ -63,6 +66,7 @@ endpoints, supporting trust, security, and maintainability per PRD and Task 9.1 
   - All fields as in `/v1/validate-input`
   - Used for spark generation (F3)
 - **Example Error:**
+
   ```json
   { "field": "primaryChallenge", "message": "Challenge must be at least 5 characters" }
   ```
@@ -78,6 +82,7 @@ endpoints, supporting trust, security, and maintainability per PRD and Task 9.1 
     - consent (required, boolean true)
     - dataRetention (required, allowed values: 12, 24, 36)
 - **Example Error:**
+
   ```json
   { "field": "payload.consent", "message": "Consent must be explicitly granted" }
   ```
@@ -91,6 +96,7 @@ endpoints, supporting trust, security, and maintainability per PRD and Task 9.1 
     currentStatus, businessDescription, revenueModel, planPurpose, location, uniqueValue (all
     required, min/max as per PRD)
 - **Example Error:**
+
   ```json
   { "field": "primaryGoal", "message": "Primary goal is required" }
   ```
@@ -104,6 +110,7 @@ endpoints, supporting trust, security, and maintainability per PRD and Task 9.1 
   - revisionReason (required, min 5/max 200)
   - user_id (required, uuid)
 - **Example Error:**
+
   ```json
   { "field": "revisionReason", "message": "Revision reason must be at least 5 characters" }
   ```
@@ -118,6 +125,7 @@ endpoints, supporting trust, security, and maintainability per PRD and Task 9.1 
   - genericOutput (required, min 10/max 2000)
   - user_id (required, uuid)
 - **Example Error:**
+
   ```json
   { "field": "canaiOutput", "message": "CanAI output must be at least 10 characters" }
   ```
@@ -132,6 +140,7 @@ endpoints, supporting trust, security, and maintainability per PRD and Task 9.1 
   - rating (required, integer 1-5)
   - prompt_id (required, uuid)
 - **Example Error:**
+
   ```json
   { "field": "rating", "message": "Rating must be between 1 and 5" }
   ```

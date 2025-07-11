@@ -1,7 +1,9 @@
 ---
-description: Enforces comprehensive testing strategies
+description: Enforces comprehensive testing strategies.
+globs: backend/tests/**/*, frontend/src/tests/**/*, *.test.ts, *.test.tsx, *.spec.ts, *.spec.tsx
 alwaysApply: false
 ---
+
 # CanAI Testing Guidelines
 
 ## Purpose
@@ -103,6 +105,16 @@ Promote robust testing for the CanAI Emotional Sovereignty Platform to ensure qu
 **Version**: 1.0.0
 
 ---
+
+**Created**: June 19, 2025
+**Version**: 1.0.0
+
+
+**Created**: June 19, 2025
+**Version**: 1.0.0
+
+**Created**: June 19, 2025
+**Version**: 1.0.0
 
 **Created**: June 19, 2025
 **Version**: 1.0.0

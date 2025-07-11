@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import supabase from './supabase/client.js';
 import Sentry from './services/instrument.js';
+
 import emotionalAnalysisRouter from './routes/emotionalAnalysis.js';
 import stripeRouter from './routes/stripe.js';
 import authRouter from './routes/auth.js';
@@ -166,6 +167,5 @@ export function createApp() {
       stack: process.env.NODE_ENV === 'production' ? undefined : err.stack,
     });
   });
-
   return app;
 }

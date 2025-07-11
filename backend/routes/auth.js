@@ -5,6 +5,7 @@ import posthog from '../services/posthog.js';
 import axios from 'axios';
 import Joi from 'joi';
 import { refreshTokenSchema } from '../schemas/auth.js';
+import { JWT_FORMAT_REGEX } from '../constants/jwt.js';
 
 const router = express.Router();
 
@@ -36,7 +37,10 @@ function logDefensiveAuth(msg, meta) {
  * Returns: { accessToken } on success, or error with code on failure
  */
 router.post('/refresh-token', rateLimit, async (req, res) => {
-  logDefensiveAuth('Received /refresh-token request', { body: req.body });
+  // Defensive: never log the actual refreshToken
+  const safeBody = { ...req.body };
+  if (safeBody.refreshToken) safeBody.refreshToken = '[REDACTED]';
+  logDefensiveAuth('Received /refresh-token request', { body: safeBody });
   try {
     // --- NEW: Validate with Joi schema, catch all validation errors ---
     let validated;
@@ -52,7 +56,7 @@ router.post('/refresh-token', rateLimit, async (req, res) => {
       };
       logDefensiveAuth('[DEBUG] Joi validation failed', {
         ...error,
-        refreshToken: req.body.refreshToken,
+        refreshToken: '[REDACTED]',
       });
       Sentry.captureException(err, { extra: error });
       posthog.capture({
@@ -65,13 +69,12 @@ router.post('/refresh-token', rateLimit, async (req, res) => {
     const { refreshToken } = validated;
 
     // JWT format: three base64url segments separated by dots
-    const jwtFormatRegex = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
     if (
       !refreshToken ||
       typeof refreshToken !== 'string' ||
       refreshToken.length < 10 ||
       refreshToken.length > 512 || // Defensive: max length
-      !jwtFormatRegex.test(refreshToken)
+      !JWT_FORMAT_REGEX.test(refreshToken)
     ) {
       const error = {
         error: 'Missing or invalid refresh token',
@@ -79,7 +82,7 @@ router.post('/refresh-token', rateLimit, async (req, res) => {
       };
       logDefensiveAuth('[DEBUG] Validation failed (length or format)', {
         ...error,
-        refreshToken,
+        refreshToken: '[REDACTED]',
       });
       Sentry.captureException(new Error(error.error), { extra: error });
       posthog.capture({
@@ -108,7 +111,10 @@ router.post('/refresh-token', rateLimit, async (req, res) => {
         code: 'AUTH_TOKEN_REFRESH_FAILED',
         details: err.response?.data || err.message,
       };
-      logDefensiveAuth('Memberstack API error', { ...error, refreshToken });
+      logDefensiveAuth('Memberstack API error', {
+        ...error,
+        refreshToken: '[REDACTED]',
+      });
       Sentry.captureException(err, { extra: error });
       posthog.capture({
         distinctId: 'system',
@@ -125,7 +131,10 @@ router.post('/refresh-token', rateLimit, async (req, res) => {
         error: 'Token refresh failed: No accessToken returned',
         code: 'AUTH_TOKEN_REFRESH_FAILED',
       };
-      logDefensiveAuth('No accessToken returned', { ...error, refreshToken });
+      logDefensiveAuth('No accessToken returned', {
+        ...error,
+        refreshToken: '[REDACTED]',
+      });
       Sentry.captureException(new Error(error.error), { extra: error });
       posthog.capture({
         distinctId: 'system',

@@ -44,12 +44,12 @@ projects:
 
 When running `npx supabase start`, your local Supabase stack provides the following services:
 
-- **API URL:** http://127.0.0.1:54321
-- **GraphQL URL:** http://127.0.0.1:54321/graphql/v1
-- **S3 Storage URL:** http://127.0.0.1:54321/storage/v1/s3
+- **API URL:** <http://127.0.0.1:54321>
+- **GraphQL URL:** <http://127.0.0.1:54321/graphql/v1>
+- **S3 Storage URL:** <http://127.0.0.1:54321/storage/v1/s3>
 - **DB URL:** postgresql://postgres:postgres@127.0.0.1:54322/postgres
-- **Studio URL:** http://127.0.0.1:54323
-- **Inbucket URL (Email Testing):** http://127.0.0.1:54324
+- **Studio URL:** <http://127.0.0.1:54323>
+- **Inbucket URL (Email Testing):** <http://127.0.0.1:54324>
 
 **Keys and Secrets:**
 
@@ -100,6 +100,7 @@ When running `npx supabase start`, your local Supabase stack provides the follow
   - The CI pipeline uses the `SUPABASE_TEST_PROJECT_ID` and `SUPABASE_TEST_DB_URL` secrets to
     automate database resets and migrations.
   - Example GitHub Actions step:
+
     ```yaml
     - name: Reset and migrate Supabase test DB
       env:
@@ -108,7 +109,9 @@ When running `npx supabase start`, your local Supabase stack provides the follow
       run: |
         supabase db reset --project-id $SUPABASE_TEST_PROJECT_ID --db-url $SUPABASE_TEST_DB_URL --non-interactive
     ```
+
   - This ensures every test run starts with a clean, production-aligned schema and RLS policy set.
+
 - Run integration and RLS tests against the test project.
 - Ensure cleanup runs after tests, even on failure, using `scripts/cleanup-test-data.js`.
 - Monitor Supabase API rate limits in CI/CD.
@@ -201,11 +204,13 @@ node scripts/check-supabase.js
 ### Expected Output
 
 - Success: Shows insert, select, and cleanup logs, e.g.
+
   ```
   ✅ Inserted test row: null
   ✅ Supabase connectivity OK, test row found: { id: '...' }
   🧹 Test row cleaned up.
   ```
+
 - Failure: Clear error message for missing env vars, insert/select errors, or cleanup issues.
 
 ### Why This Matters
@@ -226,10 +231,13 @@ POSTHOG_API_KEY, etc.) must:
      'test_posthog_key'.
 2. **Import the Centralized Setup:**
    - At the very top of each test file that uses sensitive keys, add:
+
      ```js
      require('../../../testEnvSetup'); // Adjust path as needed
      ```
+
    - For TypeScript, use require with an eslint-disable comment if needed.
+
 3. **Log Sanitization:**
    - The setup file automatically sanitizes any log output containing sensitive key names, replacing
      them with '[SANITIZED]'.
@@ -247,7 +255,7 @@ require('../../../testEnvSetup');
 
 - The setup file is located at the project root as `testEnvSetup.js`.
 
-### Why?
+### Why
 
 - This approach prevents accidental leakage of real API keys, aligns with PRD security requirements,
   and ensures all test output is safe to share or commit.
