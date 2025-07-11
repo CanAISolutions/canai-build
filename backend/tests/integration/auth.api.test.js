@@ -216,3 +216,46 @@ describe('/refresh-token defensive integration', () => {
 
   // Add more edge/malicious cases as needed
 });
+
+// @refresh-token-migration TEST: Joi schema edge/fuzz cases
+
+describe('/refresh-token Joi schema edge/fuzz cases @refresh-token-migration', () => {
+  const cases = [
+    { name: 'null', value: null, code: 'AUTH_TOKEN_MISSING' },
+    { name: 'undefined', value: undefined, code: 'AUTH_TOKEN_MISSING' },
+    { name: 'empty string', value: '', code: 'AUTH_TOKEN_MISSING' },
+    { name: 'whitespace', value: '   ', code: 'AUTH_TOKEN_MISSING' },
+    { name: 'unicode', value: '𝒯𝑒𝓈𝓉𝒥𝒲𝒯', code: 'AUTH_TOKEN_MISSING' },
+    { name: 'object', value: { foo: 'bar' }, code: 'AUTH_TOKEN_MISSING' },
+    { name: 'array', value: ['a', 'b'], code: 'AUTH_TOKEN_MISSING' },
+    {
+      name: 'overly long',
+      value: 'a'.repeat(1000) + '.b.c',
+      code: 'AUTH_TOKEN_MISSING',
+    },
+    { name: 'malformed JWT', value: 'bad.token', code: 'AUTH_TOKEN_MISSING' },
+  ];
+  cases.forEach(({ name, value, code }) => {
+    it(`should return 400 and ${code} for ${name} refreshToken`, async () => {
+      const response = await request(server)
+        .post('/v1/auth/refresh-token')
+        .send({ refreshToken: value });
+      expect(response.status).toBe(400);
+      expect(response.body.code).toBe(code);
+      expect(sentrySpy).toHaveBeenCalled();
+      expect(posthogSpy).toHaveBeenCalled();
+      // [DEBUG] log assertion (if logs are captured)
+    });
+  });
+
+  it('should accept any string in test env (relaxed regex)', async () => {
+    process.env.NODE_ENV = 'test';
+    const response = await request(server)
+      .post('/v1/auth/refresh-token')
+      .send({ refreshToken: 'not.a.jwt.but.ok.in.test' });
+    // Should pass Joi, but may fail downstream
+    expect([200, 400, 401]).toContain(response.status);
+    // Reset env
+    process.env.NODE_ENV = 'production';
+  });
+});

@@ -55,20 +55,20 @@ describe('validation.js', () => {
   });
 
   // TODO: Error handling - throws/returns ValidationError on failure
-  it('should throw or return ValidationError on sanitization failure', done => {
+  it('should throw or return ValidationError on sanitization failure', (done: () => void) => {
     // Arrange
     const req = { body: { a: null }, query: {}, params: {}, headers: {} };
     const res = {
       status: function () {
         return this;
       },
-      json: function (j: any) {
-        try {
+      json: function (j: unknown) {
+        if (typeof j === 'object' && j !== null && 'error' in j) {
           expect(j).toHaveProperty('error');
-          expect(typeof j.error).toBe('string');
+          expect(typeof (j as { error: unknown }).error).toBe('string');
           done();
-        } catch (err) {
-          done(err);
+        } else {
+          throw new Error('Response does not have error property');
         }
         return this;
       },
@@ -125,20 +125,20 @@ describe('validation.js', () => {
   });
 
   // TODO: Error responses - user-centric, actionable messages
-  it('should return user-centric, actionable error messages', done => {
+  it('should return user-centric, actionable error messages', (done: () => void) => {
     // Arrange
     const req = { body: { a: null }, query: {}, params: {}, headers: {} };
     const res = {
       status: function () {
         return this;
       },
-      json: function (j: any) {
-        try {
+      json: function (j: unknown) {
+        if (typeof j === 'object' && j !== null && 'error' in j) {
           expect(j).toHaveProperty('error');
-          expect(typeof j.error).toBe('string');
+          expect(typeof (j as { error: unknown }).error).toBe('string');
           done();
-        } catch (err) {
-          done(err);
+        } else {
+          throw new Error('Response does not have error property');
         }
         return this;
       },

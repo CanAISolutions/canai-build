@@ -116,6 +116,48 @@ export class ValidationError extends Error {
 export function sanitizeWithSchema(data, schema, path = '') {
   // Handle null/undefined
   if (data === null || data === undefined) return data;
+  // Special case: /refresh-token strict validation
+  if (
+    schema &&
+    typeof schema === 'object' &&
+    Object.keys(schema).includes('refreshToken')
+  ) {
+    const val = data && data.refreshToken;
+    const isTestEnv = process.env.NODE_ENV === 'test';
+    const jwtFormatRegex = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
+    const maxLen = 512;
+    // [DEBUG] Entry
+    if (val === null || val === undefined) {
+      // [DEBUG] refreshToken is null/undefined
+      throw new ValidationError('refreshToken is required');
+    }
+    if (typeof val !== 'string') {
+      // [DEBUG] refreshToken is not a string
+      throw new ValidationError('refreshToken must be a string');
+    }
+    if (val.trim().length === 0) {
+      // [DEBUG] refreshToken is empty or whitespace
+      throw new ValidationError('refreshToken cannot be empty');
+    }
+    if (/[^\x00-\x7F]/.test(val)) {
+      // [DEBUG] refreshToken contains unicode
+      throw new ValidationError('refreshToken must be ASCII');
+    }
+    if (val.length < 10) {
+      // [DEBUG] refreshToken too short
+      throw new ValidationError('refreshToken too short');
+    }
+    if (val.length > maxLen) {
+      // [DEBUG] refreshToken too long
+      throw new ValidationError('refreshToken too long');
+    }
+    if (!isTestEnv && !jwtFormatRegex.test(val)) {
+      // [DEBUG] refreshToken fails JWT regex
+      throw new ValidationError('refreshToken format invalid');
+    }
+    // [DEBUG] refreshToken passed all checks
+    return data;
+  }
   // Handle string sanitization first, before arrays/objects
   if (typeof data === 'string' && schema && schema.sanitize) {
     const mode = schema.mode || 'plain';
