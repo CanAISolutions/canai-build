@@ -10,7 +10,7 @@
 ### Environment Variables
 
 - `HUME_API_KEY`: Hume AI API key (required)
-- `HUME_API_ENDPOINT`: Hume AI API endpoint (default: https://api.hume.ai/v1)
+- `HUME_API_ENDPOINT`: Hume AI API endpoint (default: <https://api.hume.ai/v1>)
 - `HUME_RATE_LIMIT`: Max requests per minute (default: 100)
 - `HUME_TIMEOUT`: Hume API timeout in ms (default: 5000)
 - `OPENAI_API_KEY`: OpenAI API key for GPT-4o fallback

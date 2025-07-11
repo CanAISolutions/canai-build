@@ -1,15 +1,14 @@
 import Joi from 'joi';
+import { JWT_FORMAT_REGEX } from '../constants/jwt.js';
 
 // Joi schema for POST /refresh-token
 // Canonical: docs/refresh-token-execution-plan.md, docs/task-9.1-joi-validation-schemas.md
-
-const jwtFormatRegex = /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/;
 
 export const refreshTokenSchema = Joi.object({
   refreshToken: Joi.string()
     .min(10)
     .max(512)
-    .pattern(process.env.NODE_ENV === 'test' ? /.*/ : jwtFormatRegex)
+    .pattern(process.env.NODE_ENV === 'test' ? /.*/ : JWT_FORMAT_REGEX)
     .required()
     .messages({
       'string.base': 'Refresh token must be a string',

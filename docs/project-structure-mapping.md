@@ -541,7 +541,7 @@ SELECT name, description FROM vault.secrets WHERE name = 'openai_api_key';
   to permissions and UUID requirements.
 - The `secret` value is encrypted and not visible in query results.
 
-**Reference:** See Supabase Vault documentation: https://supabase.com/docs/guides/database/vault
+**Reference:** See Supabase Vault documentation: <https://supabase.com/docs/guides/database/vault>
 
 ## [2025-06-19] Prompt Template System Overhaul
 

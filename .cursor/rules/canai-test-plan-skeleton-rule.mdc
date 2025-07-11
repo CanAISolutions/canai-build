@@ -1,3 +1,6 @@
 ---
+description: Requires a test plan skeleton for all new features and PRs.
+globs: backend/tests/**/*, frontend/src/tests/**/*, *.test.ts, *.test.tsx, *.spec.ts, *.spec.tsx
 alwaysApply: false
 ---
+- **Test plan skeleton required:** Every new feature or PR must include a test plan skeleton file with scope, edge cases, and logging strategy.

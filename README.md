@@ -558,9 +558,9 @@ Special thanks to:
 
 ## Ports
 
-| Service  | Port  | URL                    |
-| -------- | ----- | ---------------------- |
-| Backend  | 10000 | http://localhost:10000 |
-| Frontend | 5173  | http://localhost:5173  |
-| Database | 5432  | (Postgres)             |
-| Redis    | 6379  |                        |
+| Service  | Port  | URL                      |
+| -------- | ----- | ------------------------ |
+| Backend  | 10000 | <http://localhost:10000> |
+| Frontend | 5173  | <http://localhost:5173>  |
+| Database | 5432  | (Postgres)               |
+| Redis    | 6379  |                          |

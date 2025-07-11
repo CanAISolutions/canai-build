@@ -18,9 +18,11 @@ with PRD requirements.
 - This variable should be a comma-separated list of trusted origins (e.g., frontend, Make.com,
   staging domains).
 - Example:
+
   ```env
   CORS_ORIGIN=http://localhost:3000,http://localhost:5173,https://canai.so,https://hook.us1.make.com
   ```
+
 - See `.env.example` in the project root for the latest format and required values.
 
 ### How CORS Works in the Backend
@@ -97,12 +99,15 @@ PRD requirements and validated by comprehensive unit and integration tests (as o
 - **Middleware:** `rbacMiddleware(requiredRoles)` from
   [`backend/middleware/rbac.js`](../../backend/middleware/rbac.js)
 - **Usage in routes:**
+
   ```js
   import { rbacMiddleware } from '../middleware/rbac.js';
   // ...
   router.post('/analyze-emotion', authMiddleware, rbacMiddleware(['user', 'admin']), handler);
   ```
+
 - **Scenario-based check:**
+
   ```js
   import { checkScenarioAccess } from '../middleware/rbac.js';
   // ...
@@ -119,6 +124,7 @@ PRD requirements and validated by comprehensive unit and integration tests (as o
 - **Logging:** All unauthorized access attempts are logged to Sentry and PostHog with structured
   codes for observability and compliance
 - **Example error response:**
+
   ```json
   {
     "error": "User does not have required role(s) for this action",
