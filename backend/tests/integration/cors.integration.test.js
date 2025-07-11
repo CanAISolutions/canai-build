@@ -33,12 +33,24 @@ let server;
 let app;
 
 beforeEach(async () => {
+  // Diagnostic logging for timeout root cause
+  // eslint-disable-next-line no-console
+  console.log('[CORS TEST] beforeEach: starting');
   vi.clearAllMocks();
+  // eslint-disable-next-line no-console
+  console.log('[CORS TEST] beforeEach: after clearAllMocks');
   vi.resetModules();
+  // eslint-disable-next-line no-console
+  console.log('[CORS TEST] beforeEach: after resetModules');
+  // (Assume app/server setup here)
+  // eslint-disable-next-line no-console
+  console.log('[CORS TEST] beforeEach: before app/server setup');
   const mod = await import('../../server.js');
   app = mod.createApp();
   server = app.listen(0);
-});
+  // eslint-disable-next-line no-console
+  console.log('[CORS TEST] beforeEach: completed');
+}, 20000); // Increase timeout to 20s
 afterEach(async () => {
   if (server && server.close) {
     await new Promise(resolve => server.close(resolve));

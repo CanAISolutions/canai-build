@@ -69,3 +69,12 @@ Returns payment analytics for the requesting user (or all users if admin, once R
 - Only basic aggregation (total revenue, refunds, event counts)
 - No advanced analytics or PostHog integration
 - Admin access to all data pending RLS policy update
+
+---
+
+### POST /v1/messages (Planned/Experimental)
+
+- Accepts: { messageText: string (required, 1-1000), subject: string (optional, max 200), user_id:
+  uuid (required) }
+- Returns: 501 Not Implemented (stub for future user messaging)
+- Validation and sanitization are enforced, but the endpoint is not yet active.

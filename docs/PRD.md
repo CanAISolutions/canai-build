@@ -1,5 +1,3 @@
-# CanAI Emotional Sovereignty Platform: Product Requirements Document
-
 # Table of Contents
 
 - [1. Introduction](#1-introduction)
