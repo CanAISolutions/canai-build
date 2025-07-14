@@ -48,6 +48,7 @@
     "typescript": "^5.8.3"
   },
   "scripts": {
+    "build": "tsc",
     "start": "node --inspect=0.0.0.0:9229 --preserve-symlinks -r ts-node/register src/Server.ts | pino-pretty",
     "dev": "tsc-watch --onSuccess \"npm start\""
   }
