@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import supabase from './supabase/client.js';
 import Sentry from './services/instrument.js';
 import Redis from 'ioredis'; // <-- Add this import
-import pkg from '../package.json' assert { type: 'json' };
+import pkg from './package.json' assert { type: 'json' };
 
 import emotionalAnalysisRouter from './routes/emotionalAnalysis.js';
 import stripeRouter from './routes/stripe.js';
@@ -162,7 +162,7 @@ export function createApp() {
       const status = allConfigured ? 'healthy' : 'degraded';
       res.status(200).json({
         status,
-        version: pkg.version,
+        version: process.env.APP_VERSION || pkg.version || '0.0.0',
         checks,
         uptime: process.uptime(),
         timestamp: new Date().toISOString(),
@@ -175,7 +175,7 @@ export function createApp() {
       checks = Object.keys(checks).length ? checks : { supabase: dbStatus, redis: redisStatus };
       res.status(200).json({
         status: 'degraded',
-        version: pkg.version,
+        version: process.env.APP_VERSION || pkg.version || '0.0.0',
         checks,
         error: err.message,
         uptime: process.uptime(),
