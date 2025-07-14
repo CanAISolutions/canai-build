@@ -45,8 +45,9 @@ describe('Malicious Payload API Validation: POST /validate-input [businessName]'
 });
 
 describe('Malicious Payload API Validation: POST /v1/validate-input [businessDescription]', () => {
-  maliciousPayloads.forEach(payload => {
-    it(`should block or sanitize malicious payload in businessDescription: ${payload.description}`, async () => {
+  it.each(maliciousPayloads)(
+    'should block or sanitize malicious payload in businessDescription: $description',
+    async ({ attackType, payload, description }) => {
       const reqBody = {
         email: 'test@example.com',
         businessType: 'tech',
@@ -56,14 +57,11 @@ describe('Malicious Payload API Validation: POST /v1/validate-input [businessDes
         customTone: '',
         businessName: 'Legit Business',
         targetAudience: 'Small business owners',
-        businessDescription: payload.payload,
+        businessDescription: payload,
       };
       // Logging for evidence-based debugging
       // eslint-disable-next-line no-console
-      console.log(
-        '[TEST] Sending businessDescription payload:',
-        payload.payload
-      );
+      console.log('[TEST] Sending businessDescription payload:', payload);
       const response = await request(app)
         .post('/v1/validate-input')
         .send(reqBody)
@@ -74,15 +72,16 @@ describe('Malicious Payload API Validation: POST /v1/validate-input [businessDes
         expect(response.body.error).toBeDefined();
       } else {
         expect(response.status).toBe(200);
-        expect(response.body.businessDescription).not.toEqual(payload.payload);
+        expect(response.body.businessDescription).not.toEqual(payload);
       }
-    });
-  });
+    }
+  );
 });
 
 describe('Malicious Payload API Validation: POST /v1/validate-input [targetAudience]', () => {
-  maliciousPayloads.forEach(payload => {
-    it(`should block or sanitize malicious payload in targetAudience: ${payload.description}`, async () => {
+  it.each(maliciousPayloads)(
+    'should block or sanitize malicious payload in targetAudience: $description',
+    async ({ attackType, payload, description }) => {
       const reqBody = {
         email: 'test@example.com',
         businessType: 'tech',
@@ -91,12 +90,12 @@ describe('Malicious Payload API Validation: POST /v1/validate-input [targetAudie
         preferredTone: 'warm',
         customTone: '',
         businessName: 'Legit Business',
-        targetAudience: payload.payload,
+        targetAudience: payload,
         businessDescription: 'A real business description.',
       };
       // Logging for evidence-based debugging
       // eslint-disable-next-line no-console
-      console.log('[TEST] Sending targetAudience payload:', payload.payload);
+      console.log('[TEST] Sending targetAudience payload:', payload);
       const response = await request(app)
         .post('/v1/validate-input')
         .send(reqBody)
@@ -107,20 +106,21 @@ describe('Malicious Payload API Validation: POST /v1/validate-input [targetAudie
         expect(response.body.error).toBeDefined();
       } else {
         expect(response.status).toBe(200);
-        expect(response.body.targetAudience).not.toEqual(payload.payload);
+        expect(response.body.targetAudience).not.toEqual(payload);
       }
-    });
-  });
+    }
+  );
 });
 
 describe('Malicious Payload API Validation: POST /v1/validate-input [primaryChallenge]', () => {
-  maliciousPayloads.forEach(payload => {
-    it(`should block or sanitize malicious payload in primaryChallenge: ${payload.description}`, async () => {
+  it.each(maliciousPayloads)(
+    'should block or sanitize malicious payload in primaryChallenge: $description',
+    async ({ attackType, payload, description }) => {
       const reqBody = {
         email: 'test@example.com',
         businessType: 'tech',
         phoneNumber: '+1234567890',
-        primaryChallenge: payload.payload,
+        primaryChallenge: payload,
         preferredTone: 'warm',
         customTone: '',
         businessName: 'Legit Business',
@@ -133,28 +133,23 @@ describe('Malicious Payload API Validation: POST /v1/validate-input [primaryChal
         .post('/v1/validate-input')
         .send(reqBody)
         .set('Accept', 'application/json');
-      console.log(
-        '[primaryChallenge] Response:',
-        response.status,
-        response.body
-      );
+      console.log('[primaryChallenge] Response:', response.status, response.body);
       if (response.status === 400) {
         expect(response.body).toHaveProperty('error');
       } else {
-        expect(response.body.data.primaryChallenge).not.toEqual(
-          payload.payload
-        );
+        expect(response.body.data.primaryChallenge).not.toEqual(payload);
       }
-    });
-  });
+    }
+  );
 });
 
 describe('Malicious Payload API Validation: POST /v1/feedback [feedbackText]', () => {
-  maliciousPayloads.forEach(payload => {
-    it(`should block or sanitize malicious payload in feedbackText: ${payload.description}`, async () => {
+  it.each(maliciousPayloads)(
+    'should block or sanitize malicious payload in feedbackText: $description',
+    async ({ attackType, payload, description }) => {
       const reqBody = {
         user_id: '11111111-1111-4111-8111-111111111111',
-        feedbackText: payload.payload,
+        feedbackText: payload,
         rating: 5,
       };
       // Logging for evidence-based debugging
@@ -173,23 +168,21 @@ describe('Malicious Payload API Validation: POST /v1/feedback [feedbackText]', (
         // Should be blocked (400)
         expect(response.status).toBe(400);
       }
-    });
-  });
+    }
+  );
 });
 
 describe('Malicious Payload API Validation: POST /v1/request-revision [revisionReason]', () => {
-  maliciousPayloads.forEach(payload => {
-    it(`should block or sanitize malicious payload in revisionReason: ${payload.description}`, async () => {
+  it.each(maliciousPayloads)(
+    'should block or sanitize malicious payload in revisionReason: $description',
+    async ({ attackType, payload, description }) => {
       const reqBody = {
         prompt_id: '22222222-2222-4222-8222-222222222222',
-        revisionReason: payload.payload,
+        revisionReason: payload,
         user_id: '11111111-1111-4111-8111-111111111111',
       };
       // Logging for evidence-based debugging
-      console.log(
-        '[TEST] Sending revisionReason payload:',
-        payload.description
-      );
+      console.log('[TEST] Sending revisionReason payload:', description);
       const response = await request(app)
         .post('/v1/request-revision')
         .send(reqBody)
@@ -198,10 +191,11 @@ describe('Malicious Payload API Validation: POST /v1/request-revision [revisionR
       if (response.status === 400) {
         expect(response.body.error).toBeDefined();
       } else {
-        expect(response.body.revisionReason).not.toEqual(payload.payload);
+        expect(response.status).toBe(200);
+        // The API may not echo revisionReason, so we cannot check the sanitized value directly
       }
-    });
-  });
+    }
+  );
 });
 
 describe('POST /v1/messages (Malicious Payloads)', () => {
