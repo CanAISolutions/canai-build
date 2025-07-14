@@ -18,9 +18,9 @@ startup()
     app.get('/test-error', (_req, _res) => {
       throw new Error('Backend test error');
     });
-    const port = 5000;
+    const port = process.env.PORT ? Number(process.env.PORT) : 5000;
     try {
-      const server = app.listen(port, () => {
+      const server = app.listen(port, '0.0.0.0', () => {
         if (!server) logger.fatal('error starting the server');
         logger.info({ port }, 'server listening');
       });
