@@ -107,8 +107,11 @@ export function createApp() {
   });
 
   app.get('/health', async (req, res) => {
+    // MVP: Health check for all critical integrations (PRD-aligned)
+    // Post-MVP: Extend with live API checks for each integration
+    const startTime = Date.now();
+    let dbStatus = 'unknown';
     try {
-      let dbStatus = 'unknown';
       try {
         const { error } = await supabase
           .from('prompt_logs')
@@ -118,22 +121,44 @@ export function createApp() {
       } catch (err) {
         dbStatus = 'unhealthy';
       }
-      const status = dbStatus === 'healthy' ? 'healthy' : 'degraded';
+      // Integration config checks (MVP: presence of env vars)
+      const checks = {
+        supabase: dbStatus,
+        stripe: process.env.STRIPE_SECRET_KEY ? 'configured' : 'missing',
+        makecom: process.env.MAKECOM_API_KEY ? 'configured' : 'missing',
+        posthog: process.env.POSTHOG_API_KEY ? 'configured' : 'missing',
+        sentry: process.env.SENTRY_DSN ? 'configured' : 'missing',
+        hume: process.env.HUME_API_KEY ? 'configured' : 'missing',
+        memberstack: process.env.MEMBERSTACK_API_KEY ? 'configured' : 'missing',
+      };
+      // Performance metrics
+      const responseTime = Date.now() - startTime;
+      const performance = {
+        responseTimeMs: responseTime,
+        withinSLA: responseTime < 100,
+      };
+      // Determine overall status
+      const allConfigured = Object.entries(checks).every(([k, v]) =>
+        k === 'supabase' ? v === 'healthy' : v === 'configured'
+      );
+      const status = allConfigured ? 'healthy' : 'degraded';
       res.status(200).json({
         status,
-        supabase: dbStatus,
+        checks,
         uptime: process.uptime(),
         timestamp: new Date().toISOString(),
         memory: process.memoryUsage(),
+        performance,
       });
     } catch (err) {
       res.status(200).json({
         status: 'degraded',
-        supabase: 'unhealthy',
+        checks: { supabase: 'unhealthy' },
         error: err.message,
         uptime: process.uptime(),
         timestamp: new Date().toISOString(),
         memory: process.memoryUsage(),
+        performance: { responseTimeMs: Date.now() - startTime },
       });
     }
   });
