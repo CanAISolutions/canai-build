@@ -1,7 +1,7 @@
 # CanAI Platform Backend Dockerfile
 # Root Dockerfile for Render deployment compatibility
 
-FROM node:18-alpine
+FROM node:20.19.0-alpine
 
 # Set working directory
 WORKDIR /app
@@ -28,11 +28,10 @@ EXPOSE 10000
 
 # Environment variables
 ENV NODE_ENV=production
-ENV PORT=10000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:10000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
+  CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 10000) + '/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
 
 # Start the server
 CMD ["node", "server.js"]
