@@ -1,0 +1,14 @@
+{
+  "pipeline": {
+    "build": {
+      "dependsOn": [],
+      "outputs": ["dist/**"]
+    },
+    "dev": {
+      "dependsOn": []
+    },
+    "lint": {
+      "dependsOn": []
+    }
+  }
+}
