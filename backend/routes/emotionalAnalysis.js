@@ -6,7 +6,12 @@ import rateLimit from '../middleware/rateLimit.js';
 import auth from '../middleware/auth.js';
 import Joi from 'joi';
 import { rbacMiddleware } from '../middleware/rbac.js';
-import log from '../api/src/Shared/Logger';
+// import log from '../api/src/Shared/Logger';
+// TODO: Migrate to a shared logger (e.g., backend/Shared/Logger.js)
+const log = {
+  info: (...args) => console.info('[emotionalAnalysis]', ...args),
+  error: (...args) => console.error('[emotionalAnalysis]', ...args),
+};
 import { analyzeEmotionSchema } from '../schemas/emotionalAnalysis.js';
 
 const router = express.Router();
