@@ -1,7 +1,7 @@
 // process-audit-results.js
-const fs = require('fs');
-const path = require('path');
-const { logSecurityScan } = require('./security-events');
+import fs from 'fs';
+import path from 'path';
+import { logSecurityScan } from './security-events.js';
 
 const RESULTS_FILE = path.resolve('audit-results.json');
 
@@ -30,7 +30,8 @@ async function main() {
   const advisories = results.advisories || {};
   const vulnerabilities = Object.values(advisories);
   const severityCounts = getSeverityCounts(advisories);
-  const highSeverityCount = (severityCounts.critical || 0) + (severityCounts.high || 0);
+  const highSeverityCount =
+    (severityCounts.critical || 0) + (severityCounts.high || 0);
   const scan_duration = null; // npm audit does not provide duration
   const failedChecks = results.error || null;
 
@@ -39,10 +40,12 @@ async function main() {
     highSeverityCount,
     scan_duration,
     failedChecks,
-    raw: results
+    raw: results,
   });
 
-  console.log(`npm audit complete. Critical: ${severityCounts.critical}, High: ${severityCounts.high}, Moderate: ${severityCounts.moderate}, Low: ${severityCounts.low}`);
+  console.log(
+    `npm audit complete. Critical: ${severityCounts.critical}, High: ${severityCounts.high}, Moderate: ${severityCounts.moderate}, Low: ${severityCounts.low}`
+  );
   if (highSeverityCount > 0) {
     console.error('High or critical vulnerabilities found! Failing job.');
     process.exit(2);

@@ -26,7 +26,10 @@ async function main() {
     console.error('Failed to parse ZAP results:', err);
     process.exit(1);
   }
-  const alerts = results.site && results.site[0] && results.site[0].alerts ? results.site[0].alerts : [];
+  const alerts =
+    results.site && results.site[0] && results.site[0].alerts
+      ? results.site[0].alerts
+      : [];
   const severityCounts = getSeverityCounts(alerts);
   const highSeverityCount = severityCounts.High;
   const scan_duration = results.generated ? null : null; // ZAP JSON may not include duration
@@ -37,12 +40,16 @@ async function main() {
     highSeverityCount,
     scan_duration,
     failedChecks,
-    raw: results
+    raw: results,
   });
 
-  console.log(`ZAP scan complete. High: ${severityCounts.High}, Medium: ${severityCounts.Medium}, Low: ${severityCounts.Low}, Informational: ${severityCounts.Informational}`);
+  console.log(
+    `ZAP scan complete. High: ${severityCounts.High}, Medium: ${severityCounts.Medium}, Low: ${severityCounts.Low}, Informational: ${severityCounts.Informational}`
+  );
   if (highSeverityCount > 0) {
-    console.error('High severity vulnerabilities found in ZAP scan! Failing job.');
+    console.error(
+      'High severity vulnerabilities found in ZAP scan! Failing job.'
+    );
     process.exit(2);
   }
 }

@@ -47,7 +47,7 @@ describe('Malicious Payload API Validation: POST /validate-input [businessName]'
 describe('Malicious Payload API Validation: POST /v1/validate-input [businessDescription]', () => {
   it.each(maliciousPayloads)(
     'should block or sanitize malicious payload in businessDescription: $description',
-    async ({ attackType, payload, description }) => {
+    async ({ payload, description: _description }) => {
       const reqBody = {
         email: 'test@example.com',
         businessType: 'tech',
@@ -61,7 +61,7 @@ describe('Malicious Payload API Validation: POST /v1/validate-input [businessDes
       };
       // Logging for evidence-based debugging
       // eslint-disable-next-line no-console
-      console.log('[TEST] Sending businessDescription payload:', payload);
+      console.log('[TEST] Sending businessDescription payload:', _description);
       const response = await request(app)
         .post('/v1/validate-input')
         .send(reqBody)
@@ -81,7 +81,7 @@ describe('Malicious Payload API Validation: POST /v1/validate-input [businessDes
 describe('Malicious Payload API Validation: POST /v1/validate-input [targetAudience]', () => {
   it.each(maliciousPayloads)(
     'should block or sanitize malicious payload in targetAudience: $description',
-    async ({ attackType, payload, description }) => {
+    async ({ payload, description: _description }) => {
       const reqBody = {
         email: 'test@example.com',
         businessType: 'tech',
@@ -95,7 +95,7 @@ describe('Malicious Payload API Validation: POST /v1/validate-input [targetAudie
       };
       // Logging for evidence-based debugging
       // eslint-disable-next-line no-console
-      console.log('[TEST] Sending targetAudience payload:', payload);
+      console.log('[TEST] Sending targetAudience payload:', _description);
       const response = await request(app)
         .post('/v1/validate-input')
         .send(reqBody)
@@ -115,7 +115,7 @@ describe('Malicious Payload API Validation: POST /v1/validate-input [targetAudie
 describe('Malicious Payload API Validation: POST /v1/validate-input [primaryChallenge]', () => {
   it.each(maliciousPayloads)(
     'should block or sanitize malicious payload in primaryChallenge: $description',
-    async ({ attackType, payload, description }) => {
+    async ({ payload, description: _description }) => {
       const reqBody = {
         email: 'test@example.com',
         businessType: 'tech',
@@ -128,12 +128,16 @@ describe('Malicious Payload API Validation: POST /v1/validate-input [primaryChal
         businessDescription: 'A real business description.',
       };
       // Logging for evidence-based debugging
-      console.log('[primaryChallenge] Request:', reqBody);
+      console.log('[TEST] Sending primaryChallenge payload:', _description);
       const response = await request(app)
         .post('/v1/validate-input')
         .send(reqBody)
         .set('Accept', 'application/json');
-      console.log('[primaryChallenge] Response:', response.status, response.body);
+      console.log(
+        '[primaryChallenge] Response:',
+        response.status,
+        response.body
+      );
       if (response.status === 400) {
         expect(response.body).toHaveProperty('error');
       } else {
@@ -146,14 +150,14 @@ describe('Malicious Payload API Validation: POST /v1/validate-input [primaryChal
 describe('Malicious Payload API Validation: POST /v1/feedback [feedbackText]', () => {
   it.each(maliciousPayloads)(
     'should block or sanitize malicious payload in feedbackText: $description',
-    async ({ attackType, payload, description }) => {
+    async ({ payload, description: _description }) => {
       const reqBody = {
         user_id: '11111111-1111-4111-8111-111111111111',
         feedbackText: payload,
         rating: 5,
       };
       // Logging for evidence-based debugging
-      console.log('[TEST] Sending feedbackText payload:', payload);
+      console.log('[TEST] Sending feedbackText payload:', _description);
       const response = await request(app)
         .post('/v1/feedback')
         .send(reqBody)
@@ -175,14 +179,14 @@ describe('Malicious Payload API Validation: POST /v1/feedback [feedbackText]', (
 describe('Malicious Payload API Validation: POST /v1/request-revision [revisionReason]', () => {
   it.each(maliciousPayloads)(
     'should block or sanitize malicious payload in revisionReason: $description',
-    async ({ attackType, payload, description }) => {
+    async ({ payload, description: _description }) => {
       const reqBody = {
         prompt_id: '22222222-2222-4222-8222-222222222222',
         revisionReason: payload,
         user_id: '11111111-1111-4111-8111-111111111111',
       };
       // Logging for evidence-based debugging
-      console.log('[TEST] Sending revisionReason payload:', description);
+      console.log('[TEST] Sending revisionReason payload:', _description);
       const response = await request(app)
         .post('/v1/request-revision')
         .send(reqBody)

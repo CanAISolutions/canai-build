@@ -20,23 +20,20 @@ jobs:
   semgrep:
     name: Semgrep Static Analysis (SAST)
     runs-on: ubuntu-latest
-    container:
-      image: returntocorp/semgrep:latest
     steps:
       - uses: actions/checkout@v4
       - name: Semgrep Scan
-        run: |
-          semgrep ci \
-            --config "p/typescript" \
-            --config "p/nodejs" \
-            --config "p/owasp-top-ten" \
-            --output semgrep-results.json \
-            --json
+        uses: docker://returntocorp/semgrep:latest
+        with:
+          args: semgrep ci --config "p/typescript" --config "p/nodejs" --config "p/owasp-top-ten" --output semgrep-results.json --json
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
       - name: Process Semgrep Results
-        run: |
-          node scripts/process-semgrep-results.js
+        run: node scripts/process-semgrep-results.js
 
   npm_audit:
     name: Dependency Security Audit (npm audit)

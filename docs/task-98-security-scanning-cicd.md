@@ -7,17 +7,23 @@
 ### Current State (as of this review)
 
 - **CI/CD Workflows:**
-  - `.github/workflows/security.yml` exists but **all security jobs are currently disabled** (MVP focus). Only a no-op job runs; all actual security jobs (dependency audit, static code analysis, reporting) are commented out.
-  - `.github/workflows/secret-scan.yml` is active and scans for secrets/API keys on every push/PR using grep patterns. It fails the job if a secret is detected. No integration with Semgrep, npm audit, or ZAP.
+  - `.github/workflows/security.yml` exists but **all security jobs are currently disabled** (MVP
+    focus). Only a no-op job runs; all actual security jobs (dependency audit, static code analysis,
+    reporting) are commented out.
+  - `.github/workflows/secret-scan.yml` is active and scans for secrets/API keys on every push/PR
+    using grep patterns. It fails the job if a secret is detected. No integration with Semgrep, npm
+    audit, or ZAP.
   - No workflows for Semgrep SAST, npm audit, or OWASP ZAP DAST are currently active or present.
 
 - **Scripts Directory (`scripts/`):**
-  - No scripts named `process-semgrep-results.js`, `process-audit-results.js`, or `process-zap-results.js` are present.
+  - No scripts named `process-semgrep-results.js`, `process-audit-results.js`, or
+    `process-zap-results.js` are present.
   - No script for PostHog logging of security events (`security-events.ts`).
   - Existing scripts are for validation, setup, and JWT generation only.
 
 - **Documentation:**
-  - This file (task-98-security-scanning-cicd.md) is up to date with the intended plan, but the actual implementation is not yet in place.
+  - This file (task-98-security-scanning-cicd.md) is up to date with the intended plan, but the
+    actual implementation is not yet in place.
 
 ### Gaps Identified
 
@@ -37,13 +43,15 @@
    - `process-audit-results.js`
    - `process-zap-results.js`
    - `security-events.ts` (for PostHog logging)
-3. **Update this documentation** as changes are made and reference new rules, exceptions, or process changes.
+3. **Update this documentation** as changes are made and reference new rules, exceptions, or process
+   changes.
 
 ---
 
 ## Pre-Implementation Checklist
 
-Before starting any phase of Task 98, ensure the following are addressed to align with TaskMaster, PRD, and security best practices:
+Before starting any phase of Task 98, ensure the following are addressed to align with TaskMaster,
+PRD, and security best practices:
 
 - [ ] **CI/CD pipeline is accessible and modifiable**
   - Confirm access to GitHub Actions, GitLab CI, or your chosen CI/CD system.
@@ -66,7 +74,8 @@ Before starting any phase of Task 98, ensure the following are addressed to alig
 
 ## Purpose & PRD Alignment
 
-This document establishes a robust, automated security scanning process for the CI/CD pipeline, supporting:
+This document establishes a robust, automated security scanning process for the CI/CD pipeline,
+supporting:
 
 - **PRD References:**
   - Section 7.2: Security (vulnerability detection, XSS/SQLi prevention)
@@ -83,6 +92,7 @@ This document establishes a robust, automated security scanning process for the 
 ## Scope & Out of Scope
 
 **In Scope:**
+
 - Semgrep static analysis (SAST) for Node.js/TypeScript
 - OWASP ZAP dynamic API scanning (DAST)
 - npm audit for dependency vulnerabilities
@@ -90,6 +100,7 @@ This document establishes a robust, automated security scanning process for the 
 - Slack/alerting for critical issues
 
 **Out of Scope:**
+
 - Manual penetration testing
 - Frontend-only security scanning
 - Analytics beyond security events
@@ -107,6 +118,7 @@ This document establishes a robust, automated security scanning process for the 
 - **Slack/Alerts:** Notifies on critical vulnerabilities.
 
 **Diagram:**
+
 ```mermaid
 graph TD
     A[CI/CD Pipeline] --> B[Semgrep SAST]
@@ -126,14 +138,17 @@ graph TD
 
 ### 1. Semgrep Static Analysis (SAST)
 
-> **Phase Gate:** Semgrep runs on all PRs and pushes. Custom and standard rules are configured. Results are processed and logged.
+> **Phase Gate:** Semgrep runs on all PRs and pushes. Custom and standard rules are configured.
+> Results are processed and logged.
 
 **Success Criteria:**
+
 - Semgrep scans all backend code for vulnerabilities.
 - Custom rules for project-specific risks (e.g., webhook validation).
 - Results output as JSON and processed for analytics.
 
 **Example (GitHub Actions):**
+
 ```yaml
 name: Semgrep Security Scan
 on: [push, pull_request]
@@ -166,10 +181,12 @@ jobs:
 > **Phase Gate:** npm audit runs on all builds. Results are processed and logged.
 
 **Success Criteria:**
+
 - All dependencies are checked for vulnerabilities.
 - Results are parsed and included in security reports.
 
 **Example (GitHub Actions):**
+
 ```yaml
 name: Dependency Security Scan
 on: [push, pull_request]
@@ -194,19 +211,22 @@ jobs:
 
 ### 3. OWASP ZAP API Scanning (DAST)
 
-> **Phase Gate:** ZAP runs on main/staging branches and on schedule. Auth and OpenAPI config are validated. Results are processed and logged.
+> **Phase Gate:** ZAP runs on main/staging branches and on schedule. Auth and OpenAPI config are
+> validated. Results are processed and logged.
 
 **Success Criteria:**
+
 - ZAP scans all API endpoints using latest OpenAPI spec.
 - Authenticated endpoints are tested.
 - Results are output as JSON and processed for analytics.
 
 **Example (GitHub Actions):**
+
 ```yaml
 name: OWASP ZAP API Scan
 on:
   push:
-    branches: [ main, staging ]
+    branches: [main, staging]
   schedule:
     - cron: '0 0 * * *'
 jobs:
@@ -232,14 +252,18 @@ jobs:
 
 ### 4. Automated Reporting & PostHog Integration
 
-> **Phase Gate:** All scan results are aggregated, summarized, and logged to PostHog. Critical issues trigger alerts.
+> **Phase Gate:** All scan results are aggregated, summarized, and logged to PostHog. Critical
+> issues trigger alerts.
 
 **Success Criteria:**
+
 - Security reports are generated for each pipeline run.
-- `security_scan` events are sent to PostHog with scan type, vulnerability counts, severity, and duration.
+- `security_scan` events are sent to PostHog with scan type, vulnerability counts, severity, and
+  duration.
 - Slack/alerting is triggered for critical vulnerabilities.
 
 **Example (TypeScript):**
+
 ```typescript
 // scripts/security-events.ts
 import { PostHog } from 'posthog-node';
@@ -254,8 +278,8 @@ export const logSecurityScan = async (scanType: string, results: any) => {
       high_severity_count: results.highSeverityCount,
       scan_duration: results.duration,
       failed_checks: results.failedChecks,
-      timestamp: new Date().toISOString()
-    }
+      timestamp: new Date().toISOString(),
+    },
   });
 };
 ```
@@ -264,9 +288,11 @@ export const logSecurityScan = async (scanType: string, results: any) => {
 
 ### 5. Continuous Improvement & Maintenance
 
-> **Phase Gate:** All findings are tracked, documentation is updated, and the process is reviewed quarterly.
+> **Phase Gate:** All findings are tracked, documentation is updated, and the process is reviewed
+> quarterly.
 
 **Success Criteria:**
+
 - All vulnerabilities are triaged and tracked to resolution.
 - Documentation is updated with new rules, exceptions, and lessons learned.
 - Quarterly review of scanning effectiveness and coverage.
@@ -299,14 +325,15 @@ export const logSecurityScan = async (scanType: string, results: any) => {
 
 ## Environment Variables & Secrets
 
-| Variable Name         | Description                                 |
-|----------------------|---------------------------------------------|
-| `POSTHOG_API_KEY`    | PostHog API key for event logging           |
-| `SEMGREP_APP_TOKEN`  | Semgrep App token for CI/CD authentication  |
-| `ZAP_AUTH_TOKEN`     | Bearer token for ZAP authenticated scans    |
-| `SLACK_WEBHOOK_URL`  | Slack webhook for critical alerts           |
+| Variable Name       | Description                                |
+| ------------------- | ------------------------------------------ |
+| `POSTHOG_API_KEY`   | PostHog API key for event logging          |
+| `SEMGREP_APP_TOKEN` | Semgrep App token for CI/CD authentication |
+| `ZAP_AUTH_TOKEN`    | Bearer token for ZAP authenticated scans   |
+| `SLACK_WEBHOOK_URL` | Slack webhook for critical alerts          |
 
 **Best Practices:**
+
 - Store all secrets in CI/CD environment, not in code or logs.
 - Rotate keys regularly and document their locations.
 

@@ -1,7 +1,7 @@
 // process-semgrep-results.js
-const fs = require('fs');
-const path = require('path');
-const { logSecurityScan } = require('./security-events');
+import fs from 'fs';
+import path from 'path';
+import { logSecurityScan } from './security-events.js';
 
 const RESULTS_FILE = path.resolve('semgrep-results.json');
 
@@ -9,7 +9,10 @@ function getSeverityCounts(results) {
   const severityCounts = { high: 0, medium: 0, low: 0 };
   if (!results || !Array.isArray(results.results)) return severityCounts;
   for (const finding of results.results) {
-    const sev = (finding.extra && finding.extra.severity) ? finding.extra.severity.toLowerCase() : 'low';
+    const sev =
+      finding.extra && finding.extra.severity
+        ? finding.extra.severity.toLowerCase()
+        : 'low';
     if (severityCounts[sev] !== undefined) severityCounts[sev]++;
   }
   return severityCounts;
@@ -38,10 +41,12 @@ async function main() {
     highSeverityCount,
     scan_duration,
     failedChecks,
-    raw: results
+    raw: results,
   });
 
-  console.log(`Semgrep scan complete. High: ${highSeverityCount}, Medium: ${severityCounts.medium}, Low: ${severityCounts.low}`);
+  console.log(
+    `Semgrep scan complete. High: ${highSeverityCount}, Medium: ${severityCounts.medium}, Low: ${severityCounts.low}`
+  );
   if (highSeverityCount > 0) {
     console.error('High severity vulnerabilities found! Failing job.');
     process.exit(2);
