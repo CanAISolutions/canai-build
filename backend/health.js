@@ -47,6 +47,7 @@ router.get('/health', async (req, res) => {
       stripe: process.env.STRIPE_SECRET_KEY ? 'configured' : 'missing',
       memberstack: process.env.MEMBERSTACK_API_KEY ? 'configured' : 'missing',
       posthog: process.env.POSTHOG_API_KEY ? 'configured' : 'missing',
+      makecom: process.env.MAKECOM_API_KEY ? 'configured' : 'missing',
     };
 
     // Performance metrics
