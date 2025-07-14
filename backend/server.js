@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import supabase from './supabase/client.js';
 import Sentry from './services/instrument.js';
+import Redis from 'ioredis'; // <-- Add this import
+import pkg from '../package.json' assert { type: 'json' };
 
 import emotionalAnalysisRouter from './routes/emotionalAnalysis.js';
 import stripeRouter from './routes/stripe.js';
@@ -22,6 +24,9 @@ dotenv.config();
 
 export function createApp() {
   const app = express();
+
+  // Startup log for version and environment
+  console.log(`CanAI Backend version: ${pkg.version} (${process.env.NODE_ENV || 'development'})`);
 
   // ==============================================
   // Sentry Middleware (must be first)
@@ -107,10 +112,11 @@ export function createApp() {
   });
 
   app.get('/health', async (req, res) => {
-    // MVP: Health check for all critical integrations (PRD-aligned)
-    // Post-MVP: Extend with live API checks for each integration
     const startTime = Date.now();
     let dbStatus = 'unknown';
+    let redisStatus = 'fallback';
+    let checks = {};
+    let performance = {};
     try {
       try {
         const { error } = await supabase
@@ -121,8 +127,21 @@ export function createApp() {
       } catch (err) {
         dbStatus = 'unhealthy';
       }
-      // Integration config checks (MVP: presence of env vars)
-      const checks = {
+      if (process.env.REDIS_URL && process.env.REDIS_URL !== 'your_redis_url') {
+        try {
+          const redis = new Redis(process.env.REDIS_URL, { connectTimeout: 1000 });
+          await redis.ping();
+          redisStatus = 'connected';
+          await redis.quit();
+        } catch (err) {
+          redisStatus = 'unavailable';
+          if (Sentry && Sentry.captureException) Sentry.captureException(err, { extra: { service: 'redis', context: 'health-check' } });
+          console.warn('[Health] Redis connection failed:', err.message);
+        }
+      } else {
+        redisStatus = 'fallback';
+      }
+      checks = {
         supabase: dbStatus,
         stripe: process.env.STRIPE_SECRET_KEY ? 'configured' : 'missing',
         makecom: process.env.MAKECOM_API_KEY ? 'configured' : 'missing',
@@ -130,20 +149,20 @@ export function createApp() {
         sentry: process.env.SENTRY_DSN ? 'configured' : 'missing',
         hume: process.env.HUME_API_KEY ? 'configured' : 'missing',
         memberstack: process.env.MEMBERSTACK_API_KEY ? 'configured' : 'missing',
+        redis: redisStatus,
       };
-      // Performance metrics
       const responseTime = Date.now() - startTime;
-      const performance = {
+      performance = {
         responseTimeMs: responseTime,
         withinSLA: responseTime < 100,
       };
-      // Determine overall status
       const allConfigured = Object.entries(checks).every(([k, v]) =>
-        k === 'supabase' ? v === 'healthy' : v === 'configured'
+        k === 'supabase' ? v === 'healthy' : (k === 'redis' ? true : v === 'configured')
       );
       const status = allConfigured ? 'healthy' : 'degraded';
       res.status(200).json({
         status,
+        version: pkg.version,
         checks,
         uptime: process.uptime(),
         timestamp: new Date().toISOString(),
@@ -151,14 +170,18 @@ export function createApp() {
         performance,
       });
     } catch (err) {
+      const responseTime = Date.now() - startTime;
+      performance = { responseTimeMs: responseTime };
+      checks = Object.keys(checks).length ? checks : { supabase: dbStatus, redis: redisStatus };
       res.status(200).json({
         status: 'degraded',
-        checks: { supabase: 'unhealthy' },
+        version: pkg.version,
+        checks,
         error: err.message,
         uptime: process.uptime(),
         timestamp: new Date().toISOString(),
         memory: process.memoryUsage(),
-        performance: { responseTimeMs: Date.now() - startTime },
+        performance,
       });
     }
   });
