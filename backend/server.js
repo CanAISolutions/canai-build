@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import supabase from './supabase/client.js';
 import Sentry from './services/instrument.js';
 import Redis from 'ioredis'; // <-- Add this import
-import pkg from './package.json' assert { type: 'json' };
+import { readFileSync } from 'fs';
 
 import emotionalAnalysisRouter from './routes/emotionalAnalysis.js';
 import stripeRouter from './routes/stripe.js';
@@ -19,6 +19,8 @@ import intentMirrorRouter from './routes/intentMirror.js';
 import requestRevisionRouter from './routes/requestRevision.js';
 import sparkSplitRouter from './routes/sparkSplit.js';
 import feedbackRouter from './routes/feedback.js';
+
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url)));
 
 dotenv.config();
 
