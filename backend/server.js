@@ -20,7 +20,12 @@ import requestRevisionRouter from './routes/requestRevision.js';
 import sparkSplitRouter from './routes/sparkSplit.js';
 import feedbackRouter from './routes/feedback.js';
 
-const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url)));
+let pkg = { version: '0.0.0' };
+try {
+  pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'));
+} catch (err) {
+  console.warn('[Startup] Could not read package.json:', err.message);
+}
 
 dotenv.config();
 
