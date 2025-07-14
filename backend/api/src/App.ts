@@ -59,6 +59,10 @@ export default async function startup() {
     });
   });
 
+  app.get('/health', (_req, res) => {
+    res.status(200).json({ status: 'OK' });
+  });
+
   logger.debug('bootstrapping app');
   app.use(httpLogger);
   app.set('logger', log);
