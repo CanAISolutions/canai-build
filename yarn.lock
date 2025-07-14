@@ -4192,6 +4192,7 @@ camelcase@^6.2.0:
     cssom "0.5.0"
     date-fns "^2.0.0"
     domexception "4.0.0"
+    dompurify "3.2.6"
     dotenv "16.5.0"
     express "^4.21.2"
     helmet "8.1.0"
