@@ -19,6 +19,7 @@ startup()
       throw new Error('Backend test error');
     });
     const port = process.env.PORT ? Number(process.env.PORT) : 10000;
+    console.log(`[Startup] About to call app.listen on port ${port}`);
     try {
       const server = app.listen(port, '0.0.0.0', () => {
         if (!server) logger.fatal('error starting the server');
