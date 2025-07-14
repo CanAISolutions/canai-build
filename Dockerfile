@@ -2,6 +2,7 @@
 FROM node:20.19.0-alpine AS builder
 WORKDIR /app
 COPY backend/package.json backend/package-lock.json ./
+COPY turbo.json ./
 RUN npm install
 COPY backend/. ./
 RUN npm run build  # Ensure this outputs to /app/dist
