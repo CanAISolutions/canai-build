@@ -10,6 +10,7 @@ services:
     sync: false
   - key: .env2
     sync: false
+  # RENDER_SECRET is managed via Render's "Secret Files" feature. Do not hardcode secrets here.
   - key: RENDER_SECRET
     sync: false
   - fromGroup: CanAI ENV

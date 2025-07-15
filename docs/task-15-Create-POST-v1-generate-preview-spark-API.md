@@ -217,7 +217,6 @@ This document defines the requirements, architecture, and implementation plan fo
 - backend/routes/sparks.js, backend/services/gpt4o.js, backend/prompts/preview_spark.js
 - backend/services/posthog.js, backend/services/instrument.js
 - docs/validation-rules.md, docs/api/README.md
-- docs/task-15-test-plan.md, docs/task-15-testing-strategy.md, docs/Task15-Advice.md
 
 ---
 
@@ -250,7 +249,7 @@ Respond with a JSON object: { "title": "...", "tagline": "..." }
 
 ---
 
-> **Note:** This section consolidates all test planning and strategy for Task 15. The separate docs/task-15-test-plan.md and docs/task-15-testing-strategy.md are now deprecated; all updates should be made here.
+> **Note:** This section consolidates all test planning and strategy for Task 15. All updates should be made here.
 
 ### 1. Overview & Scope Control
 - **Purpose:** Ensure all testing for Task 15 is tightly aligned with MVP requirements, PRD, and project rules—no scope creep.
@@ -472,5 +471,3 @@ npm run test -- --coverage
 - [docs/test-advice.md](test-advice.md)
 - [docs/test-case-specification.md](test-case-specification.md)
 - [docs/test-debugging-best-practices.md](test-debugging-best-practices.md)
-- [docs/task-15-test-plan.md](task-15-test-plan.md) (deprecated, see main doc)
-- [docs/task-15-testing-strategy.md](task-15-testing-strategy.md) (deprecated, see main doc)
