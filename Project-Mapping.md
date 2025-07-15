@@ -2,10 +2,11 @@
 
 ## Overview
 
-This document provides a 100% accurate, machine-readable mapping of the CANAI-BUILD monorepo project structure. It is designed to be easily updated and serves as the single source of truth for the project's layout.
+This document provides a 100% accurate, machine-readable mapping of the CANAI-BUILD monorepo project
+structure. It is designed to be easily updated and serves as the single source of truth for the
+project's layout.
 
-**Version**: 4.0.0
-**Last Updated**: 2025-07-15
+**Version**: 4.0.0 **Last Updated**: 2025-07-15
 
 ---
 
@@ -38,7 +39,7 @@ canai-build/
 
 ### 📁 `backend` - Backend API (Node.js/Express)
 
-*Live at: https://canai-router.onrender.com*
+_Live at: https://canai-router.onrender.com_
 
 ```
 backend/
@@ -78,7 +79,7 @@ frontend/
 
 ### 📁 `docs` - Documentation
 
-*Central repository for all project knowledge and specifications.*
+_Central repository for all project knowledge and specifications._
 
 ```
 docs/
@@ -92,7 +93,7 @@ docs/
 
 ### 📁 `supabase` - Supabase Configuration
 
-*Contains database migrations and settings.*
+_Contains database migrations and settings._
 
 ```
 supabase/
@@ -103,7 +104,11 @@ supabase/
 
 ## ⚙️ Tooling & Configuration
 
-- **CI/CD (`.github/`)**: Contains 17+ workflows for testing, linting, security scanning, and deployment.
-- **Automation (`.taskmaster/`)**: Defines automated tasks, configurations, and scripts for development efficiency.
-- **Containerization (`Dockerfile`, `docker-compose.yml`)**: Defines the environment for consistent local development and production deployment on Render.
-- **Deployment (`render.yaml`)**: Specifies the services, databases, and environment for deploying the entire stack to Render.
+- **CI/CD (`.github/`)**: Contains 17+ workflows for testing, linting, security scanning, and
+  deployment.
+- **Automation (`.taskmaster/`)**: Defines automated tasks, configurations, and scripts for
+  development efficiency.
+- **Containerization (`Dockerfile`, `docker-compose.yml`)**: Defines the environment for consistent
+  local development and production deployment on Render.
+- **Deployment (`render.yaml`)**: Specifies the services, databases, and environment for deploying
+  the entire stack to Render.

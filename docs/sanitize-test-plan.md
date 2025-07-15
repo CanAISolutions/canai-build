@@ -104,3 +104,19 @@ and full observability/logging as required by project rules and PRD.
 - .cursor/rules/canai-test-plan-skeleton-rule.mdc
 - .cursor/rules/canai-test-debugging-best-practices.mdc
 - tests/\_example.gold.spec.ts
+
+---
+
+## Lessons Learned: Task 15 Preview Spark API (July 2025)
+
+- Normalize user input (e.g., trim strings) before validation to handle common user errors and
+  improve robustness.
+- Defensive, logging-first debugging and comprehensive mocking in tests accelerate root cause
+  analysis and safe iteration.
+- Input validation and normalization must be aligned; test edge cases for both.
+- Document and monitor risks of over-normalization and schema mismatch.
+- Consistent normalization logic should be applied across backend and frontend for predictable
+  behavior.
+- This pattern is now validated and recommended for similar endpoints.
+
+---

@@ -4,12 +4,15 @@
 
 ## Current Status & Next Steps (2025-07-15)
 
-> **UPDATE (2025-07-15):** The backend is now **LIVE and ACTIVE on Render**. The MVP deployment is complete and the service is accessible at:
+> **UPDATE (2025-07-15):** The backend is now **LIVE and ACTIVE on Render**. The MVP deployment is
+> complete and the service is accessible at:
 >
-> - Health check: [https://canai-router.onrender.com/health](https://canai-router.onrender.com/health)
+> - Health check:
+>   [https://canai-router.onrender.com/health](https://canai-router.onrender.com/health)
 > - Root: [https://canai-router.onrender.com/](https://canai-router.onrender.com/)
 >
 > **Latest Health Check Response:**
+>
 > ```json
 > {
 >   "status": "degraded",
@@ -34,10 +37,16 @@
 > - **Status:** Service is running, but some integrations are degraded or missing (see above).
 > - **Root endpoint:**
 >   ```json
->   {"status":"ok","message":"CanAI Backend Server is running","timestamp":"2025-07-15T15:41:25.979Z","environment":"development"}
+>   {
+>     "status": "ok",
+>     "message": "CanAI Backend Server is running",
+>     "timestamp": "2025-07-15T15:41:25.979Z",
+>     "environment": "development"
+>   }
 >   ```
 >
-> **Document owner:** _[Your Name or GitHub handle here]_ is responsible for keeping this guide up to date as deployment progresses.
+> **Document owner:** _[Your Name or GitHub handle here]_ is responsible for keeping this guide up
+> to date as deployment progresses.
 
 ### **Key Points:**
 
@@ -250,7 +259,8 @@ focus is on high availability, robust monitoring, and seamless integration with 
 - [x] **Backend deployed and live on Render**
 - [x] **Health check endpoint is live and returning status**
 - [x] **Critical integrations (Supabase, Stripe, PostHog, Sentry, Hume) are healthy**
-- [ ] **Degraded/missing integrations (Make.com, Memberstack, Redis) are documented and scheduled for post-MVP**
+- [ ] **Degraded/missing integrations (Make.com, Memberstack, Redis) are documented and scheduled
+      for post-MVP**
 
 ---
 
@@ -277,14 +287,20 @@ focus is on high availability, robust monitoring, and seamless integration with 
 
 **2025-07-15 (Health Check Evidence)**
 
-- Health check endpoint: [https://canai-router.onrender.com/health](https://canai-router.onrender.com/health)
+- Health check endpoint:
+  [https://canai-router.onrender.com/health](https://canai-router.onrender.com/health)
 - Latest response:
   ```json
   {"status":"degraded","version":"0.0.0","checks":{"supabase":"healthy","stripe":"configured","makecom":"missing","posthog":"configured","sentry":"configured","hume":"configured","memberstack":"missing","redis":"unavailable"},"uptime":95.71,"timestamp":"2025-07-15T15:39:55.452Z","memory":{...},"performance":{"responseTimeMs":11011,"withinSLA":false}}
   ```
 - Root endpoint: [https://canai-router.onrender.com/](https://canai-router.onrender.com/)
   ```json
-  {"status":"ok","message":"CanAI Backend Server is running","timestamp":"2025-07-15T15:41:25.979Z","environment":"development"}
+  {
+    "status": "ok",
+    "message": "CanAI Backend Server is running",
+    "timestamp": "2025-07-15T15:41:25.979Z",
+    "environment": "development"
+  }
   ```
 
 **2025-07-14**
@@ -508,7 +524,8 @@ critical risks are addressed and deliverables are met:
 - [x] All required environment variables are set and validated in Render
 - [x] Node.js version is explicitly set and matches local/prod
 - [ ] Database connections are pooled and tested for scaling
-- [x] All third-party integrations (Stripe, Make.com, PostHog, Sentry, Hume) are validated and monitored
+- [x] All third-party integrations (Stripe, Make.com, PostHog, Sentry, Hume) are validated and
+      monitored
 - [x] Health check endpoint covers all critical dependencies and passes
 - [ ] CI/CD pipeline automates tests, linting, build, and deploy steps
 - [ ] Rollback and restore procedures are documented and tested
@@ -516,8 +533,10 @@ critical risks are addressed and deliverables are met:
 - [ ] Documentation (this guide) is up to date and assigned an owner
 - [ ] Compliance requirements (GDPR, data retention, etc.) are reviewed and met
 - [x] All known pitfalls and preventive measures are reviewed and checked
-- [ ] **Code coverage is below the global threshold (32.34% vs. 80%). Proceeding for MVP; to be addressed post-MVP.**
-- [x] **Redis not provisioned; falling back to in-memory rate limiter for MVP. Must revisit for production scaling.**
+- [ ] **Code coverage is below the global threshold (32.34% vs. 80%). Proceeding for MVP; to be
+      addressed post-MVP.**
+- [x] **Redis not provisioned; falling back to in-memory rate limiter for MVP. Must revisit for
+      production scaling.**
 
 **MVP deployment is live and functional. Remaining checklist items are post-MVP priorities.**
 
