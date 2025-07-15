@@ -1,16 +1,20 @@
+# Exported from Render on 2025-07-15T15:42:53Z
 services:
-  - type: web
-    name: canai-router
-    env: docker
-    plan: starter
-    region: oregon
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-    healthCheckPath: /healthz
-    autoDeploy: true
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-      # Add all other required environment variables here, or set them in the Render dashboard
+- type: web
+  name: canai-router
+  runtime: docker
+  repo: https://github.com/CanAISolutions/canai-build
+  plan: starter
+  envVars:
+  - key: PORT
+    sync: false
+  - key: .env2
+    sync: false
+  - key: RENDER_SECRET
+    sync: false
+  - fromGroup: CanAI ENV
+  region: oregon
+  dockerContext: .
+  dockerfilePath: ./Dockerfile
+  autoDeployTrigger: commit
+version: "1"
