@@ -22,7 +22,9 @@ import feedbackRouter from './routes/feedback.js';
 
 let pkg = { version: '0.0.0' };
 try {
-  pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'));
+  pkg = JSON.parse(
+    readFileSync(new URL('./package.json', import.meta.url), 'utf-8')
+  );
 } catch (err) {
   console.warn('[Startup] Could not read package.json:', err.message);
 }
@@ -33,7 +35,9 @@ export function createApp() {
   const app = express();
 
   // Startup log for version and environment
-  console.log(`CanAI Backend version: ${pkg.version} (${process.env.NODE_ENV || 'development'})`);
+  console.log(
+    `CanAI Backend version: ${pkg.version} (${process.env.NODE_ENV || 'development'})`
+  );
 
   // ==============================================
   // Sentry Middleware (must be first)
@@ -136,13 +140,18 @@ export function createApp() {
       }
       if (process.env.REDIS_URL && process.env.REDIS_URL !== 'your_redis_url') {
         try {
-          const redis = new Redis(process.env.REDIS_URL, { connectTimeout: 1000 });
+          const redis = new Redis(process.env.REDIS_URL, {
+            connectTimeout: 1000,
+          });
           await redis.ping();
           redisStatus = 'connected';
           await redis.quit();
         } catch (err) {
           redisStatus = 'unavailable';
-          if (Sentry && Sentry.captureException) Sentry.captureException(err, { extra: { service: 'redis', context: 'health-check' } });
+          if (Sentry && Sentry.captureException)
+            Sentry.captureException(err, {
+              extra: { service: 'redis', context: 'health-check' },
+            });
           console.warn('[Health] Redis connection failed:', err.message);
         }
       } else {
@@ -164,7 +173,11 @@ export function createApp() {
         withinSLA: responseTime < 100,
       };
       const allConfigured = Object.entries(checks).every(([k, v]) =>
-        k === 'supabase' ? v === 'healthy' : (k === 'redis' ? true : v === 'configured')
+        k === 'supabase'
+          ? v === 'healthy'
+          : k === 'redis'
+            ? true
+            : v === 'configured'
       );
       const status = allConfigured ? 'healthy' : 'degraded';
       res.status(200).json({
@@ -179,7 +192,9 @@ export function createApp() {
     } catch (err) {
       const responseTime = Date.now() - startTime;
       performance = { responseTimeMs: responseTime };
-      checks = Object.keys(checks).length ? checks : { supabase: dbStatus, redis: redisStatus };
+      checks = Object.keys(checks).length
+        ? checks
+        : { supabase: dbStatus, redis: redisStatus };
       res.status(200).json({
         status: 'degraded',
         version: process.env.APP_VERSION || pkg.version || '0.0.0',

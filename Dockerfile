@@ -1,5 +1,9 @@
-FROM node:20.19.0-alpine
+# Dockerfile for CanAI Backend (Render-ready, code-based)
 
+# Use official Node.js 18 Alpine image
+FROM node:18-alpine
+
+# Set working directory
 WORKDIR /app
 
 # Copy package files and install production dependencies
@@ -9,14 +13,20 @@ RUN npm install --only=production
 # Copy all backend source code
 COPY backend/api/. ./
 
-RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nodejs
-RUN chown -R nodejs:nodejs /app
-USER nodejs
-
-EXPOSE 10000
+# Set environment variables
 ENV NODE_ENV=production
+ENV PORT=10000
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 10000) + '/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
+# Expose the backend port
+EXPOSE 10000
 
+# Healthcheck for Render (optional, since /healthz is handled in code)
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:10000/healthz || exit 1
+
+# Use non-root user for security (optional, can be commented out if issues)
+# RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# USER appuser
+
+# Start the backend
 CMD ["node", "server.js"]

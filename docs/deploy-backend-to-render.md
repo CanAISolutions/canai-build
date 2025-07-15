@@ -2,6 +2,159 @@
 
 ---
 
+## Current Status & Next Steps (2025-07-15)
+
+> **IMPORTANT:** As of this update, the backend is **NOT yet deployed to Render**. Previous claims
+> of a live MVP deployment were based on outdated or migrated documentation. The codebase was
+> recently migrated from a corrupted GitHub repo, and significant changes have occurred. This guide
+> is being actively audited and updated to reflect the real-world state.
+
+### **Key Points:**
+
+- **Deployment to Render is pending.**
+- **All deployment, Docker, and configuration steps are being re-audited** against the current
+  codebase and Taskmaster TODOs.
+- **Checklists and logs below may not reflect the current state**—they are being reviewed for
+  accuracy.
+- **Taskmaster TODOs** are the source of truth for remaining deployment work. See:
+  `Extract and analyze all Taskmaster tasks related to deployment, Docker, and configuration...` and
+  follow the tracked plan.
+- **Document owner:** _[Assign owner here]_ is responsible for keeping this guide up to date as
+  deployment progresses.
+
+### **Immediate Next Steps:**
+
+1. Complete a full code and configuration audit (see Taskmaster TODOs).
+2. Update this document after each real deployment milestone (e.g., Dockerfile review, env var
+   audit, first successful deploy).
+3. Remove or update any checklist/log item that is not actually complete.
+4. Only mark deployment as complete when all evidence-based criteria are met.
+
+---
+
+## Backend Code Inventory & Build Process (2025-07-15)
+
+### File & Language Inventory
+
+- **backend/**: Primarily `.js` files for core logic (routes, services, middleware, schemas,
+  controllers, scripts).
+- **backend/api/src/** and subfolders: `.ts` (TypeScript) for new/typed code (App.ts, Server.ts,
+  Shared/, types/).
+- **backend/validation/**: `.ts` for validation logic and tests.
+- **backend/tests/**: Mix of `.js` and `.ts` (integration and app tests use TypeScript).
+- **backend/supabase/**: Mixed (`.js`, `.md`, `.tsx`).
+- **backend/services/supabase/** and other service folders: `.js`.
+- **backend/scripts/**: `.js` utility scripts.
+
+### Entry Points
+
+- **Primary entry:** `backend/server.js` (used by `"start": "node server.js"` in package.json).
+- **TypeScript entry (API):** `backend/api/src/App.ts` and `Server.ts` (for typed API, not main
+  production entry).
+- **Start script:** `npm start` runs `node server.js`.
+
+### Build Scripts & Process
+
+- **Build:** `"build": "turbo run build"` (Turborepo, likely builds all workspaces).
+- **Dev:** `"dev": "turbo run dev"`
+- **Tests:** Multiple scripts for unit, integration, deployment, and CI.
+- **Type checking:** `"typecheck": "tsc --noEmit"`
+- **No explicit TypeScript build step for backend/server.js** (main backend runs as plain Node.js,
+  not compiled TS).
+
+### Workspace/Monorepo
+
+- Uses `"workspaces": ["apps/*", "packages/*"]` (backend is not in a workspace folder, likely a root
+  app).
+
+### Notable Observations
+
+- **Mix of JS and TS:** Legacy and new code coexist; main backend logic is JS, new
+  API/validation/tests are TS.
+- **No explicit backend build output folder** (e.g., no `dist/` for server.js; TS code may be run
+  via ts-node or built elsewhere).
+- **Dockerfile and render.yaml** must match this structure: run `npm install`, then `npm run build`
+  (if needed), then `npm start`.
+
+---
+
+## Environment Variable Audit (2025-07-15)
+
+### Variables Used in Backend Runtime Code
+
+- SUPABASE_URL
+- SUPABASE_ANON_KEY
+- SUPABASE_KEY
+- SUPABASE_SERVICE_KEY
+- SUPABASE_SERVICE_ROLE_KEY
+- SUPABASE_JWT_SECRET
+- DATABASE_URL
+- REDIS_URL
+- STRIPE_SECRET_KEY
+- STRIPE_SECRET_KEY_LIVE
+- STRIPE_SECRET_KEY_TEST
+- STRIPE_API_KEY
+- STRIPE_WEBHOOK_SECRET
+- MAKECOM_API_KEY
+- POSTHOG_API_KEY
+- SENTRY_DSN
+- SENTRY_ENV
+- SENTRY_TEST_ERROR
+- HUME_API_KEY
+- HUME_API_ENDPOINT
+- HUME_TIMEOUT
+- HUME_RATE_LIMIT
+- MEMBERSTACK_API_KEY
+- MEMBERSTACK_JWKS_URI
+- MEMBERSTACK_ISSUER
+- MEMBERSTACK_AUDIENCE
+- OPENAI_API_KEY
+- PORT
+- NODE_ENV
+- CORS_ORIGIN
+- APP_VERSION
+- DEPLOYMENT_ID
+- npm_package_version (from package.json, not .env)
+
+### Variables in Provided .env.example (selected, see full list above)
+
+- All of the above, plus:
+  - TEST_USER_JWT, TEST_ADMIN_JWT, TEST_USER_ID, TEST_USER_EMAIL (test/dev only)
+  - NEXT*PUBLIC*_, REACT*APP*_, VITE\_\* (frontend only)
+  - KLAVIYO_API_KEY, KLAVIYO_PUBLIC_KEY, NEXT_PUBLIC_KLAVIYO_PUBLIC_KEY
+  - CANAI_GITHUB_PAT, GITHUB_PAT
+  - NEXTAUTH_URL, WEBFLOW_API_KEY, ENV, VITE_API_BASE
+
+### Audit Findings
+
+- **All critical backend variables are present in .env.example.**
+- Some variables are only used in tests or frontend (e.g., TEST*USER_JWT, VITE*_, NEXT*PUBLIC*_).
+- Some variables are referenced in code but not always required (e.g., STRIPE_SECRET_KEY_LIVE/TEST
+  fallback to STRIPE_SECRET_KEY).
+- `npm_package_version` is not an env var, but is read from package.json.
+- `APP_VERSION` and `DEPLOYMENT_ID` are optional, with fallbacks.
+- `MEMBERSTACK_API_KEY` is referenced in health.js but not in .env.example (potential gap).
+- `MAKECOM_API_KEY` is used in code, but .env.example uses `MAKE_API_KEY` (naming mismatch).
+- `SENTRY_TEST_ERROR` is used for test error injection, not required in production.
+
+### Recommendations
+
+- **Align variable names:** Ensure `MAKECOM_API_KEY` and `MAKE_API_KEY` are consistent across code,
+  .env, and Render dashboard.
+- **Add any missing variables:** If `MEMBERSTACK_API_KEY` is required, add it to .env.example and
+  Render.
+- **Remove unused/legacy variables** from .env.example if not referenced in code.
+- **Document all required variables** in this guide and in .env.example for future maintainers.
+- **Double-check Render dashboard** to ensure all required variables are set and match the codebase.
+
+### Critical Gaps for Deployment
+
+- [ ] Confirm `MEMBERSTACK_API_KEY` is set if required by health checks.
+- [ ] Resolve any naming mismatches (e.g., `MAKECOM_API_KEY` vs `MAKE_API_KEY`).
+- [ ] Ensure all variables required by health checks and integrations are present in Render.
+
+---
+
 ## Overview
 
 This guide details the process for deploying the Node.js backend to Render for the MVP. Platform
@@ -312,3 +465,63 @@ critical gaps or surprises.
 
 **Status:** MVP deployment is live, stable, and all critical requirements are met. Redis fallback is
 accepted for MVP; revisit for production scaling.
+
+## Render Platform Alignment (2025-07-15)
+
+### Render Service Settings (as of audit)
+
+- **Service Name:** canai-router
+- **Type:** Web Service (Docker)
+- **Plan:** Starter (0.5 CPU, 512 MB)
+- **Region:** Oregon (US West)
+- **Repository:** https://github.com/CanAISolutions/canai-build (branch: main)
+- **Dockerfile Path:** `./Dockerfile` (repo root)
+- **Docker Build Context:** `.` (repo root)
+- **Health Check Path:** `/healthz`
+- **Auto-Deploy:** On commit to main
+- **Custom Domains:** Enabled (onrender.com subdomain)
+
+### Checklist for Render Compatibility
+
+- [ ] **Dockerfile is at the repo root** as `Dockerfile` (not in backend/ or elsewhere)
+- [ ] **Build context is the repo root**—Dockerfile must copy only backend code, not frontend or
+      unrelated workspaces
+- [ ] **Backend exposes and responds to `/healthz`** (not just `/health` or `/`)
+- [ ] **Dockerfile CMD starts the backend** (e.g., `node backend/server.js` or similar)
+- [ ] **All required environment variables are set in Render dashboard**
+- [ ] **No frontend or workspace code is included in the backend image**
+- [ ] **Test the image locally with `docker build .` and `docker run` before deploying**
+
+### Recommendations & Rationale
+
+- **Dockerfile Placement:** Render expects `./Dockerfile` at the repo root. Place the backend
+  Dockerfile here and ensure it only copies backend code.
+- **Health Check:** Update backend code to serve a `/healthz` endpoint that returns 200 OK for
+  Render health checks. (If `/healthz` is not implemented, add a route that proxies `/health` or
+  returns a simple status.)
+- **CMD:** The Dockerfile should start the backend using the correct entry point (e.g.,
+  `CMD ["node", "backend/server.js"]`).
+- **Build Context:** Since the build context is the repo root, use `COPY backend/ ./backend/` to
+  avoid copying frontend or unrelated files.
+- **Environment Variables:** Double-check that all required variables from the audit are set in the
+  Render dashboard.
+
+### Example Dockerfile (repo root)
+
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY backend/package.json backend/package-lock.json ./backend/
+RUN cd backend && npm ci --only=production && npm cache clean --force
+COPY backend/ ./backend/
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nodejs
+RUN chown -R nodejs:nodejs /app
+USER nodejs
+EXPOSE 10000
+ENV NODE_ENV=production
+ENV PORT=10000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD node -e "const http = require('http'); http.get('http://localhost:10000/healthz', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => { process.exit(1); });"
+CMD ["node", "backend/server.js"]
+```
