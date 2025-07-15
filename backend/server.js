@@ -193,6 +193,13 @@ export function createApp() {
     }
   });
 
+  // Add /healthz endpoint for Render health checks
+  app.get('/healthz', async (req, res) => {
+    // Proxy to /health logic
+    req.url = '/health';
+    app._router.handle(req, res);
+  });
+
   app.use('/v1', emotionalAnalysisRouter);
   app.use('/v1/stripe', stripeRouter);
   app.use('/v1/auth', authRouter);
