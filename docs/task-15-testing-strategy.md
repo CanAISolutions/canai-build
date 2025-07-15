@@ -76,7 +76,7 @@
   - Validate logs in test assertions where possible
 
 ## 6. References
-- docs/task-15-test-plan.md
+
 - docs/test-advice.md
 - docs/test-case-specification.md
 - docs/test-debugging-best-practices.md
