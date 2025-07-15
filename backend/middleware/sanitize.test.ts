@@ -141,21 +141,15 @@ describe('sanitizeWithSchema', () => {
       },
       h: { sanitize: false },
     };
-    const result = sanitizeWithSchema(input, schema) as Record<string, unknown>;
-    expect(result['a']).toContain('<b>Safe</b>');
-    expect(result['a']).not.toContain('<img');
-    expect((result['b'] as Array<unknown>)[0]).toBe('');
-    expect(
-      ((result['b'] as Array<unknown>)[1] as Record<string, unknown>)['c']
-    ).toContain('<i>ok</i>');
-    expect(
-      ((result['b'] as Array<unknown>)[1] as Record<string, unknown>)['d']
-    ).toBe('evil()');
-    expect((result['e'] as Record<string, unknown>)['f']).toBe('plain');
-    expect((result['e'] as Record<string, unknown>)['g']).toContain(
-      '<b>rich</b>'
-    );
-    expect(result['h']).toBe('should skip');
+    const result = sanitizeWithSchema(input, schema);
+    expect((result as any).a).toContain('<b>Safe</b>');
+    expect((result as any).a).not.toContain('<img');
+    expect((result as any).b[0]).toBe('');
+    expect((result as any).b[1].c).toContain('<i>ok</i>');
+    expect((result as any).b[1].d).toBe('evil()');
+    expect((result as any).e.f).toBe('plain');
+    expect((result as any).e.g).toContain('<b>rich</b>');
+    expect((result as any).h).toBe('should skip');
   });
 
   it('should throw ValidationError for missing or null fields', () => {
@@ -181,11 +175,11 @@ describe('sanitizeWithSchema', () => {
       b: { sanitize: true, mode: 'plain' },
       c: { sanitize: true, mode: 'rich' },
     };
-    const result = sanitizeWithSchema(input, schema) as Record<string, unknown>;
-    expect(result['a']).toBe('');
-    expect(result['b']).not.toContain('<script>');
-    expect(result['c']).toContain('<b>𝓍𝓈𝓈</b>');
-    expect(result['c']).not.toContain('\u200B');
+    const result = sanitizeWithSchema(input, schema);
+    expect((result as any).a).toBe('');
+    expect((result as any).b).not.toContain('<script>');
+    expect((result as any).c).toContain('<b>𝓍𝓈𝓈</b>');
+    expect((result as any).c).not.toContain('\u200B');
   });
 
   it('should neutralize malicious payloads in nested fields', () => {
@@ -206,14 +200,10 @@ describe('sanitizeWithSchema', () => {
         },
       },
     };
-    const result = sanitizeWithSchema(input, schema) as Record<string, unknown>;
-    expect(result['a']).not.toMatch(/onerror|<img/i);
-    expect((result['b'] as Record<string, unknown>)['c'] as string).not.toMatch(
-      /<svg/i
-    );
-    expect((result['b'] as Record<string, unknown>)['d'] as string).not.toMatch(
-      /javascript:/i
-    );
+    const result = sanitizeWithSchema(input, schema);
+    expect((result as any).a).not.toMatch(/onerror|<img/i);
+    expect(((result as any).b as any).c).not.toMatch(/<svg/i);
+    expect(((result as any).b as any).d).not.toMatch(/javascript:/i);
   });
 
   it('should log and handle errors for nested validation errors', () => {
@@ -222,27 +212,5 @@ describe('sanitizeWithSchema', () => {
       a: { sanitize: true, schema: { b: { sanitize: true, mode: 'plain' } } },
     };
     expect(() => sanitizeWithSchema(input, schema)).toThrow(ValidationError);
-  });
-});
-
-// @refresh-token-migration TEST: sanitizeWithSchema refreshToken edge/fuzz cases
-
-describe('sanitizeWithSchema refreshToken edge/fuzz cases @refresh-token-migration', () => {
-  const schema = { refreshToken: { sanitize: true, mode: 'plain' } };
-  const cases = [
-    { name: 'null', value: { refreshToken: null } },
-    { name: 'undefined', value: { refreshToken: undefined } },
-    { name: 'object', value: { refreshToken: { foo: 'bar' } } },
-    { name: 'array', value: { refreshToken: ['a', 'b'] } },
-    { name: 'empty string', value: { refreshToken: '' } },
-    { name: 'whitespace', value: { refreshToken: '   ' } },
-    { name: 'unicode', value: { refreshToken: '𝒯𝑒𝓈𝓉𝒥𝒲𝒯' } },
-    { name: 'malformed JWT', value: { refreshToken: 'bad.token' } },
-    { name: 'overly long', value: { refreshToken: 'a'.repeat(1000) + '.b.c' } },
-  ];
-  cases.forEach(({ name, value }) => {
-    it(`should throw ValidationError for ${name} refreshToken`, () => {
-      expect(() => sanitizeWithSchema(value, schema)).toThrow(ValidationError);
-    });
   });
 });

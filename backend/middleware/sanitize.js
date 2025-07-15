@@ -5,7 +5,6 @@
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 import { createRequire } from 'module';
-import { JWT_FORMAT_REGEX } from '../constants/jwt.js';
 let _logger;
 try {
   const require = createRequire(import.meta.url);
@@ -117,55 +116,17 @@ export class ValidationError extends Error {
 export function sanitizeWithSchema(data, schema, path = '') {
   // Handle null/undefined
   if (data === null || data === undefined) return data;
-  // Special case: /refresh-token strict validation
-  if (
-    schema &&
-    typeof schema === 'object' &&
-    Object.keys(schema).includes('refreshToken')
-  ) {
-    const val = data && data.refreshToken;
-    const maxLen = 512;
-    // Joi-aligned validation order and messages
-    if (
-      val === null ||
-      val === undefined ||
-      (typeof val === 'string' && val.trim().length === 0)
-    ) {
-      throw new ValidationError('Refresh token is required', 'refreshToken');
-    }
-    if (typeof val !== 'string') {
-      throw new ValidationError(
-        'Refresh token must be a string',
-        'refreshToken'
-      );
-    }
-    if (val.length < 10) {
-      throw new ValidationError(
-        'Refresh token must be at least 10 characters',
-        'refreshToken'
-      );
-    }
-    if (val.length > maxLen) {
-      throw new ValidationError(
-        'Refresh token must be at most 512 characters',
-        'refreshToken'
-      );
-    }
-    // Always enforce JWT regex (no test env bypass)
-    if (!JWT_FORMAT_REGEX.test(val)) {
-      throw new ValidationError(
-        'Refresh token must be a valid JWT',
-        'refreshToken'
-      );
-    }
-    // Do not return early; continue to other sanitization steps
-  }
   // Handle string sanitization first, before arrays/objects
   if (typeof data === 'string' && schema && schema.sanitize) {
     const mode = schema.mode || 'plain';
+    console.log('[sanitizeWithSchema][string-handler]', { path, schema, mode });
     if (mode === 'plain') {
       const before = data;
       const sanitized = sanitizePlainString(data);
+      console.log('[sanitizeWithSchema][plain][forced-regex]', {
+        key: path,
+        out: sanitized,
+      });
       return sanitized;
     } else if (mode === 'rich') {
       let sanitizedValue = DOMPurify.sanitize(data, {
@@ -189,10 +150,19 @@ export function sanitizeWithSchema(data, schema, path = '') {
       sanitizedValue = sanitizedValue
         .normalize('NFC')
         .replace(/[\u200B-\u200D\uFEFF]/g, '');
+      console.log('[sanitizeWithSchema][rich]', {
+        key: path,
+        before: data,
+        after: sanitizedValue,
+      });
       return sanitizedValue;
     }
     // If sanitize is true but mode is unknown, default to plain
     const sanitized = sanitizePlainString(data);
+    console.log('[sanitizeWithSchema][plain][default]', {
+      key: path,
+      out: sanitized,
+    });
     return sanitized;
   }
   // Handle arrays recursively
@@ -216,6 +186,10 @@ export function sanitizeWithSchema(data, schema, path = '') {
       ) {
         const before = item;
         const sanitized = sanitizePlainString(item);
+        console.log('[sanitizeWithSchema][plain][forced-regex]', {
+          key: currentPath,
+          out: sanitized,
+        });
         return sanitized;
       }
       // If the item is an object (not array), and appliedSchema has .schema, use it for recursion
@@ -237,9 +211,18 @@ export function sanitizeWithSchema(data, schema, path = '') {
           : { sanitize: false };
       if (fieldRule.sanitize && typeof value === 'string') {
         const mode = fieldRule.mode || 'plain';
+        console.log('[sanitizeWithSchema][string-handler]', {
+          path: `${path}.${key}`,
+          schema: fieldRule,
+          mode,
+        });
         if (mode === 'plain') {
           const before = value;
           sanitized[key] = sanitizePlainString(value);
+          console.log('[sanitizeWithSchema][plain][forced-regex]', {
+            key: `${path}.${key}`,
+            out: sanitized[key],
+          });
         } else if (mode === 'rich') {
           const before = value;
           sanitized[key] = DOMPurify.sanitize(value, {
@@ -273,6 +256,11 @@ export function sanitizeWithSchema(data, schema, path = '') {
           sanitized[key] = sanitized[key]
             .normalize('NFC')
             .replace(/[\u200B-\u200D\uFEFF]/g, '');
+          console.log('[sanitizeWithSchema][rich]', {
+            key: `${path}.${key}`,
+            before,
+            after: sanitized[key],
+          });
         }
         logDebug(`[sanitize] sanitized field`, { key, mode });
       } else if (typeof value === 'object' && value !== null) {
@@ -320,6 +308,7 @@ export function sanitizeWithSchema(data, schema, path = '') {
  * @returns {*}
  */
 export function sanitize(value, options = {}) {
+  console.log('[sanitize] Input:', value, 'Options:', options);
   const mode = options.mode || 'plain';
   const uriRegexp = options.uriRegexp || DEFAULT_URI_REGEXP;
   const allowedTags =

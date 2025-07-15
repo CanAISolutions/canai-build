@@ -1,21 +1,21 @@
 # Exported from Render on 2025-07-15T15:42:53Z
 services:
-- type: web
-  name: canai-router
-  runtime: docker
-  repo: https://github.com/CanAISolutions/canai-build
-  plan: starter
-  envVars:
-  - key: PORT
-    sync: false
-  - key: .env2
-    sync: false
-  # RENDER_SECRET is managed via Render's "Secret Files" feature. Do not hardcode secrets here.
-  - key: RENDER_SECRET
-    sync: false
-  - fromGroup: CanAI ENV
-  region: oregon
-  dockerContext: .
-  dockerfilePath: ./Dockerfile
-  autoDeployTrigger: commit
-version: "1"
+  - type: web
+    name: canai-router
+    runtime: docker
+    repo: https://github.com/CanAISolutions/canai-build
+    plan: starter
+    envVars:
+      - key: PORT
+        sync: false
+      - key: .env2
+        sync: false
+      # RENDER_SECRET is managed via Render's "Secret Files" feature. Do not hardcode secrets here.
+      - key: RENDER_SECRET
+        sync: false
+      - fromGroup: CanAI ENV
+    region: oregon
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    autoDeployTrigger: commit
+version: '1'
