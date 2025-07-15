@@ -4,14 +4,8 @@ const app = createApp();
 
 const PORT = process.env.PORT || 10000;
 
-const server = app.listen(PORT, () => {
-  console.log(`🚀 CanAI Backend Server running on port ${PORT}`);
-  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔒 Security headers: enabled`);
-  console.log(`🌐 CORS: configured`);
-  console.log(
-    `📝 Logging: ${process.env.NODE_ENV === 'production' ? 'combined' : 'dev'}`
-  );
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 process.on('SIGTERM', () => {
