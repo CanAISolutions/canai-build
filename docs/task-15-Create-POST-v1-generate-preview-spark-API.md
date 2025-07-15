@@ -198,3 +198,45 @@ maximum hindsight, and minimal risk to the rest of the codebase.**
 
 For detailed step-by-step implementation, rollback, and iteration plans, see
 [task-15-defensive-implementation-plan.md](task-15-defensive-implementation-plan.md).
+
+---
+## Unified Bulletproof Testing & Defensive Implementation Plan (Task 15.2)
+
+This section synthesizes all internal rules, PRD requirements, and lessons learned to ensure Task 15.2 is delivered with maximum confidence and traceability.
+
+### Stepwise Plan
+- Review and update all affected files (route, middleware, service, analytics, tests)
+- Ensure all current tests pass and state is backed up
+- Scaffold or update the test plan skeleton (see docs/generate-preview-spark-test-plan.md)
+- Add logging-first instrumentation at every code path (test-only logs)
+- Mock all external dependencies in every test file
+- Use AAA structure and descriptive naming in all tests
+- Assert on analytics events, error messages, and output structure
+- Cover all input permutations, edge cases, and boundaries
+- Run tests incrementally after each change; rollback on failure
+- Run the full suite and check for regressions after all changes
+- Remove all temporary logs before merge
+- Update documentation and log all findings in TaskMaster
+
+### References
+- docs/generate-preview-spark-test-plan.md
+- docs/task-15-defensive-implementation-plan.md
+- docs/test-case-specification.md
+- docs/test-debugging-best-practices.md
+- docs/test-advice.md
+- .cursor/rules/canai-testing-rules.mdc
+- .cursor/rules/canai-test-debugging-best-practices.mdc
+- .cursor/rules/canai-test-plan-skeleton-rule.mdc
+- .cursor/rules/canai-structure-rules.mdc
+
+### Completion Checklist
+- [ ] Test plan skeleton complete and reviewed
+- [ ] Logging-first instrumentation in place
+- [ ] All mocks and dependency hygiene enforced
+- [ ] All input/output/edge cases tested
+- [ ] Analytics and error handling verified
+- [ ] Performance and security assertions present
+- [ ] CI/CD and coverage gates configured
+- [ ] Documentation and lessons learned updated
+- [ ] All temporary logs removed before merge
+---
