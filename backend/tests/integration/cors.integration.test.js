@@ -74,7 +74,7 @@ describe('CORS Integration', () => {
     const res = await request(server)
       .get('/v1/auth/refresh-token')
       .set('Origin', DISALLOWED_ORIGIN);
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(403);
     expect(res.body.error).toMatch(/CORS: Origin not allowed/);
   });
 
@@ -101,7 +101,7 @@ describe('CORS Integration', () => {
     const res = await request(server)
       .get('/v1/auth/refresh-token')
       .set('Origin', DISALLOWED_ORIGIN);
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(403);
     expect(res.body.error).toMatch(/CORS: Origin not allowed/);
   });
 });

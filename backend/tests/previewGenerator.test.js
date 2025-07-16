@@ -5,12 +5,10 @@ import { gpt4oGenerate } from '../services/gpt4o.js'; // Fix: Import the mocked 
 // --- Defensive: Mock all external dependencies at the top ---
 // (No real GPT-4o, Supabase, or analytics calls should ever occur in tests)
 vi.mock('../services/gpt4o.js', () => ({
-  gpt4oGenerate: vi
-    .fn()
-    .mockResolvedValue({
-      content: 'Mocked GPT-4o content',
-      raw: 'Mocked raw output',
-    }),
+  gpt4oGenerate: vi.fn().mockResolvedValue({
+    content: 'Mocked GPT-4o content',
+    raw: 'Mocked raw output',
+  }),
 }));
 // Add more mocks as needed for analytics, Supabase, etc.
 

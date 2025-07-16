@@ -238,8 +238,38 @@ export function createApp() {
 
   // Global error handler
   app.use((err, req, res, next) => {
-    res.status(err.status || 500).json({
-      error: err.message || 'Internal Server Error',
+    if (
+      process.env.NODE_ENV === 'test' ||
+      process.env.NODE_ENV === 'development'
+    ) {
+      console.error('[global error handler]', err);
+    }
+    // CORS error handling
+    if (
+      err &&
+      typeof err.message === 'string' &&
+      err.message.startsWith('CORS: Origin not allowed')
+    ) {
+      if (
+        process.env.NODE_ENV === 'test' ||
+        process.env.NODE_ENV === 'development'
+      ) {
+        console.error('[CORS ERROR]', err.message);
+      }
+      return res.status(403).json({ error: 'CORS: Origin not allowed' });
+    }
+    // If this is a validation or parsing error, return 400
+    if (
+      err &&
+      (err.name === 'ValidationError' || err.type === 'entity.parse.failed')
+    ) {
+      return res.status(400).json({
+        error: 'A user-friendly error occurred. Please check your input.',
+      });
+    }
+    // Otherwise, return 500
+    res.status(500).json({
+      error: 'Internal server error.',
       code: err.code || 'INTERNAL_SERVER_ERROR',
       stack: process.env.NODE_ENV === 'production' ? undefined : err.stack,
     });

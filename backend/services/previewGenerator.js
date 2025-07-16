@@ -7,17 +7,34 @@ import { gpt4oGenerate } from './gpt4o.js'; // Fix: Import GPT-4o integration (m
  * Handles missing/optional fields and trims strings.
  */
 export function normalizeInput(input) {
+  if (process.env.NODE_ENV === 'test')
+    console.log('[normalizeInput] ENTRY', input);
   const normalized = {
-    businessType: input.businessType?.trim(),
-    tone: input.tone?.trim(),
-    customTone: input.customTone?.trim(),
-    targetAudience: input.targetAudience?.trim(),
-    customInstructions: input.customInstructions?.trim(),
+    businessType:
+      typeof input.businessType === 'string'
+        ? input.businessType.trim()
+        : String(input.businessType ?? '').trim(),
+    tone:
+      typeof input.tone === 'string'
+        ? input.tone.trim()
+        : String(input.tone ?? '').trim(),
+    customTone:
+      typeof input.customTone === 'string'
+        ? input.customTone.trim()
+        : undefined,
+    targetAudience:
+      typeof input.targetAudience === 'string'
+        ? input.targetAudience.trim()
+        : undefined,
+    customInstructions:
+      typeof input.customInstructions === 'string'
+        ? input.customInstructions.trim()
+        : undefined,
     maxLength:
       typeof input.maxLength === 'number' ? input.maxLength : undefined,
   };
   if (process.env.NODE_ENV === 'test')
-    console.log('[normalizeInput]', normalized);
+    console.log('[normalizeInput] OUTPUT', normalized);
   return normalized;
 }
 
@@ -88,6 +105,8 @@ export function handleError(error, context) {
  * Follows defensive, testable, and evidence-based patterns.
  */
 export async function generatePreviewSpark(input) {
+  if (process.env.NODE_ENV === 'test')
+    console.log('[generatePreviewSpark] ENTRY', input);
   try {
     // Defensive: Normalize before validation to be user-friendly and robust to user input quirks.
     // Risks: See test plan and code comments for possible fail points (over-normalization, schema mismatch, etc.).
@@ -102,8 +121,13 @@ export async function generatePreviewSpark(input) {
     }
     const prompt = constructPrompt(normalized);
     const gptResponse = await generatePreviewContent(prompt);
-    return formatOutput(gptResponse, normalized);
+    const output = formatOutput(gptResponse, normalized);
+    if (process.env.NODE_ENV === 'test')
+      console.log('[generatePreviewSpark] SUCCESS', output);
+    return output;
   } catch (error) {
+    if (process.env.NODE_ENV === 'test')
+      console.log('[generatePreviewSpark] ERROR', error);
     return handleError(error, { input });
   }
 }
