@@ -311,4 +311,15 @@ class GPT4Service {
   }
 }
 
+const gpt4Service = new GPT4Service(supabase);
+
+export async function gpt4oGenerate(prompt, params = {}) {
+  if (!gpt4Service.client) {
+    await gpt4Service.initialize();
+  }
+  const content = await gpt4Service.generate(prompt, params);
+  // Return an object with content and raw, to match previewGenerator.js usage
+  return { content, raw: content };
+}
+
 export { GPT4Service };

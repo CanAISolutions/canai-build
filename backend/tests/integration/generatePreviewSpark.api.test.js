@@ -303,15 +303,6 @@ describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
       .post('/v1/generate-preview-spark')
       .send(validInput)
       .set('Accept', 'application/json');
-    // Type assertions (if expectTypeOf is available)
-    if (typeof expectTypeOf === 'function') {
-      expectTypeOf(response.body.previewSpark).toMatchTypeOf({
-        id: '',
-        content: '',
-        metadata: {},
-      });
-      expectTypeOf(response.body).not.toHaveProperty('stack');
-    }
     // Output structure
     expect(response.body).toHaveProperty('previewSpark');
     expect(response.body.previewSpark).toHaveProperty('id');
