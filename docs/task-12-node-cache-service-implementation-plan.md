@@ -4,8 +4,11 @@
 
 ## Purpose & PRD Alignment
 
-This document provides a concrete, actionable, and defensive implementation plan for Task 12: **Setup Node-Cache Service**. It is designed to:
-- Align with PRD requirements for API performance, resilience, and observability (see PRD Sections 6, 7, 8, 12, 16)
+This document provides a concrete, actionable, and defensive implementation plan for Task 12:
+**Setup Node-Cache Service**. It is designed to:
+
+- Align with PRD requirements for API performance, resilience, and observability (see PRD Sections
+  6, 7, 8, 12, 16)
 - Support current and future caching needs for API endpoints (e.g., `/v1/messages`)
 - Ensure security, compliance, and extensibility
 - Serve as a living reference for TaskMaster Task 12 and all related caching work
@@ -15,12 +18,14 @@ This document provides a concrete, actionable, and defensive implementation plan
 ## TaskMaster Tasks & Deliverables
 
 ### **Current Tasks**
+
 - **Task 12:** Setup Node-Cache Service (TTL, invalidation, monitoring)
   - **12.1:** Implement cache storage and retrieval with TTL
   - **12.2:** Add cache invalidation and warming
   - **12.3:** Expose cache statistics and monitoring
 
 ### **Future-Proofing**
+
 - Design for easy migration to Redis or distributed cache
 - Modularize for per-endpoint and per-key strategies
 - Integrate with observability (Sentry, PostHog)
@@ -55,13 +60,17 @@ This document provides a concrete, actionable, and defensive implementation plan
 ## Implementation Phases & Phase Gates
 
 ### 1. Service Module & Basic Operations
-> **Phase Gate:** `node-cache` is installed and imported. Service exposes `get`, `set`, `del`, `stats`.
+
+> **Phase Gate:** `node-cache` is installed and imported. Service exposes `get`, `set`, `del`,
+> `stats`.
 
 **Success Criteria:**
+
 - Can store, retrieve, and delete cache entries with TTL
 - Stats method returns hit/miss counts, keys, and memory usage
 
 **Example:**
+
 ```js
 // services/cache.js
 import NodeCache from 'node-cache';
@@ -77,14 +86,18 @@ export default {
 ---
 
 ### 2. Integration with API Endpoints
-> **Phase Gate:** Cache middleware or logic is added to `/v1/messages` and other high-traffic endpoints.
+
+> **Phase Gate:** Cache middleware or logic is added to `/v1/messages` and other high-traffic
+> endpoints.
 
 **Success Criteria:**
+
 - API checks cache before DB
 - On cache hit, returns cached response
 - On miss, fetches from DB, stores in cache
 
 **Example:**
+
 ```js
 // routes/messages.js
 import cache from '../services/cache.js';
@@ -101,13 +114,17 @@ router.get('/', async (req, res) => {
 ---
 
 ### 3. Invalidation & Warming
-> **Phase Gate:** Invalidation logic is implemented for data-changing endpoints (e.g., POST/PUT/DELETE).
+
+> **Phase Gate:** Invalidation logic is implemented for data-changing endpoints (e.g.,
+> POST/PUT/DELETE).
 
 **Success Criteria:**
+
 - Cache is invalidated on relevant data changes
 - Optionally, cache is pre-warmed on startup
 
 **Example:**
+
 ```js
 // On data change
 cache.del('messages');
@@ -118,13 +135,16 @@ cache.set('messages', await fetchMessagesFromDB(), 300);
 ---
 
 ### 4. Monitoring & Observability
+
 > **Phase Gate:** Cache stats are exposed and events are logged to Sentry/PostHog.
 
 **Success Criteria:**
+
 - `/cache/stats` or `/health` returns cache metrics
 - Cache hits/misses/errors are logged
 
 **Example:**
+
 ```js
 // routes/cache.js
 router.get('/stats', (req, res) => res.json(cache.stats()));
@@ -136,9 +156,11 @@ if (error) Sentry.captureException(error);
 ---
 
 ### 5. Testing & Validation
+
 > **Phase Gate:** Vitest test suite covers all cache logic, edge cases, and error paths.
 
 **Success Criteria:**
+
 - All cache operations are tested (get, set, del, stats)
 - Edge cases: expired keys, invalidation, memory limits
 - Test logs and metrics for cache events
@@ -146,6 +168,7 @@ if (error) Sentry.captureException(error);
 ---
 
 ## Defensive Rollback & Iteration Plan
+
 - After each change, run affected and full test suite
 - If regression, revert last change and isolate issue
 - Log all findings and lessons learned in TaskMaster and docs
@@ -154,6 +177,7 @@ if (error) Sentry.captureException(error);
 ---
 
 ## Acceptance Criteria & Checklist
+
 - [ ] Service module implemented and tested
 - [ ] Integrated with at least one API endpoint
 - [ ] Invalidation and warming logic present
@@ -165,6 +189,7 @@ if (error) Sentry.captureException(error);
 ---
 
 ## References & Best Practices
+
 - PRD.md (Sections 6, 7, 8, 12, 16)
 - [CanAI Structure Rules](../.cursor/rules/canai-structure-rules.mdc)
 - [Task 9 Input Validation Plan](task-9-input-validation-middleware.md)

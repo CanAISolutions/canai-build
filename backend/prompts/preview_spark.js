@@ -4,7 +4,7 @@
  * - Tagline: 10–20 characters, inspiring, trust-building
  * - Output: JSON { "title": "...", "tagline": "..." }
  */
-module.exports = ({ businessType, tone }) => `
+const previewSpark = ({ businessType, tone }) => `
 You are an expert business copywriter for CanAI, a platform that creates emotionally resonant, curiosity-driven concept names ("sparks") for businesses.
 
 Generate ONE preview Spark for a business of type "${businessType}" with a "${tone}" tone.
@@ -21,3 +21,5 @@ Respond ONLY with a JSON object:
   "tagline": "..."
 }
 `;
+
+export default previewSpark;

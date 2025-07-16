@@ -1,15 +1,13 @@
 import Joi from 'joi';
 import { sanitize } from './sanitize.js';
 import { sanitizeWithSchema, ValidationError } from './sanitize.js';
-import { createRequire } from 'module';
 import posthog, { safeCapture } from '../services/posthog.js';
-const Sentry = require('../services/instrument.js');
+import * as Sentry from '../services/instrument.js';
 let _logger;
 try {
-  const require = createRequire(import.meta.url);
-  _logger =
-    require('../api/src/Shared/Logger').default ||
-    require('../api/src/Shared/Logger');
+  // ESM dynamic import for Logger
+  const loggerModule = await import('../api/src/Shared/Logger.js');
+  _logger = loggerModule.default || loggerModule;
 } catch (err) {
   _logger = console;
 }

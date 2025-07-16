@@ -4,13 +4,11 @@
 
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
-import { createRequire } from 'module';
 let _logger;
 try {
-  const require = createRequire(import.meta.url);
-  _logger =
-    require('../api/src/Shared/Logger').default ||
-    require('../api/src/Shared/Logger');
+  // ESM dynamic import for Logger
+  const loggerModule = await import('../api/src/Shared/Logger.js');
+  _logger = loggerModule.default || loggerModule;
 } catch (err) {
   _logger = console;
 }
@@ -175,7 +173,7 @@ export function sanitizeWithSchema(data, schema, path = '') {
           appliedSchema = schema[String(idx)];
         } else if (Object.prototype.hasOwnProperty.call(schema, '0')) {
           appliedSchema = schema['0'];
-        } else if (schema.sanitize || schema.mode) {
+        } else if (appliedSchema.sanitize || appliedSchema.mode) {
           appliedSchema = schema;
         }
       }
