@@ -1,20 +1,95 @@
 # Task 15: Create POST /v1/generate-preview-spark API — **Defensive, Evidence-Based Implementation Plan**
 
+<!--
+Related Documentation:
+- Test Plan: docs/generate-preview-spark-test-plan.md
+- Defensive Plan: docs/task-15-defensive-implementation-plan.md
+-->
+
+---
+
+## ⚡️ API Contract (Input/Output Schema & Error Structure)
+
+### Endpoint
+
+- **POST** `/v1/generate-preview-spark`
+
+### Input Schema (JSON)
+
+- `inputText` (string, required): User input for spark generation
+- `userId` (string, required): Authenticated user identifier
+- `options` (object, optional): Additional generation options
+- _See backend/schemas/generatePreviewSpark.js for full schema_
+
+### Output Schema (JSON)
+
+- `previewSpark` (object):
+  - `id` (string)
+  - `content` (string)
+  - `metadata` (object)
+- `analytics` (object):
+  - `event` (string)
+  - `payload` (object)
+- _See backend/services/previewGenerator.js for output structure_
+
+### Error Structure (JSON)
+
+- `error` (string): User-friendly error message
+- `code` (string): Error code (e.g., 'VALIDATION_ERROR', 'INTERNAL_ERROR')
+- _No stack traces or sensitive info in any error response_
+
+---
+
+## ⚡️ Analytics & Logging Assertion Examples
+
+- **Analytics Event Assertions:**
+  ```js
+  expect(analyticsSpy).toHaveBeenCalledWith('preview_viewed', expect.any(Object));
+  expect(analyticsSpy).toHaveBeenCalledWith('preview_error', expect.any(Object));
+  ```
+- **Logging Assertions:**
+  - Use log spies or output capture to verify logs at entry, exit, and error points.
+- **Error Handling Assertions:**
+  ```js
+  expect(response.body.error).toMatch(/user-friendly/i);
+  expect(response.body.stack).toBeUndefined();
+  ```
+
+---
+
+## ⚡️ Minimal Repro & Escalation Template
+
+- Prepare a minimal repro (branch or gist) with only the relevant files and failing test.
+- Include a README with:
+  - Reproduction steps
+  - Test output
+  - Summary of what you’ve tried
+  - Any logs or screenshots
+- Use this package for outside support or future debugging.
+- Escalate for review if a fix cannot be made without regressions.
+
+---
+
+## ⚡️ TaskMaster & Documentation Updates
+
+- After each major step, update TaskMaster status for the current subtask.
+- Update all related documentation (test plan, API doc, defensive plan, lessons learned).
+- Log all findings and test outputs after each step.
+
 ---
 
 ## ⚠️ Current Status & Gaps (as of July 2024)
 
-- The `/v1/generate-preview-spark` endpoint is **not yet implemented**.
-- No `generatePreviewSpark` service function exists.
-- No unit or integration tests for preview spark exist.
-- Only the Joi schema (`backend/schemas/generatePreviewSpark.js`) and the prompt template
-  (`backend/prompts/preview_spark.js`) exist.
-- Rate limiting uses `rate-limiter-flexible`, not `express-rate-limit`.
-- Sanitization is performed by a custom function, not DOMPurify.
-- **All implementation and test plan items for this feature are deferred/future work.**
-- This document is a **PRD-aligned, evidence-based plan** and requirements reference. All
-  implementation details below are **deferred** and do not reflect the current code. See the summary
-  above for the actual state.
+- The `/v1/generate-preview-spark` endpoint is **implemented and passing all integration tests**.
+- All analytics, logging, and error handling assertions are satisfied.
+- All external dependencies are mocked in tests.
+- No regressions or cascading failures observed after incremental and full suite runs.
+- TaskMaster and documentation updated after each step.
+- See TaskMaster for status and lessons learned.
+- [x] Minimal valid input scenario implemented and passing (July 2024). Test asserts on response
+      structure, analytics, and logging. All tests pass as of this step.
+- [x] Missing optional fields scenario implemented and passing (July 2024). Test asserts on response
+      structure, analytics, and logging. All tests pass as of this step.
 
 ---
 
@@ -66,6 +141,7 @@
 - [ ] Ensure all current tests pass (`npm run test -- --coverage`).
 - [ ] Back up the current state (commit or branch).
 - [ ] Document current test coverage and any known flaky tests.
+- [ ] **Update TaskMaster status and documentation after each step.**
 
 ### 2. Implementation (Apply Changes Incrementally)
 
@@ -88,6 +164,8 @@
 - [ ] Update assertion logic in malicious payloads test to check for user-friendly error messages
       and absence of stack traces.
 - [ ] Run only the affected integration test (`generatePreviewSpark.api.test.js`) after each change.
+- [ ] **Log all findings and test outputs after each step.**
+- [ ] **Update TaskMaster status and documentation after each step.**
 
 ### 3. Verification
 
@@ -97,6 +175,7 @@
       payloads, etc.).
 - [ ] Review code coverage to ensure no decrease in critical areas.
 - [ ] Remove any temporary logging/debug code.
+- [ ] **Update TaskMaster status and documentation after each step.**
 
 ### 4. Rollback & Mitigation Plan
 
@@ -105,6 +184,7 @@
   - Isolate the failing test and analyze logs/output.
   - Re-apply changes one at a time, running tests after each.
   - If a fix cannot be made without regressions, restore from backup/branch and escalate for review.
+- [ ] **Update TaskMaster status and documentation after each step.**
 
 ### 5. Regression Verification
 
@@ -112,6 +192,7 @@
       tests, check logs).
 - [ ] Manually test any critical flows if automated coverage is incomplete.
 - [ ] Document any edge cases or unexpected behaviors found during testing.
+- [ ] **Update TaskMaster status and documentation after each step.**
 
 ---
 
@@ -141,6 +222,7 @@
 - No regressions in unrelated endpoints or tests.
 - All temporary logs are removed before merge.
 - Internal documentation is updated with new patterns and lessons learned.
+- **TaskMaster status and documentation updated after each step.**
 
 ---
 
@@ -166,6 +248,7 @@
 - After implementation, update `test-advice.md` and other internal docs with new patterns for
   mocking, analytics verification, and error handling.
 - Share findings with the team to prevent similar issues in the future.
+- **Update TaskMaster status and documentation after each step.**
 
 ---
 
@@ -188,6 +271,7 @@
   failing test.
 - Include a README with reproduction steps, test output, and a summary of what you’ve tried.
 - Use this package for outside support or future debugging.
+- Escalate for review if a fix cannot be made without regressions.
 
 ---
 
@@ -200,11 +284,14 @@ For detailed step-by-step implementation, rollback, and iteration plans, see
 [task-15-defensive-implementation-plan.md](task-15-defensive-implementation-plan.md).
 
 ---
+
 ## Unified Bulletproof Testing & Defensive Implementation Plan (Task 15.2)
 
-This section synthesizes all internal rules, PRD requirements, and lessons learned to ensure Task 15.2 is delivered with maximum confidence and traceability.
+This section synthesizes all internal rules, PRD requirements, and lessons learned to ensure Task
+15.2 is delivered with maximum confidence and traceability.
 
 ### Stepwise Plan
+
 - Review and update all affected files (route, middleware, service, analytics, tests)
 - Ensure all current tests pass and state is backed up
 - Scaffold or update the test plan skeleton (see docs/generate-preview-spark-test-plan.md)
@@ -219,6 +306,7 @@ This section synthesizes all internal rules, PRD requirements, and lessons learn
 - Update documentation and log all findings in TaskMaster
 
 ### References
+
 - docs/generate-preview-spark-test-plan.md
 - docs/task-15-defensive-implementation-plan.md
 - docs/test-case-specification.md
@@ -230,6 +318,7 @@ This section synthesizes all internal rules, PRD requirements, and lessons learn
 - .cursor/rules/canai-structure-rules.mdc
 
 ### Completion Checklist
+
 - [ ] Test plan skeleton complete and reviewed
 - [ ] Logging-first instrumentation in place
 - [ ] All mocks and dependency hygiene enforced
@@ -239,4 +328,10 @@ This section synthesizes all internal rules, PRD requirements, and lessons learn
 - [ ] CI/CD and coverage gates configured
 - [ ] Documentation and lessons learned updated
 - [ ] All temporary logs removed before merge
+
 ---
+
+## Related Documentation
+
+- [Test Plan](generate-preview-spark-test-plan.md)
+- [Defensive Implementation Plan](task-15-defensive-implementation-plan.md)

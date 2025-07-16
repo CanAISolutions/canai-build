@@ -178,6 +178,14 @@ npm run test:accessibility
    - Post-deployment health checks
    - Rollback procedures if needed
 
+## Key Test Plans & Guides
+
+| Area           | Document                                                | Purpose                                     |
+| -------------- | ------------------------------------------------------- | ------------------------------------------- |
+| Test Plan      | ../generate-preview-spark-test-plan.md                  | Input/output, analytics, logging, coverage  |
+| API Contract   | ../task-15-Create-POST-v1-generate-preview-spark-API.md | Endpoint schema, error structure, analytics |
+| Defensive Plan | ../task-15-defensive-implementation-plan.md             | Rollback, lessons learned, test hygiene     |
+
 ---
 
 [🏠 Back to Docs](../README.md) | [🏗️ Architecture](./architecture.md) |

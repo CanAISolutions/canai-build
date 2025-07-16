@@ -134,3 +134,11 @@ Encrypted Secrets (Supabase Vault)' section in
 - Website audit template (`backend/prompts/websiteAuditTemplate.js`) now validates accessibility by
   checking for color contrast, alt text, heading structure, focus management, and form labels, not
   just keywords.
+
+## Key Test Plans & Guides
+
+| Area           | Document                                             | Purpose                                     |
+| -------------- | ---------------------------------------------------- | ------------------------------------------- |
+| Test Plan      | generate-preview-spark-test-plan.md                  | Input/output, analytics, logging, coverage  |
+| API Contract   | task-15-Create-POST-v1-generate-preview-spark-API.md | Endpoint schema, error structure, analytics |
+| Defensive Plan | task-15-defensive-implementation-plan.md             | Rollback, lessons learned, test hygiene     |
