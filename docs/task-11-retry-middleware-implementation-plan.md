@@ -4,12 +4,16 @@
 
 ## Purpose & PRD Alignment
 
-This document provides a concrete, actionable, and defensive implementation plan for Task 11: **Create Retry Middleware with Exponential Backoff**. It is designed to:
-- Align with PRD requirements for API reliability, resilience, and observability (see PRD Sections 6, 7, 8, 12, 16)
+This document provides a concrete, actionable, and defensive implementation plan for Task 11:
+**Create Retry Middleware with Exponential Backoff**. It is designed to:
+
+- Align with PRD requirements for API reliability, resilience, and observability (see PRD Sections
+  6, 7, 8, 12, 16)
 - Support current and future needs for robust error handling and external API reliability
 - Ensure security, compliance, and extensibility
 - Serve as a living reference for TaskMaster Task 11 and all related reliability work
-- **Reference PRD metrics:** e.g., “<1% failed requests due to transient errors”, “Mean time to recovery < 1 min”
+- **Reference PRD metrics:** e.g., “<1% failed requests due to transient errors”, “Mean time to
+  recovery < 1 min”
 - **Map to user journey stages:** F4 (Purchase Flow), F7 (Deliverable), F9 (Feedback)
 
 ---
@@ -17,6 +21,7 @@ This document provides a concrete, actionable, and defensive implementation plan
 ## TaskMaster Tasks & Deliverables
 
 ### **Current Tasks**
+
 - **Task 11:** Create Retry Middleware (exponential backoff, circuit breaker, logging)
   - **11.1:** Implement retry logic with exponential backoff
   - **11.2:** Add circuit breaker pattern for persistent failures
@@ -24,6 +29,7 @@ This document provides a concrete, actionable, and defensive implementation plan
   - **11.4:** **Create and maintain `retry-middleware-test-plan.md` and test skeleton subtask**
 
 ### **Future-Proofing**
+
 - Design for easy extension to other endpoints/services
 - Modularize for per-endpoint and per-external-service strategies
 - Integrate with observability (Sentry, PostHog)
@@ -49,7 +55,8 @@ This document provides a concrete, actionable, and defensive implementation plan
   - Encapsulate all retry and circuit breaker logic
   - Configurable max attempts, initial delay, backoff factor, and circuit breaker thresholds
   - **All config must be injectable for testability and future multi-tenant support**
-  - **Separation of concerns:** retry logic, circuit breaker, and logging must be independently testable
+  - **Separation of concerns:** retry logic, circuit breaker, and logging must be independently
+    testable
 - **Integration:** Apply middleware to routes/services that call external APIs
 - **Observability:** Log all retry/circuit breaker events to Sentry/PostHog
 - **Error Handling:** Provide user-friendly error messages and status codes
@@ -59,9 +66,11 @@ This document provides a concrete, actionable, and defensive implementation plan
 ## Implementation Phases & Phase Gates
 
 ### 1. Retry Logic with Exponential Backoff
+
 > **Phase Gate:** Middleware exposes retry logic with configurable attempts, delay, and backoff.
 
 **Success Criteria:**
+
 - Can wrap async functions and retry on failure
 - Delay increases exponentially between attempts
 - Respects max attempts and aborts on success
@@ -70,6 +79,7 @@ This document provides a concrete, actionable, and defensive implementation plan
 - **Classify errors and only retry on whitelisted error types (network, HTTP, etc.)**
 
 **Example:**
+
 ```ts
 // middleware/retry.ts
 export async function retryWithBackoff(fn, options = {}) {
@@ -79,7 +89,7 @@ export async function retryWithBackoff(fn, options = {}) {
     backoffFactor = 2,
     jitter = 0.2, // 20% jitter
     abortSignal,
-    shouldRetry = (err) => true, // error classifier
+    shouldRetry = err => true, // error classifier
     onRetry = () => {},
   } = options;
   let attempt = 0;
@@ -97,10 +107,11 @@ export async function retryWithBackoff(fn, options = {}) {
       if (abortSignal?.aborted) throw new Error('Retry aborted');
       await new Promise((res, rej) => {
         const timeout = setTimeout(res, finalDelay);
-        if (abortSignal) abortSignal.addEventListener('abort', () => {
-          clearTimeout(timeout);
-          rej(new Error('Retry aborted'));
-        });
+        if (abortSignal)
+          abortSignal.addEventListener('abort', () => {
+            clearTimeout(timeout);
+            rej(new Error('Retry aborted'));
+          });
       });
       delay *= backoffFactor;
     }
@@ -111,9 +122,11 @@ export async function retryWithBackoff(fn, options = {}) {
 ---
 
 ### 2. Circuit Breaker Pattern
+
 > **Phase Gate:** Circuit breaker logic is implemented to halt retries on persistent failures.
 
 **Success Criteria:**
+
 - Circuit breaker opens after N consecutive failures
 - Remains open for a cooldown period before allowing retries
 - Logs state transitions (open, half-open, closed)
@@ -122,6 +135,7 @@ export async function retryWithBackoff(fn, options = {}) {
 - **Alert if circuit remains open > threshold (e.g., 5 min)**
 
 **Example:**
+
 ```ts
 // middleware/circuitBreaker.ts
 class CircuitBreaker {
@@ -164,9 +178,11 @@ class CircuitBreaker {
 ---
 
 ### 3. Logging & Observability
+
 > **Phase Gate:** All retry and circuit breaker events are logged to Sentry/PostHog.
 
 **Success Criteria:**
+
 - Retry attempts, failures, and circuit breaker state changes are logged
 - Analytics events are sent for monitoring and alerting
 - **All logs must include correlation IDs for traceability**
@@ -174,6 +190,7 @@ class CircuitBreaker {
 - **Dashboards/alerts for retry/circuit metrics must be in place**
 
 **Example:**
+
 ```ts
 // In retry/circuit breaker logic
 import * as Sentry from '../services/instrument.js';
@@ -185,9 +202,11 @@ posthog.capture('retry_attempt', { attempt, error: err.message, correlationId })
 ---
 
 ### 4. Error Handling & User Experience
+
 > **Phase Gate:** User-facing errors are clear, actionable, and do not leak sensitive info.
 
 **Success Criteria:**
+
 - On persistent failure, return a user-friendly error message
 - No stack traces or sensitive info in responses
 - **All user-facing errors must have error codes and be documented**
@@ -196,9 +215,12 @@ posthog.capture('retry_attempt', { attempt, error: err.message, correlationId })
 ---
 
 ### 5. Testing & Validation
-> **Phase Gate:** Vitest test suite covers all retry, backoff, and circuit breaker logic and edge cases.
+
+> **Phase Gate:** Vitest test suite covers all retry, backoff, and circuit breaker logic and edge
+> cases.
 
 **Success Criteria:**
+
 - All retry/circuit breaker operations are tested (success, failure, open/close transitions)
 - Edge cases: max attempts, cooldown, rapid failures, partial successes, clock skew
 - Test logs and metrics for retry/circuit breaker events
@@ -210,6 +232,7 @@ posthog.capture('retry_attempt', { attempt, error: err.message, correlationId })
 ---
 
 ## Defensive Rollback & Iteration Plan
+
 - After each change, run affected and full test suite
 - If regression, revert last change and isolate issue
 - Log all findings and lessons learned in TaskMaster and docs
@@ -219,6 +242,7 @@ posthog.capture('retry_attempt', { attempt, error: err.message, correlationId })
 ---
 
 ## Acceptance Criteria & Checklist
+
 - [ ] Retry logic implemented and tested
 - [ ] Circuit breaker logic present and tested
 - [ ] Logging and analytics integrated
@@ -232,6 +256,7 @@ posthog.capture('retry_attempt', { attempt, error: err.message, correlationId })
 ---
 
 ## References & Best Practices
+
 - PRD.md (Sections 6, 7, 8, 12, 16; see metrics and SLOs)
 - [CanAI Structure Rules](../.cursor/rules/canai-structure-rules.mdc)
 - [Task 9 Input Validation Plan](task-9-input-validation-middleware.md)
