@@ -152,7 +152,11 @@ export function createApp() {
             Sentry.captureException(err, {
               extra: { service: 'redis', context: 'health-check' },
             });
-          console.warn('[Health] Redis connection failed:', err.message);
+          // Structured logging: log Redis connection errors to Sentry (see logging guidelines)
+          Sentry.captureMessage?.(
+            '[Health] Redis connection failed: ' + err.message,
+            'warning'
+          );
         }
       } else {
         redisStatus = 'fallback';
@@ -242,20 +246,18 @@ export function createApp() {
       process.env.NODE_ENV === 'test' ||
       process.env.NODE_ENV === 'development'
     ) {
-      console.error('[global error handler]', err);
+      Sentry.captureException?.(err, {
+        extra: { context: 'global error handler' },
+      });
     }
-    // CORS error handling
+    // Robust CORS error detection: check error code or use regex (see test plan)
     if (
       err &&
-      typeof err.message === 'string' &&
-      err.message.startsWith('CORS: Origin not allowed')
+      (err.code === 'CORS_NOT_ALLOWED' ||
+        (typeof err.message === 'string' &&
+          /CORS: Origin not allowed/i.test(err.message)))
     ) {
-      if (
-        process.env.NODE_ENV === 'test' ||
-        process.env.NODE_ENV === 'development'
-      ) {
-        console.error('[CORS ERROR]', err.message);
-      }
+      Sentry.captureMessage?.('[CORS ERROR] ' + err.message, 'warning');
       return res.status(403).json({ error: 'CORS: Origin not allowed' });
     }
     // If this is a validation or parsing error, return 400

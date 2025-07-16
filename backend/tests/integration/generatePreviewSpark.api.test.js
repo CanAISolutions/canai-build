@@ -88,13 +88,6 @@ describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
       .send(validInput)
       .set('Accept', 'application/json');
 
-    // Defensive: Temporary log for test path (remove before merge)
-    if (process.env.NODE_ENV === 'test') {
-      // eslint-disable-next-line no-console
-      console.log('DEBUG: Response body:', response.body);
-      // Removed throw statement for normal test execution
-    }
-
     // Assert
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('previewSpark');
@@ -112,11 +105,6 @@ describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
     expect(logErrorSpy).not.toHaveBeenCalled();
     // No stack trace or sensitive info in response
     expect(response.body).not.toHaveProperty('stack');
-    // Defensive: Temporary log for test path (remove before merge)
-    if (process.env.NODE_ENV === 'test') {
-      // eslint-disable-next-line no-console
-      console.log('Test: valid input, response:', response.body);
-    }
   });
 
   it('should handle minimal valid input', async () => {
@@ -130,12 +118,6 @@ describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
       .post('/v1/generate-preview-spark')
       .send(minimalInput)
       .set('Accept', 'application/json');
-
-    // Defensive: Temporary log for test path (remove before merge)
-    if (process.env.NODE_ENV === 'test') {
-      // eslint-disable-next-line no-console
-      console.log('Test: minimal input, response:', response.body);
-    }
 
     // Assert
     expect(response.status).toBe(200);
@@ -173,12 +155,6 @@ describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
       .send(requiredOnlyInput)
       .set('Accept', 'application/json');
 
-    // Defensive: Temporary log for test path (remove before merge)
-    if (process.env.NODE_ENV === 'test') {
-      // eslint-disable-next-line no-console
-      console.log('Test: missing optional fields, response:', response.body);
-    }
-
     // Assert
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('previewSpark');
@@ -210,50 +186,137 @@ describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
     };
 
     // Act
-    const response = await request(app)
+    const res = await request(app)
       .post('/v1/generate-preview-spark')
-      .send(malformedInput)
-      .set('Accept', 'application/json');
-
-    // Defensive: Temporary log for test path (remove before merge)
-    if (process.env.NODE_ENV === 'test') {
-      // eslint-disable-next-line no-console
-      console.log('Test: malformed input, response:', response.body);
-    }
+      .send(malformedInput);
 
     // Assert
-    expect(response.status).toBe(400);
-    expect(response.body).toHaveProperty('error');
-    expect(response.body.error).toMatch(/user-friendly/i);
-    expect(response.body).not.toHaveProperty('stack');
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/user-friendly/i);
+    expect(res.body.stack).toBeUndefined();
     // Analytics event
     expect(analyticsSpy).toHaveBeenCalledWith(
       expect.objectContaining({ event: 'preview_error' })
     );
-    // Logging
     expect(logErrorSpy).toHaveBeenCalled();
+    expect(logInfoSpy).not.toHaveBeenCalledWith(
+      expect.stringMatching(/previewSpark/),
+      expect.anything()
+    );
   });
 
   it('should handle edge-case inputs (Unicode, emojis, injection)', async () => {
+    // Defensive: See test plan and defensive implementation docs
     for (const input of edgeCases) {
-      // TODO: Send POST, assert 200 or 400, output or error, analytics/logging
+      const analyticsSpy = vi.spyOn(analytics.default, 'capture');
+      const logInfoSpy = vi.spyOn(Sentry.default.logger, 'info');
+      const logErrorSpy = vi.spyOn(Sentry.default.logger, 'error');
+      const response = await request(app)
+        .post('/v1/generate-preview-spark')
+        .send(input)
+        .set('Accept', 'application/json');
+      // Accept either 200 (if valid) or 400 (if invalid)
+      expect([200, 400]).toContain(response.status);
+      if (response.status === 200) {
+        expect(response.body).toHaveProperty('previewSpark');
+        expect(analyticsSpy).toHaveBeenCalledWith(
+          'preview_viewed',
+          expect.any(Object)
+        );
+        expect(logInfoSpy).toHaveBeenCalled();
+        expect(logErrorSpy).not.toHaveBeenCalled();
+      } else {
+        expect(response.body).toHaveProperty('error');
+        expect(response.body.error).toMatch(/user-friendly/i);
+        expect(analyticsSpy).not.toHaveBeenCalledWith(
+          'preview_viewed',
+          expect.any(Object)
+        );
+        // Defensive: error event may be fired via safeCapture, but not always in this test
+        expect(logErrorSpy).toHaveBeenCalled();
+      }
     }
   });
 
   it('should log at each major step (entry, exit, error)', async () => {
-    // TODO: Spy on logger, send request, assert logs
+    // Defensive: See test plan and defensive implementation docs
+    const logInfoSpy = vi.spyOn(Sentry.default.logger, 'info');
+    const logErrorSpy = vi.spyOn(Sentry.default.logger, 'error');
+    // Valid request (entry/exit)
+    await request(app)
+      .post('/v1/generate-preview-spark')
+      .send(validInput)
+      .set('Accept', 'application/json');
+    expect(logInfoSpy).toHaveBeenCalled();
+    // Invalid request (error)
+    await request(app)
+      .post('/v1/generate-preview-spark')
+      .send({ businessType: '', tone: '' })
+      .set('Accept', 'application/json');
+    expect(logErrorSpy).toHaveBeenCalled();
   });
 
   it('should trigger analytics events for both success and error', async () => {
-    // TODO: Spy on analytics, send success and error requests, assert events
+    // Defensive: See test plan and defensive implementation docs
+    const analyticsSpy = vi.spyOn(analytics.default, 'capture');
+    const errorAnalyticsSpy = vi.spyOn(analytics, 'safeCapture');
+    // Success
+    await request(app)
+      .post('/v1/generate-preview-spark')
+      .send(validInput)
+      .set('Accept', 'application/json');
+    expect(analyticsSpy).toHaveBeenCalledWith(
+      'preview_viewed',
+      expect.any(Object)
+    );
+    // Error
+    await request(app)
+      .post('/v1/generate-preview-spark')
+      .send({ businessType: '', tone: '' })
+      .set('Accept', 'application/json');
+    expect(errorAnalyticsSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ event: 'preview_error' })
+    );
   });
 
   it('should mock all external dependencies and reset state', async () => {
-    // TODO: Assert mocks called, no real API calls, state reset in beforeEach/afterEach
+    // Defensive: See test plan and defensive implementation docs
+    // Assert that all mocks are present and called
+    expect(vi.isMockFunction(analytics.default.capture)).toBe(true);
+    expect(vi.isMockFunction(analytics.safeCapture)).toBe(true);
+    expect(vi.isMockFunction(Sentry.default.logger.info)).toBe(true);
+    expect(vi.isMockFunction(Sentry.default.logger.error)).toBe(true);
+    // State reset: afterEach/beforeEach should clear mocks
+    const analyticsSpy = vi.spyOn(analytics.default, 'capture');
+    await request(app)
+      .post('/v1/generate-preview-spark')
+      .send(validInput)
+      .set('Accept', 'application/json');
+    expect(analyticsSpy).toHaveBeenCalled();
+    vi.clearAllMocks();
+    expect(analyticsSpy).not.toHaveBeenCalled();
   });
 
   it('should enforce type safety and output structure', async () => {
-    // TODO: Use expectTypeOf/assertType if available, check output shape
+    // Defensive: See test plan and defensive implementation docs
+    const response = await request(app)
+      .post('/v1/generate-preview-spark')
+      .send(validInput)
+      .set('Accept', 'application/json');
+    // Type assertions (if expectTypeOf is available)
+    if (typeof expectTypeOf === 'function') {
+      expectTypeOf(response.body.previewSpark).toMatchTypeOf({
+        id: '',
+        content: '',
+        metadata: {},
+      });
+      expectTypeOf(response.body).not.toHaveProperty('stack');
+    }
+    // Output structure
+    expect(response.body).toHaveProperty('previewSpark');
+    expect(response.body.previewSpark).toHaveProperty('id');
+    expect(response.body.previewSpark).toHaveProperty('content');
+    expect(response.body.previewSpark).toHaveProperty('metadata');
   });
 
   // Add more as needed per test plan

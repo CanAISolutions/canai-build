@@ -33,6 +33,12 @@ export function normalizeInput(input) {
     maxLength:
       typeof input.maxLength === 'number' ? input.maxLength : undefined,
   };
+  // Add required field validation for businessType and tone
+  if (!normalized.businessType || !normalized.tone) {
+    if (process.env.NODE_ENV === 'test')
+      console.error('[normalizeInput] Missing required fields:', normalized);
+    throw new Error('businessType and tone are required fields');
+  }
   if (process.env.NODE_ENV === 'test')
     console.log('[normalizeInput] OUTPUT', normalized);
   return normalized;
