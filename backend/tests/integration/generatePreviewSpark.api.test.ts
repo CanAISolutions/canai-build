@@ -3,27 +3,28 @@
 
 import { describe, it, beforeEach, afterEach, expect, vi } from 'vitest';
 import request from 'supertest';
-import { createApp } from '../../../backend/server';
+import { createApp } from '../../server';
+import type { Application } from 'express';
 
 // --- Defensive: Mock all external dependencies at the top ---
-vi.mock('../../services/gpt4o.js', () => ({
+vi.mock('../../services/gpt4o', () => ({
   gpt4oGenerate: vi.fn().mockResolvedValue({
     content: 'Mocked GPT-4o content',
     raw: 'Mocked raw output',
   }),
 }));
 // Defensive analytics event spy setup for validation error (see docs/generate-preview-spark-test-plan.md, task-15-defensive-implementation-plan.md)
-vi.mock('../../services/posthog.js', () => ({
+vi.mock('../../services/posthog', () => ({
   __esModule: true,
   capture: vi.fn(),
   safeCapture: vi.fn(),
   default: { capture: vi.fn() },
 }));
-vi.mock('../../services/supabase/client.js', () => ({
+vi.mock('../../services/supabase/client', () => ({
   from: vi.fn(),
   rpc: vi.fn(),
 }));
-vi.mock('../../services/instrument.js', () => ({
+vi.mock('../../services/instrument', () => ({
   __esModule: true,
   logger: {
     info: vi.fn(),
@@ -37,15 +38,31 @@ vi.mock('../../services/instrument.js', () => ({
   },
 }));
 
-let Sentry, analytics, app;
+type AnalyticsMockType = {
+  default: { capture: (...args: unknown[]) => unknown };
+  safeCapture?: (...args: unknown[]) => unknown;
+};
+type SentryMockType = {
+  default: {
+    logger: {
+      info: (...args: unknown[]) => unknown;
+      error: (...args: unknown[]) => unknown;
+    };
+  };
+};
+
+let Sentry: unknown, analytics: unknown, app: Application;
 
 beforeEach(async () => {
   vi.resetModules();
-  // Dynamically import after mocks
-  Sentry = await import('../../services/instrument.js');
-  analytics = await import('../../services/posthog.js');
-  const mod = await import('../../../backend/server');
-  app = mod.createApp();
+  console.log('Importing instrument');
+  Sentry = await import('../../services/instrument');
+  console.log('Imported instrument');
+  analytics = await import('../../services/posthog');
+  console.log('Imported posthog');
+  const mod = await import('../../server');
+  console.log('Imported server');
+  app = mod.createApp() as Application;
   vi.clearAllMocks();
 });
 afterEach(() => {
@@ -78,9 +95,18 @@ const edgeCases = [
 describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
   it('should generate preview with all valid fields', async () => {
     // Arrange
-    const analyticsSpy = vi.spyOn(analytics.default, 'capture');
-    const logInfoSpy = vi.spyOn(Sentry.default.logger, 'info');
-    const logErrorSpy = vi.spyOn(Sentry.default.logger, 'error');
+    const analyticsSpy = vi.spyOn(
+      (analytics as unknown as AnalyticsMockType).default,
+      'capture'
+    );
+    const logInfoSpy = vi.spyOn(
+      (Sentry as unknown as SentryMockType).default.logger,
+      'info'
+    );
+    const logErrorSpy = vi.spyOn(
+      (Sentry as unknown as SentryMockType).default.logger,
+      'error'
+    );
 
     // Act
     const response = await request(app)
@@ -109,9 +135,18 @@ describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
 
   it('should handle minimal valid input', async () => {
     // Arrange
-    const analyticsSpy = vi.spyOn(analytics.default, 'capture');
-    const logInfoSpy = vi.spyOn(Sentry.default.logger, 'info');
-    const logErrorSpy = vi.spyOn(Sentry.default.logger, 'error');
+    const analyticsSpy = vi.spyOn(
+      (analytics as unknown as AnalyticsMockType).default,
+      'capture'
+    );
+    const logInfoSpy = vi.spyOn(
+      (Sentry as unknown as SentryMockType).default.logger,
+      'info'
+    );
+    const logErrorSpy = vi.spyOn(
+      (Sentry as unknown as SentryMockType).default.logger,
+      'error'
+    );
 
     // Act
     const response = await request(app)
@@ -140,9 +175,18 @@ describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
 
   it('should handle missing optional fields gracefully', async () => {
     // Arrange
-    const analyticsSpy = vi.spyOn(analytics.default, 'capture');
-    const logInfoSpy = vi.spyOn(Sentry.default.logger, 'info');
-    const logErrorSpy = vi.spyOn(Sentry.default.logger, 'error');
+    const analyticsSpy = vi.spyOn(
+      (analytics as unknown as AnalyticsMockType).default,
+      'capture'
+    );
+    const logInfoSpy = vi.spyOn(
+      (Sentry as unknown as SentryMockType).default.logger,
+      'info'
+    );
+    const logErrorSpy = vi.spyOn(
+      (Sentry as unknown as SentryMockType).default.logger,
+      'error'
+    );
     // Only required fields
     const requiredOnlyInput = {
       businessType: 'retail',
@@ -176,9 +220,18 @@ describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
 
   it('should return user-friendly error on malformed input', async () => {
     // Arrange
-    const analyticsSpy = vi.spyOn(analytics, 'safeCapture');
-    const logInfoSpy = vi.spyOn(Sentry.default.logger, 'info');
-    const logErrorSpy = vi.spyOn(Sentry.default.logger, 'error');
+    const analyticsSpy = vi.spyOn(
+      analytics as unknown as AnalyticsMockType,
+      'safeCapture'
+    );
+    const logInfoSpy = vi.spyOn(
+      (Sentry as unknown as SentryMockType).default.logger,
+      'info'
+    );
+    const logErrorSpy = vi.spyOn(
+      (Sentry as unknown as SentryMockType).default.logger,
+      'error'
+    );
     // Malformed input: missing required fields
     const malformedInput = {
       businessType: 123, // wrong type
@@ -208,9 +261,18 @@ describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
   it('should handle edge-case inputs (Unicode, emojis, injection)', async () => {
     // Defensive: See test plan and defensive implementation docs
     for (const input of edgeCases) {
-      const analyticsSpy = vi.spyOn(analytics.default, 'capture');
-      const logInfoSpy = vi.spyOn(Sentry.default.logger, 'info');
-      const logErrorSpy = vi.spyOn(Sentry.default.logger, 'error');
+      const analyticsSpy = vi.spyOn(
+        (analytics as unknown as AnalyticsMockType).default,
+        'capture'
+      );
+      const logInfoSpy = vi.spyOn(
+        (Sentry as unknown as SentryMockType).default.logger,
+        'info'
+      );
+      const logErrorSpy = vi.spyOn(
+        (Sentry as unknown as SentryMockType).default.logger,
+        'error'
+      );
       const response = await request(app)
         .post('/v1/generate-preview-spark')
         .send(input)
@@ -240,8 +302,14 @@ describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
 
   it('should log at each major step (entry, exit, error)', async () => {
     // Defensive: See test plan and defensive implementation docs
-    const logInfoSpy = vi.spyOn(Sentry.default.logger, 'info');
-    const logErrorSpy = vi.spyOn(Sentry.default.logger, 'error');
+    const logInfoSpy = vi.spyOn(
+      (Sentry as unknown as SentryMockType).default.logger,
+      'info'
+    );
+    const logErrorSpy = vi.spyOn(
+      (Sentry as unknown as SentryMockType).default.logger,
+      'error'
+    );
     // Valid request (entry/exit)
     await request(app)
       .post('/v1/generate-preview-spark')
@@ -258,8 +326,14 @@ describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
 
   it('should trigger analytics events for both success and error', async () => {
     // Defensive: See test plan and defensive implementation docs
-    const analyticsSpy = vi.spyOn(analytics.default, 'capture');
-    const errorAnalyticsSpy = vi.spyOn(analytics, 'safeCapture');
+    const analyticsSpy = vi.spyOn(
+      (analytics as unknown as AnalyticsMockType).default,
+      'capture'
+    );
+    const errorAnalyticsSpy = vi.spyOn(
+      analytics as unknown as AnalyticsMockType,
+      'safeCapture'
+    );
     // Success
     await request(app)
       .post('/v1/generate-preview-spark')
@@ -282,12 +356,29 @@ describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
   it('should mock all external dependencies and reset state', async () => {
     // Defensive: See test plan and defensive implementation docs
     // Assert that all mocks are present and called
-    expect(vi.isMockFunction(analytics.default.capture)).toBe(true);
-    expect(vi.isMockFunction(analytics.safeCapture)).toBe(true);
-    expect(vi.isMockFunction(Sentry.default.logger.info)).toBe(true);
-    expect(vi.isMockFunction(Sentry.default.logger.error)).toBe(true);
+    expect(
+      vi.isMockFunction(
+        (analytics as unknown as AnalyticsMockType).default.capture
+      )
+    ).toBe(true);
+    expect(
+      vi.isMockFunction((analytics as unknown as AnalyticsMockType).safeCapture)
+    ).toBe(true);
+    expect(
+      vi.isMockFunction(
+        (Sentry as unknown as SentryMockType).default.logger.info
+      )
+    ).toBe(true);
+    expect(
+      vi.isMockFunction(
+        (Sentry as unknown as SentryMockType).default.logger.error
+      )
+    ).toBe(true);
     // State reset: afterEach/beforeEach should clear mocks
-    const analyticsSpy = vi.spyOn(analytics.default, 'capture');
+    const analyticsSpy = vi.spyOn(
+      (analytics as unknown as AnalyticsMockType).default,
+      'capture'
+    );
     await request(app)
       .post('/v1/generate-preview-spark')
       .send(validInput)

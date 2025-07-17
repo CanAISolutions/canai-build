@@ -3,7 +3,7 @@ import { memberstackAuthMiddleware } from '../../middleware/auth.js';
 import jwt from 'jsonwebtoken';
 import * as Sentry from '../../services/instrument.js';
 import posthog from '../../services/posthog.js';
-import log from '../../api/src/Shared/Logger';
+import log from '../../api/src/Shared/Logger.js';
 import authRouter from '../../routes/auth.js';
 import request from 'supertest';
 import * as jwtUtils from '../../middleware/jwtUtils.js';
@@ -14,6 +14,7 @@ import {
   rbacMiddleware,
 } from '../../middleware/rbac.js';
 import { scenarioPermissions } from '../../config/rolePermissions.js';
+import express from 'express';
 
 vi.mock('jsonwebtoken', () => {
   // Define the mock functions once
@@ -399,7 +400,6 @@ describe('memberstackAuthMiddleware', () => {
 describe('/v1/auth/refresh-token endpoint', () => {
   let app;
   beforeAll(() => {
-    const express = require('express');
     app = express();
     app.use(express.json());
     app.use('/v1/auth', authRouter);

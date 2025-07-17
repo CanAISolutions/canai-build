@@ -19,5 +19,7 @@ export default defineConfig({
         statements: 80,
       },
     },
+    include: ['tests/unit/**/*.test.js'],
+    setupFiles: ['tests/vitest.setup.js'],
   },
 });

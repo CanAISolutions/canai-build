@@ -142,14 +142,14 @@ describe('sanitizeWithSchema', () => {
       h: { sanitize: false },
     };
     const result = sanitizeWithSchema(input, schema);
-    expect((result as any).a).toContain('<b>Safe</b>');
-    expect((result as any).a).not.toContain('<img');
-    expect((result as any).b[0]).toBe('');
-    expect((result as any).b[1].c).toContain('<i>ok</i>');
-    expect((result as any).b[1].d).toBe('evil()');
-    expect((result as any).e.f).toBe('plain');
-    expect((result as any).e.g).toContain('<b>rich</b>');
-    expect((result as any).h).toBe('should skip');
+    expect(result.a).toContain('<b>Safe</b>');
+    expect(result.a).not.toContain('<img');
+    expect(result.b[0]).toBe('');
+    expect(result.b[1].c).toContain('<i>ok</i>');
+    expect(result.b[1].d).toBe('evil()');
+    expect(result.e.f).toBe('plain');
+    expect(result.e.g).toContain('<b>rich</b>');
+    expect(result.h).toBe('should skip');
   });
 
   it('should throw ValidationError for missing or null fields', () => {
@@ -176,10 +176,10 @@ describe('sanitizeWithSchema', () => {
       c: { sanitize: true, mode: 'rich' },
     };
     const result = sanitizeWithSchema(input, schema);
-    expect((result as any).a).toBe('');
-    expect((result as any).b).not.toContain('<script>');
-    expect((result as any).c).toContain('<b>𝓍𝓈𝓈</b>');
-    expect((result as any).c).not.toContain('\u200B');
+    expect(result.a).toBe('');
+    expect(result.b).not.toContain('<script>');
+    expect(result.c).toContain('<b>𝓍𝓈𝓈</b>');
+    expect(result.c).not.toContain('\u200B');
   });
 
   it('should neutralize malicious payloads in nested fields', () => {
@@ -201,9 +201,9 @@ describe('sanitizeWithSchema', () => {
       },
     };
     const result = sanitizeWithSchema(input, schema);
-    expect((result as any).a).not.toMatch(/onerror|<img/i);
-    expect(((result as any).b as any).c).not.toMatch(/<svg/i);
-    expect(((result as any).b as any).d).not.toMatch(/javascript:/i);
+    expect(result.a).not.toMatch(/onerror|<img/i);
+    expect(result.b.c).not.toMatch(/<svg/i);
+    expect(result.b.d).not.toMatch(/javascript:/i);
   });
 
   it('should log and handle errors for nested validation errors', () => {

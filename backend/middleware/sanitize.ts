@@ -7,7 +7,7 @@ import { JSDOM } from 'jsdom';
 let _logger;
 try {
   // ESM dynamic import for Logger
-  const loggerModule = await import('../api/src/Shared/Logger.js');
+  const loggerModule = await import('../api/src/Shared/Logger');
   _logger = loggerModule.default || loggerModule;
 } catch (err) {
   _logger = console;
@@ -93,7 +93,7 @@ function sanitizePlainString(data) {
 // --- Task 9.2: Schema-driven, field-level sanitization utility ---
 
 const DEFAULT_URI_REGEXP =
-  /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
+  /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i;
 
 // Custom ValidationError for user-centric, actionable error handling
 export class ValidationError extends Error {
@@ -191,7 +191,7 @@ export function sanitizeWithSchema(data, schema, path = '') {
         return sanitized;
       }
       // If the item is an object (not array), and appliedSchema has .schema, use it for recursion
-      let nestedSchema =
+      const nestedSchema =
         appliedSchema.schema && typeof item === 'object' && !Array.isArray(item)
           ? appliedSchema.schema
           : appliedSchema;
@@ -337,7 +337,7 @@ export function sanitize(value, options = {}) {
   let result;
   if (typeof value === 'string') {
     // Normalize Unicode and remove zero-width chars
-    let clean = value.normalize('NFC').replace(/[\u200B-\u200D\uFEFF]/g, '');
+    const clean = value.normalize('NFC').replace(/[\u200B-\u200D\uFEFF]/g, '');
     result = DOMPurify.sanitize(clean, {
       ALLOWED_TAGS: allowedTags,
       ALLOWED_ATTR: allowedAttr,

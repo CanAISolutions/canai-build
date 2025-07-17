@@ -1,5 +1,5 @@
-require('../../../testEnvSetup');
-require('dotenv').config();
+import '../../../testEnvSetup';
+import 'dotenv/config';
 if (!process.env.HUME_API_KEY) throw new Error('HUME_API_KEY not set');
 import { vi, describe, it, expect, beforeAll, afterAll } from 'vitest';
 

@@ -1,4 +1,4 @@
-require('dotenv').config();
+import 'dotenv/config';
 import { vi, describe, it, beforeAll, expect } from 'vitest';
 import assert from 'assert';
 import jwt from 'jsonwebtoken';

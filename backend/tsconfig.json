@@ -21,9 +21,9 @@
     "supabase/**/*",
     "prompts/**/*",
     "scripts/**/*",
-    "db.js",
-    "server.js",
-    "health.js"
+    "db.ts",
+    "server.ts",
+    "health.ts"
   ],
   "exclude": ["node_modules", "dist", "coverage"]
 }

@@ -1,5 +1,5 @@
-require('../../../testEnvSetup');
-require('dotenv').config();
+import '../../../testEnvSetup';
+import 'dotenv/config';
 console.debug('POSTHOG_API_KEY:', process.env.POSTHOG_API_KEY);
 
 import { describe, it, beforeAll } from 'vitest';

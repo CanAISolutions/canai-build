@@ -53,9 +53,9 @@ backend/
 ├── 📁 prompts/                  # GPT prompt templates and framework
 ├── 📁 supabase/                 # Supabase client and helper functions
 ├── 📁 tests/                    # Backend test suites (unit, integration)
-├── 📄 db.js                      # Direct PostgreSQL client for scripts/migrations
+├── 📄 db.ts                      # Direct PostgreSQL client for scripts/migrations
 ├── 📄 package.json               # Backend-specific npm dependencies
-├── 📄 server.js                  # Production Express server entry point
+├── 📄 server.ts                  # Production Express server entry point
 └── 📄 tsconfig.json             # Backend-specific TypeScript configuration
 ```
 
