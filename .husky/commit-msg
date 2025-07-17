@@ -1,3 +1,13 @@
-#!/bin/sh
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
 
-npx commitlint --edit $1
+# Run the custom validator (compiled from TypeScript)
+node .scripts/validate-commit-msg.js "$1"
+VALIDATOR_STATUS=$?
+if [ $VALIDATOR_STATUS -ne 0 ]; then
+  echo "Commit message failed custom validation. See error above."
+  exit 1
+fi
+
+# Run commitlint as a final check (redundant, but ensures config is always enforced)
+npx --no -- commitlint --edit "$1"

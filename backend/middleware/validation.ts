@@ -6,7 +6,7 @@ import * as Sentry from '../services/instrument.js';
 let _logger;
 try {
   // ESM dynamic import for Logger
-  const loggerModule = await import('../api/src/Shared/Logger.js');
+  const loggerModule = await import('../api/src/Shared/Logger');
   _logger = loggerModule.default || loggerModule;
 } catch (err) {
   _logger = console;

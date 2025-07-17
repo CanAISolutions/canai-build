@@ -8,8 +8,8 @@
   ],
   "scripts": {
     "dev": "turbo run dev",
-    "build": "turbo run build",
-    "start": "node server.js",
+    "build": "tsc",
+    "start": "node dist/start.js",
     "lint": "turbo run lint",
     "test": "vitest run --coverage",
     "test:unit": "vitest run tests/unit/ --coverage",

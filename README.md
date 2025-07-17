@@ -11,11 +11,11 @@
 - **High Cost Alerts:** Logs to `support_requests` and PostHog if daily cost exceeds $50.
 - **PostHog Events:** Emits `gpt4o_request` and `cost_threshold_exceeded` for observability.
 - **Unit Tests:** >80% coverage for token counting, cost calculation, and chunking in
-  `backend/tests/gpt4o.test.js`.
+  `backend/tests/gpt4o.test.ts`.
 
 **Usage:**
 
-- See `GPT4Service` in `backend/services/gpt4o.js` for methods: `countTokens`, `calculateCost`,
+- See `GPT4Service` in `backend/services/gpt4o.ts` for methods: `countTokens`, `calculateCost`,
   `chunkInput`.
 - Fully aligned with PRD Section 1.5 and TaskMaster Task 5.5. No scope creep or non-PRD features
   included.

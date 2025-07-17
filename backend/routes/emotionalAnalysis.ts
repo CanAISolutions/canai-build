@@ -66,7 +66,7 @@ router.post(
       console.error('[analyze-emotion] Request body:', req.body);
       // END: Add detailed error logging
       let status = 500;
-      let message = error.message || 'Internal server error';
+      const message = error.message || 'Internal server error';
       if (message === 'Emotional score below thresholds') {
         status = 400;
       } else if (message === 'Hume circuit breaker is OPEN') {

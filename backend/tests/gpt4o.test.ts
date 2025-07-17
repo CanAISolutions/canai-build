@@ -5,7 +5,7 @@ import { createHume } from '@ai-sdk/hume';
 import { hume } from '../services/hume.js';
 
 // mockHumeAnalyze must be the first thing in the file
-var mockHumeAnalyze = vi.fn();
+const mockHumeAnalyze = vi.fn();
 
 // Now all vi.mock calls and variable declarations
 vi.mock('@ai-sdk/hume', () => ({
