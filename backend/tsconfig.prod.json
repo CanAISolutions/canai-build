@@ -16,13 +16,9 @@
     "noImplicitThis": false,
     "alwaysStrict": false,
     "strictNullChecks": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": false,
-    "exactOptionalPropertyTypes": false,
-    "noPropertyAccessFromIndexSignature": false,
     "skipLibCheck": true,
     "noEmitOnError": false,
+    "exactOptionalPropertyTypes": false,
     "strictPropertyInitialization": false,
     "paths": {
       "@/*": ["../*"],
@@ -30,8 +26,7 @@
     }
   },
   "include": [
-    "src/**/*.ts",
-    "src/types/express.d.ts",
+    "src/**/*",
     "services/**/*",
     "middleware/**/*",
     "routes/**/*",
@@ -43,20 +38,9 @@
     "db.ts",
     "server.ts",
     "health.ts",
-    "start.ts",
     "api/**/*",
     "config/**/*"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage",
-    "tests/**/*",
-    "**/*.test.ts",
-    "**/*.test.js",
-    "**/*.tsx",
-    "../frontend/**/*",
-    "../supabase/page.tsx"
-  ]
+  "exclude": ["node_modules", "dist", "coverage", "tests/**/*", "**/*.test.ts", "**/*.test.js"]
 }
 // END TEMP PATCH

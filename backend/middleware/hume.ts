@@ -1,7 +1,16 @@
 // backend/middleware/hume.js
 import posthog from '../services/posthog.js';
 
+// Add type for circuit breaker state
+export type CircuitBreakerState = 'CLOSED' | 'OPEN' | 'HALF_OPEN';
+
 class HumeCircuitBreaker {
+  failures: number;
+  lastFailureTime: number;
+  state: CircuitBreakerState;
+  FAILURE_THRESHOLD: number;
+  RESET_TIMEOUT: number;
+
   constructor() {
     this.failures = 0;
     this.lastFailureTime = 0;
@@ -10,11 +19,11 @@ class HumeCircuitBreaker {
     this.RESET_TIMEOUT = 60000; // 1 minute
   }
 
-  isOpen() {
+  isOpen(): boolean {
     return this.state === 'OPEN';
   }
 
-  shouldAttemptReset() {
+  shouldAttemptReset(): boolean {
     if (
       this.state === 'OPEN' &&
       Date.now() - this.lastFailureTime > this.RESET_TIMEOUT
@@ -26,7 +35,7 @@ class HumeCircuitBreaker {
     return false;
   }
 
-  onSuccess() {
+  onSuccess(): void {
     if (this.state === 'HALF_OPEN') {
       this.state = 'CLOSED';
       this.failures = 0;
@@ -34,7 +43,7 @@ class HumeCircuitBreaker {
     }
   }
 
-  onFailure() {
+  onFailure(): void {
     if (this.state === 'HALF_OPEN') {
       this.state = 'OPEN';
       this.lastFailureTime = Date.now();

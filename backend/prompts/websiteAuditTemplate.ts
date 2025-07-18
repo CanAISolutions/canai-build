@@ -7,17 +7,41 @@
 
 import { EmotionallyIntelligentPromptFramework } from './framework.js';
 
+interface WebsiteAuditInput {
+  [key: string]: unknown;
+  businessName: string;
+  targetAudience: string;
+  primaryGoal: string;
+  brandVoice: string;
+  businessDescription: string;
+  contentSource: string;
+  auditScope: string;
+}
+
+interface WebsiteAuditOutput {
+  systemPrompt: string;
+  userPrompt: string;
+  expectedSchema: unknown;
+  validation: unknown;
+  inputData: WebsiteAuditInput;
+  templateVersion: string;
+}
+
 class WebsiteAuditTemplate extends EmotionallyIntelligentPromptFramework {
+  version: string;
+
   constructor() {
     super();
     this.templateType = 'websiteAudit';
-    this.version = '1.0.0'; // Template versioning
+    this.version = '1.0.0';
   }
 
   /**
-   * Generate website audit
+   * Generate website audit and optimization plan
    */
-  async generateWebsiteAudit(inputData) {
+  async generateWebsiteAudit(
+    inputData: WebsiteAuditInput
+  ): Promise<WebsiteAuditOutput> {
     // Validate required inputs (PRD Section 6.2)
     const requiredFields = [
       'businessName',
@@ -58,7 +82,10 @@ class WebsiteAuditTemplate extends EmotionallyIntelligentPromptFramework {
   /**
    * Enhance prompt with website audit-specific requirements
    */
-  enhanceWebsiteAuditPrompt(basePrompt, inputData) {
+  enhanceWebsiteAuditPrompt(
+    basePrompt: string,
+    inputData: WebsiteAuditInput
+  ): string {
     const additionalContext = `
 
 **Additional Website Audit Context:**
@@ -87,88 +114,105 @@ class WebsiteAuditTemplate extends EmotionallyIntelligentPromptFramework {
   /**
    * Validate website audit output
    */
-  validateWebsiteAuditOutput(output) {
-    const baseValidation = this.validateOutput(output);
-    const websiteAuditErrors = [];
+  validateWebsiteAuditOutput(output: unknown) {
+    const baseValidation = this.validateOutput(
+      output as Record<string, unknown>
+    );
+    const websiteAuditErrors: string[] = [];
 
     // Validate Audit object
-    if (!output.Audit) {
+    if (!output || typeof output !== 'object' || !('Audit' in output)) {
       websiteAuditErrors.push('Missing Audit object');
     } else {
-      if (!output.Audit.CanAI_Output)
-        websiteAuditErrors.push('Missing Audit.CanAI_Output');
-      if (!output.Audit.Generic_Output)
-        websiteAuditErrors.push('Missing Audit.Generic_Output');
-      if (
-        typeof output.Audit.TrustDelta !== 'number' ||
-        output.Audit.TrustDelta < 4.2
-      ) {
-        websiteAuditErrors.push(
-          'Invalid or low Audit.TrustDelta (must be ≥4.2)'
-        );
-      }
-
-      // Validate word count
-      const canAIWordCount = output.Audit.CanAI_Output
-        ? output.Audit.CanAI_Output.split(/\s+/).length
-        : 0;
-      const genericWordCount = output.Audit.Generic_Output
-        ? output.Audit.Generic_Output.split(/\s+/).length
-        : 0;
-      if (canAIWordCount < 300 || canAIWordCount > 400) {
-        websiteAuditErrors.push(
-          `CanAI_Output: Invalid word count (${canAIWordCount}, must be 300–400)`
-        );
-      }
-      if (genericWordCount < 300 || genericWordCount > 400) {
-        websiteAuditErrors.push(
-          `Generic_Output: Invalid word count (${genericWordCount}, must be 300–400)`
-        );
-      }
-
-      // Validate accessibility (improved check)
-      if (output.Audit.CanAI_Output) {
-        const hasAccessibilityKeyword = /WCAG|accessibility/i.test(
-          output.Audit.CanAI_Output
-        );
-        if (!hasAccessibilityKeyword) {
+      const audit = (output as { Audit?: unknown }).Audit;
+      if (!audit || typeof audit !== 'object') {
+        websiteAuditErrors.push('Invalid Audit object');
+      } else {
+        const auditObj = audit as Record<string, unknown>;
+        if (!auditObj.CanAI_Output)
+          websiteAuditErrors.push('Missing Audit.CanAI_Output');
+        if (!auditObj.Generic_Output)
+          websiteAuditErrors.push('Missing Audit.Generic_Output');
+        if (
+          typeof auditObj.TrustDelta !== 'number' ||
+          auditObj.TrustDelta < 4.2
+        ) {
           websiteAuditErrors.push(
-            'CanAI_Output: Missing accessibility analysis (no mention of WCAG or accessibility)'
+            'Invalid or low Audit.TrustDelta (must be ≥4.2)'
           );
         }
-        // Check for specific accessibility elements
-        const checks = [
-          { key: 'color contrast', label: 'color contrast' },
-          { key: 'alt text', label: 'alt text for images' },
-          { key: 'heading', label: 'heading structure' },
-          { key: 'focus', label: 'focus management' },
-          { key: 'form label', label: 'form labels' },
-        ];
-        for (const check of checks) {
-          if (!new RegExp(check.key, 'i').test(output.Audit.CanAI_Output)) {
+
+        // Validate word count
+        const canAIWordCount =
+          auditObj.CanAI_Output && typeof auditObj.CanAI_Output === 'string'
+            ? auditObj.CanAI_Output.split(/\s+/).length
+            : 0;
+        const genericWordCount =
+          auditObj.Generic_Output && typeof auditObj.Generic_Output === 'string'
+            ? auditObj.Generic_Output.split(/\s+/).length
+            : 0;
+        if (canAIWordCount < 300 || canAIWordCount > 400) {
+          websiteAuditErrors.push(
+            `CanAI_Output: Invalid word count (${canAIWordCount}, must be 300–400)`
+          );
+        }
+        if (genericWordCount < 300 || genericWordCount > 400) {
+          websiteAuditErrors.push(
+            `Generic_Output: Invalid word count (${genericWordCount}, must be 300–400)`
+          );
+        }
+
+        // Validate accessibility (improved check)
+        if (
+          auditObj.CanAI_Output &&
+          typeof auditObj.CanAI_Output === 'string'
+        ) {
+          const hasAccessibilityKeyword = /WCAG|accessibility/i.test(
+            auditObj.CanAI_Output
+          );
+          if (!hasAccessibilityKeyword) {
             websiteAuditErrors.push(
-              `CanAI_Output: Missing accessibility element (${check.label})`
+              'CanAI_Output: Missing accessibility analysis (no mention of WCAG or accessibility)'
             );
+          }
+          // Check for specific accessibility elements
+          const checks = [
+            { key: 'color contrast', label: 'color contrast' },
+            { key: 'alt text', label: 'alt text for images' },
+            { key: 'heading', label: 'heading structure' },
+            { key: 'focus', label: 'focus management' },
+            { key: 'form label', label: 'form labels' },
+          ];
+          for (const check of checks) {
+            if (!new RegExp(check.key, 'i').test(auditObj.CanAI_Output)) {
+              websiteAuditErrors.push(
+                `CanAI_Output: Missing accessibility element (${check.label})`
+              );
+            }
           }
         }
       }
     }
 
     // Validate PostPurchase
-    if (output.PostPurchase) {
-      const requiredFields = [
-        'ConfirmationEmail',
-        'FeedbackPrompt',
-        'FollowUpEmail',
-        'ShareOption',
-      ];
-      const missingPostPurchase = requiredFields.filter(
-        field => !output.PostPurchase[field]
-      );
-      if (missingPostPurchase.length > 0) {
-        websiteAuditErrors.push(
-          `Missing PostPurchase fields: ${missingPostPurchase.join(', ')}`
+    if (output && typeof output === 'object' && 'PostPurchase' in output) {
+      const postPurchase = (output as { PostPurchase?: unknown }).PostPurchase;
+      if (postPurchase && typeof postPurchase === 'object') {
+        const postPurchaseObj = postPurchase as Record<string, unknown>;
+        const requiredFields = [
+          'ConfirmationEmail',
+          'FeedbackPrompt',
+          'FollowUpEmail',
+          'ShareOption',
+        ];
+        const missingPostPurchase = requiredFields.filter(
+          field => !postPurchaseObj[field]
         );
+        if (missingPostPurchase.length > 0) {
+          websiteAuditErrors.push(
+            `Missing PostPurchase fields: ${missingPostPurchase.join(', ')}`
+          );
+        }
       }
     }
 
@@ -209,13 +253,13 @@ class WebsiteAuditTemplate extends EmotionallyIntelligentPromptFramework {
         },
         PostPurchase: {
           ConfirmationEmail:
-            'Thank you, [userName]! Your TechTrend audit is ready. Access now.',
+            'Thank you for choosing CanAI! Your TechTrend audit is ready. Access it now.',
           PDFDownload: 'https://supabase.com/files/audit-12345.pdf',
           FeedbackPrompt:
-            'Does this audit align with your vision? Rate 1–5. [Open-ended]',
+            'How does this audit align with your vision? Rate 1–5. What aspects resonate with your Denver audience?',
           FollowUpEmail:
-            "How's your TechTrend website update? Refine with CanAI.",
-          ShareOption: 'Share your audit on LinkedIn via Webflow',
+            "How's your TechTrend website optimization? Share your results or refine with CanAI.",
+          ShareOption: 'Share your audit on LinkedIn via Webflow button',
         },
       },
     };

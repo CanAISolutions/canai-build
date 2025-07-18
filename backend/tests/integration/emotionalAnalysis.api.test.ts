@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import jwt from 'jsonwebtoken';
-import { rbacMiddleware } from '../../middleware/rbac.js';
+// import { rbacMiddleware } from '../../middleware/rbac.js';
 import { createApp } from '../../server.js';
 
 process.env.NODE_ENV = 'development';

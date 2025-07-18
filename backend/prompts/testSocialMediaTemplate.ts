@@ -17,7 +17,7 @@ async function testSocialMedia() {
     );
 
     // Validate a mock output (or real model output)
-    const validation = result.validation(expectedOutput);
+    const validation = template.validateSocialMediaOutput(expectedOutput);
     console.log('Validation:', validation);
 
     if (!validation.isValid) {
@@ -25,8 +25,10 @@ async function testSocialMedia() {
     } else {
       console.log('✅ Validation passed!');
     }
-  } catch (err) {
-    console.error('❌ Test failed:', err.message);
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    console.error('❌ Test failed:', errorMessage);
   }
 }
 

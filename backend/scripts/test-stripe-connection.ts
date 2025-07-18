@@ -1,12 +1,14 @@
-import stripe, { testStripeConnection } from '../services/stripe.js';
+import { testStripeConnection } from '../services/stripe.js';
 
 (async () => {
   try {
     await testStripeConnection();
-    console.log('✅ Stripe connection test successful.');
+    console.log('✅ Stripe connection test passed');
     process.exit(0);
-  } catch (err) {
-    console.error('❌ Stripe connection test failed:', err.message);
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    console.error('❌ Stripe connection test failed:', errorMessage);
     process.exit(1);
   }
 })();

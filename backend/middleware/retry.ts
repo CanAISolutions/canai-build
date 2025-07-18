@@ -29,7 +29,7 @@ export type CircuitBreakerState = 'CLOSED' | 'OPEN' | 'HALF_OPEN';
 
 export async function retryWithBackoff<T>(
   fn: () => Promise<T>,
-  options: RetryOptions = {}
+  _options: RetryOptions = {}
 ): Promise<T> {
   // TODO: Implement exponential backoff, jitter, abort/cancellation, error whitelisting
   // TODO: Integrate logging hooks (onRetry)

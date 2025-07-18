@@ -7,17 +7,41 @@
 
 import { EmotionallyIntelligentPromptFramework } from './framework.js';
 
+interface SocialMediaInput {
+  [key: string]: unknown;
+  businessName: string;
+  targetAudience: string;
+  primaryGoal: string;
+  brandVoice: string;
+  businessDescription: string;
+  socialPlatforms: string;
+  contentStrategy: string;
+}
+
+interface SocialMediaOutput {
+  systemPrompt: string;
+  userPrompt: string;
+  expectedSchema: unknown;
+  validation: unknown;
+  inputData: SocialMediaInput;
+  templateVersion: string;
+}
+
 class SocialMediaTemplate extends EmotionallyIntelligentPromptFramework {
+  version: string;
+
   constructor() {
     super();
     this.templateType = 'socialMedia';
-    this.version = '1.0.0'; // Template versioning
+    this.version = '1.0.0';
   }
 
   /**
    * Generate social media and email campaign
    */
-  async generateSocialMediaCampaign(inputData) {
+  async generateSocialMediaCampaign(
+    inputData: SocialMediaInput
+  ): Promise<SocialMediaOutput> {
     // Validate required inputs (PRD Section 6.2)
     const requiredFields = [
       'businessName',
@@ -58,7 +82,10 @@ class SocialMediaTemplate extends EmotionallyIntelligentPromptFramework {
   /**
    * Enhance prompt with social media-specific requirements
    */
-  enhanceSocialMediaPrompt(basePrompt, inputData) {
+  enhanceSocialMediaPrompt(
+    basePrompt: string,
+    inputData: SocialMediaInput
+  ): string {
     const additionalContext = `
 
 **Additional Social Media Context:**
@@ -90,91 +117,133 @@ class SocialMediaTemplate extends EmotionallyIntelligentPromptFramework {
   /**
    * Validate social media campaign output
    */
-  validateSocialMediaOutput(output) {
-    const baseValidation = this.validateOutput(output);
-    const socialMediaErrors = [];
+  validateSocialMediaOutput(output: unknown) {
+    const baseValidation = this.validateOutput(
+      output as Record<string, unknown>
+    );
+    const socialMediaErrors: string[] = [];
 
     // Validate Campaign object
-    if (!output.Campaign) {
+    if (!output || typeof output !== 'object' || !('Campaign' in output)) {
       socialMediaErrors.push('Missing Campaign object');
     } else {
-      if (!output.Campaign.CanAI_Output)
-        socialMediaErrors.push('Missing Campaign.CanAI_Output');
-      if (!output.Campaign.Generic_Output)
-        socialMediaErrors.push('Missing Campaign.Generic_Output');
-      if (
-        typeof output.Campaign.TrustDelta !== 'number' ||
-        output.Campaign.TrustDelta < 4.2
-      ) {
-        socialMediaErrors.push(
-          'Invalid or low Campaign.TrustDelta (must be ≥4.2)'
-        );
-      }
+      const campaign = (output as { Campaign?: unknown }).Campaign;
+      if (!campaign || typeof campaign !== 'object') {
+        socialMediaErrors.push('Invalid Campaign object');
+      } else {
+        const campaignObj = campaign as Record<string, unknown>;
+        if (!campaignObj.CanAI_Output)
+          socialMediaErrors.push('Missing Campaign.CanAI_Output');
+        if (!campaignObj.Generic_Output)
+          socialMediaErrors.push('Missing Campaign.Generic_Output');
+        if (
+          typeof campaignObj.TrustDelta !== 'number' ||
+          campaignObj.TrustDelta < 4.2
+        ) {
+          socialMediaErrors.push(
+            'Invalid or low Campaign.TrustDelta (must be ≥4.2)'
+          );
+        }
 
-      // Validate post and email counts
-      const canAI = output.Campaign.CanAI_Output || {};
-      const generic = output.Campaign.Generic_Output || {};
-      if (!canAI.posts || canAI.posts.length < 3 || canAI.posts.length > 7) {
-        socialMediaErrors.push(
-          'CanAI_Output: Invalid post count (must be 3–7)'
-        );
-      }
-      if (
-        !generic.posts ||
-        generic.posts.length < 3 ||
-        generic.posts.length > 7
-      ) {
-        socialMediaErrors.push(
-          'Generic_Output: Invalid post count (must be 3–7)'
-        );
-      }
-      if (!canAI.emails || canAI.emails.length < 3 || canAI.emails.length > 5) {
-        socialMediaErrors.push(
-          'CanAI_Output: Invalid email count (must be 3–5)'
-        );
-      }
-      if (
-        !generic.emails ||
-        generic.emails.length < 3 ||
-        generic.emails.length > 5
-      ) {
-        socialMediaErrors.push(
-          'Generic_Output: Invalid email count (must be 3–5)'
-        );
-      }
+        // Validate post and email counts
+        const canAI =
+          (campaignObj.CanAI_Output as Record<string, unknown>) || {};
+        const generic =
+          (campaignObj.Generic_Output as Record<string, unknown>) || {};
+        if (
+          !canAI.posts ||
+          !Array.isArray(canAI.posts) ||
+          canAI.posts.length < 3 ||
+          canAI.posts.length > 7
+        ) {
+          socialMediaErrors.push(
+            'CanAI_Output: Invalid post count (must be 3–7)'
+          );
+        }
+        if (
+          !generic.posts ||
+          !Array.isArray(generic.posts) ||
+          generic.posts.length < 3 ||
+          generic.posts.length > 7
+        ) {
+          socialMediaErrors.push(
+            'Generic_Output: Invalid post count (must be 3–7)'
+          );
+        }
+        if (
+          !canAI.emails ||
+          !Array.isArray(canAI.emails) ||
+          canAI.emails.length < 3 ||
+          canAI.emails.length > 5
+        ) {
+          socialMediaErrors.push(
+            'CanAI_Output: Invalid email count (must be 3–5)'
+          );
+        }
+        if (
+          !generic.emails ||
+          !Array.isArray(generic.emails) ||
+          generic.emails.length < 3 ||
+          generic.emails.length > 5
+        ) {
+          socialMediaErrors.push(
+            'Generic_Output: Invalid email count (must be 3–5)'
+          );
+        }
 
-      // Validate platform-specific constraints
-      if (canAI.posts) {
-        canAI.posts.forEach((post, index) => {
-          if (post.platform === 'Twitter' && post.content.length > 280) {
-            socialMediaErrors.push(
-              `CanAI_Output: Post ${index + 1} exceeds Twitter 280-char limit`
-            );
-          }
-          if (!post.hashtags || post.hashtags.length < 3) {
-            socialMediaErrors.push(
-              `CanAI_Output: Post ${index + 1} has <3 hashtags`
-            );
-          }
-        });
+        // Validate platform-specific constraints
+        if (canAI.posts && Array.isArray(canAI.posts)) {
+          canAI.posts.forEach((post: unknown, index: number) => {
+            if (
+              post &&
+              typeof post === 'object' &&
+              'platform' in post &&
+              'content' in post
+            ) {
+              const postObj = post as Record<string, unknown>;
+              if (
+                postObj.platform === 'Twitter' &&
+                typeof postObj.content === 'string' &&
+                postObj.content.length > 280
+              ) {
+                socialMediaErrors.push(
+                  `CanAI_Output: Post ${index + 1} exceeds Twitter 280-char limit`
+                );
+              }
+              if (
+                !postObj.hashtags ||
+                !Array.isArray(postObj.hashtags) ||
+                postObj.hashtags.length < 3
+              ) {
+                socialMediaErrors.push(
+                  `CanAI_Output: Post ${index + 1} has <3 hashtags`
+                );
+              }
+            }
+          });
+        }
       }
     }
 
     // Validate PostPurchase
-    if (output.PostPurchase) {
-      const requiredFields = [
-        'ConfirmationEmail',
-        'FeedbackPrompt',
-        'FollowUpEmail',
-        'ShareOption',
-      ];
-      const missingPostPurchase = requiredFields.filter(
-        field => !output.PostPurchase[field]
-      );
-      if (missingPostPurchase.length > 0) {
-        socialMediaErrors.push(
-          `Missing PostPurchase fields: ${missingPostPurchase.join(', ')}`
+    if (output && typeof output === 'object' && 'PostPurchase' in output) {
+      const postPurchase = (output as { PostPurchase?: unknown }).PostPurchase;
+      if (postPurchase && typeof postPurchase === 'object') {
+        const postPurchaseObj = postPurchase as Record<string, unknown>;
+        const requiredFields = [
+          'ConfirmationEmail',
+          'FeedbackPrompt',
+          'FollowUpEmail',
+          'ShareOption',
+        ];
+        const missingPostPurchase = requiredFields.filter(
+          field => !postPurchaseObj[field]
         );
+        if (missingPostPurchase.length > 0) {
+          socialMediaErrors.push(
+            `Missing PostPurchase fields: ${missingPostPurchase.join(', ')}`
+          );
+        }
       }
     }
 
@@ -214,59 +283,58 @@ class SocialMediaTemplate extends EmotionallyIntelligentPromptFramework {
               {
                 platform: 'Instagram',
                 content:
-                  'Find peace with Serenity Yoga. Join our mindfulness classes! #AustinYoga #Wellness',
+                  'Find your inner peace at Serenity Yoga 🧘‍♀️✨ Join us for mindful movement and community connection. #AustinYoga #MindfulLiving #SerenityYoga',
                 hashtags: [
                   '#AustinYoga',
-                  '#Mindfulness',
-                  '#Serenity',
-                  '#KeepAustinWeird',
+                  '#MindfulLiving',
+                  '#SerenityYoga',
+                  '#Wellness',
+                  '#Community',
                 ],
               },
-              // ... 2–6 more posts
+              {
+                platform: 'Twitter',
+                content:
+                  'Transform your day with 30 minutes of mindful movement. New classes starting this week! #AustinYoga #Wellness #Mindfulness',
+                hashtags: ['#AustinYoga', '#Wellness', '#Mindfulness', '#Yoga'],
+              },
             ],
             emails: [
               {
-                subject: 'Discover Serenity in Austin',
-                body: 'Join our yoga classes for mindfulness...',
-                cta: 'Sign Up Now',
+                subject: 'Begin Your Wellness Journey with Serenity Yoga',
+                body: 'Welcome to a community of mindful movement and inner peace. Join us for classes designed to nurture your body and soul.',
+                cta: 'Book Your First Class',
               },
-              // ... 2–4 more emails
             ],
-            contentCalendar:
-              'Week 1: 2 Instagram posts, 1 email; Week 2: 3 Twitter posts...',
-            hashtagStrategy: '#AustinYoga, #Mindfulness for local engagement',
           },
           Generic_Output: {
             posts: [
               {
                 platform: 'Instagram',
-                content: 'Yoga classes available. Sign up today.',
-                hashtags: ['#Yoga', '#Fitness'],
+                content:
+                  'Yoga classes available. Join us for fitness and relaxation. #Yoga #Fitness #Austin',
+                hashtags: ['#Yoga', '#Fitness', '#Austin', '#Exercise'],
               },
-              // ... 2–6 more posts
             ],
             emails: [
               {
-                subject: 'Yoga Classes',
-                body: 'Sign up for yoga classes.',
-                cta: 'Register',
+                subject: 'Yoga Classes Available',
+                body: 'We offer yoga classes for all levels. Improve your fitness and flexibility with our experienced instructors.',
+                cta: 'Sign Up Now',
               },
-              // ... 2–4 more emails
             ],
-            contentCalendar: 'Post weekly, email biweekly',
-            hashtagStrategy: '#Yoga, #Health',
           },
           TrustDelta: 4.5,
         },
         PostPurchase: {
           ConfirmationEmail:
-            'Thank you, [userName]! Your Serenity Yoga campaign is ready. Access now.',
+            'Thank you for choosing CanAI! Your Serenity Yoga campaign is ready. Access it now.',
           PDFDownload: 'https://supabase.com/files/campaign-12345.pdf',
           FeedbackPrompt:
-            'Does this campaign inspire your audience? Rate 1–5. [Open-ended]',
+            'How does this campaign resonate with your vision? Rate 1–5. What aspects inspire your community focus?',
           FollowUpEmail:
-            "How's your Serenity Yoga campaign? Share progress or refine with CanAI.",
-          ShareOption: 'Share your campaign on Twitter via Webflow',
+            "How's your Serenity Yoga campaign performing? Share your results or refine with CanAI.",
+          ShareOption: 'Share your campaign on Instagram via Webflow button',
         },
       },
     };

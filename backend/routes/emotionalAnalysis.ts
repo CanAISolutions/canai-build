@@ -4,13 +4,12 @@ import HumeService from '../services/hume.js';
 import validate from '../middleware/validation.js';
 import rateLimit from '../middleware/rateLimit.js';
 import auth from '../middleware/auth.js';
-import Joi from 'joi';
 import { rbacMiddleware } from '../middleware/rbac.js';
 // import log from '../api/src/Shared/Logger';
 // TODO: Migrate to a shared logger (e.g., backend/Shared/Logger.js)
 const log = {
-  info: (...args) => console.info('[emotionalAnalysis]', ...args),
-  error: (...args) => console.error('[emotionalAnalysis]', ...args),
+  info: (...args: unknown[]) => console.info('[emotionalAnalysis]', ...args),
+  error: (...args: unknown[]) => console.error('[emotionalAnalysis]', ...args),
 };
 import { analyzeEmotionSchema } from '../schemas/emotionalAnalysis.js';
 
@@ -27,20 +26,7 @@ router.post(
   '/analyze-emotion',
   [
     auth,
-    rbacMiddleware(['user', 'admin']),
-    // Fast dev short-circuit BEFORE expensive validation / rate-limit
-    (req, res, next) => {
-      if (process.env.NODE_ENV === 'development') {
-        return res.status(200).json({
-          arousal: 0.7,
-          valence: 0.8,
-          confidence: 0.9,
-          source: 'hume',
-          error: null,
-        });
-      }
-      next();
-    },
+    rbacMiddleware(['user', 'admin']), // Require user or admin role
     validate({ body: analyzeEmotionSchema }),
     rateLimit,
   ],
@@ -60,26 +46,41 @@ router.post(
     } catch (error) {
       // BEGIN: Add detailed error logging
       console.error('[analyze-emotion] Error:', error);
-      if (error && error.details) {
-        console.error('[analyze-emotion] Joi details:', error.details);
+      if (error && typeof error === 'object' && 'details' in error) {
+        console.error(
+          '[analyze-emotion] Joi details:',
+          (error as { details: unknown }).details
+        );
       }
       console.error('[analyze-emotion] Request body:', req.body);
       // END: Add detailed error logging
       let status = 500;
-      const message = error.message || 'Internal server error';
-      if (message === 'Emotional score below thresholds') {
+      const message =
+        error instanceof Error
+          ? error.message
+          : typeof error === 'object' && 'message' in error
+            ? (error as { message: unknown }).message
+            : 'Internal server error';
+      const messageStr =
+        typeof message === 'string' ? message : String(message);
+      if (messageStr === 'Emotional score below thresholds') {
         status = 400;
-      } else if (message === 'Hume circuit breaker is OPEN') {
+      } else if (messageStr === 'Hume circuit breaker is OPEN') {
         status = 503;
-      } else if (message === 'HUME_API_KEY is missing') {
+      } else if (messageStr === 'HUME_API_KEY is missing') {
         status = 500;
-      } else if (message.toLowerCase().includes('not found')) {
+      } else if (messageStr.toLowerCase().includes('not found')) {
         status = 404;
       }
       // BEGIN: Return Joi details for debugging
-      res
-        .status(status === 500 ? 400 : status)
-        .json({ error: message, joi: error.details, body: req.body });
+      res.status(status === 500 ? 400 : status).json({
+        error: messageStr,
+        joi:
+          typeof error === 'object' && 'details' in error
+            ? (error as { details: unknown }).details
+            : undefined,
+        body: req.body,
+      });
       // END: Return Joi details for debugging
     }
   }
@@ -99,7 +100,17 @@ router.get('/analyze-emotion/status', auth, async (req, res) => {
       error: null,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : typeof error === 'object' && 'message' in error
+          ? (error as { message: unknown }).message
+          : String(error);
+    const errorStr =
+      typeof errorMessage === 'string' ? errorMessage : String(errorMessage);
+    res.status(500).json({
+      error: errorStr,
+    });
   }
 });
 

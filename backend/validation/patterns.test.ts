@@ -11,7 +11,7 @@ import {
   POSTAL_CODE_REGEX,
   BUSINESS_URL_REGEX,
   SOCIAL_HANDLE_REGEX,
-} from './patterns';
+} from './patterns.js';
 
 describe('Pattern Library Regexes (Reference Only)', () => {
   describe('Business Type Category', () => {

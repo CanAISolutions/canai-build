@@ -7,18 +7,29 @@
 
 import { BusinessPlanTemplate } from './businessPlanTemplate.js';
 import { GPT4Service } from '../services/gpt4o.js';
+import supabase from '../supabase/client.js';
 
-const gpt4oService = new GPT4Service(/* ... */);
+interface BusinessPlanOptions {
+  temperature?: number;
+  maxTokens?: number;
+  delayMs?: number;
+}
+
+// const _gpt4oService = new GPT4oService();
 
 class EmotionalIntelligenceIntegration {
+  businessPlanTemplate: BusinessPlanTemplate;
+  gpt4oService: GPT4Service;
+
   constructor() {
     this.businessPlanTemplate = new BusinessPlanTemplate();
+    this.gpt4oService = new GPT4Service(supabase);
   }
 
   /**
    * Generate emotionally intelligent business plan using GPT-4o
    */
-  async generateBusinessPlan(inputData, options = {}) {
+  async generateBusinessPlan(inputData, options: BusinessPlanOptions = {}) {
     try {
       // Generate the prompt using our framework
       const promptData =
@@ -42,20 +53,24 @@ class EmotionalIntelligenceIntegration {
       };
 
       // Call GPT-4o service
-      const response = await gpt4oService.generateCompletion(gptRequest);
+      const response = await this.gpt4oService.generate(
+        promptData.userPrompt,
+        gptRequest
+      );
 
       // Parse and validate the response
       let parsedResponse;
       try {
-        parsedResponse = JSON.parse(response.content);
+        parsedResponse = JSON.parse(response);
       } catch (parseError) {
         throw new Error(
-          `Failed to parse GPT-4o response as JSON: ${parseError.message}`
+          `Failed to parse GPT-4o response as JSON: ${parseError instanceof Error ? parseError.message : String(parseError)}`
         );
       }
 
       // Validate against our schema
-      const validation = promptData.validation(parsedResponse);
+      const validation =
+        this.businessPlanTemplate.validateBusinessPlanOutput(parsedResponse);
 
       return {
         success: true,
@@ -63,17 +78,17 @@ class EmotionalIntelligenceIntegration {
         validation: validation,
         metadata: {
           inputData: inputData,
-          promptTokens: response.usage?.prompt_tokens || 0,
-          completionTokens: response.usage?.completion_tokens || 0,
-          totalTokens: response.usage?.total_tokens || 0,
-          model: response.model || 'gpt-4o',
+          promptTokens: 0,
+          completionTokens: 0,
+          totalTokens: 0,
+          model: 'gpt-4o',
           timestamp: new Date().toISOString(),
         },
       };
     } catch (error) {
       return {
         success: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
         metadata: {
           inputData: inputData,
           timestamp: new Date().toISOString(),
@@ -129,7 +144,10 @@ class EmotionalIntelligenceIntegration {
   /**
    * Batch processing for multiple business plans
    */
-  async generateMultipleBusinessPlans(inputDataArray, options = {}) {
+  async generateMultipleBusinessPlans(
+    inputDataArray,
+    options: BusinessPlanOptions = {}
+  ) {
     const results = [];
 
     for (const inputData of inputDataArray) {

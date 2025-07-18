@@ -1,9 +1,8 @@
 import express from 'express';
 import rateLimit from '../middleware/rateLimit.js';
-import * as Sentry from '../services/instrument.js';
+import Sentry from '../services/instrument.js';
 import posthog from '../services/posthog.js';
 import axios from 'axios';
-import Joi from 'joi';
 import { refreshTokenSchema } from '../schemas/auth.js';
 import { JWT_FORMAT_REGEX } from '../constants/jwt.js';
 
@@ -15,7 +14,7 @@ router.options('*', (req, res) => {
 });
 
 // Defensive logging utility
-function logDefensiveAuth(msg, meta) {
+function logDefensiveAuth(msg: string, meta?: Record<string, unknown>) {
   try {
     // Redact refreshToken in logs
     if (meta && meta.refreshToken) meta.refreshToken = '[REDACTED]';
@@ -52,7 +51,12 @@ router.post('/refresh-token', rateLimit, async (req, res) => {
       const error = {
         error: 'Missing or invalid refresh token',
         code: 'AUTH_TOKEN_MISSING',
-        details: err.details || err.message,
+        details:
+          typeof err === 'object' && 'details' in err
+            ? (err as { details: unknown }).details
+            : err instanceof Error
+              ? err.message
+              : String(err),
       };
       logDefensiveAuth('[DEBUG] Joi validation failed', {
         ...error,
@@ -109,7 +113,14 @@ router.post('/refresh-token', rateLimit, async (req, res) => {
       const error = {
         error: 'Token refresh failed',
         code: 'AUTH_TOKEN_REFRESH_FAILED',
-        details: err.response?.data || err.message,
+        details:
+          typeof err === 'object' &&
+          'response' in err &&
+          (err as { response?: { data?: unknown } }).response?.data
+            ? (err as { response: { data: unknown } }).response.data
+            : err instanceof Error
+              ? err.message
+              : String(err),
       };
       logDefensiveAuth('Memberstack API error', {
         ...error,
@@ -156,7 +167,12 @@ router.post('/refresh-token', rateLimit, async (req, res) => {
     const errorDetails = {
       error: 'Internal server error during token refresh',
       code: 'AUTH_INTERNAL_ERROR',
-      message: error.message,
+      message:
+        error instanceof Error
+          ? error.message
+          : typeof error === 'object' && 'message' in error
+            ? (error as { message: unknown }).message
+            : String(error),
     };
     logDefensiveAuth('Internal server error', { ...errorDetails });
     Sentry.captureException(error, { extra: errorDetails });

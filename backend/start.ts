@@ -1,10 +1,10 @@
-import { createApp } from './server';
+import { createApp } from './server.js';
 
 const app = createApp();
 
-const PORT = process.env.PORT || 10000;
+const PORT = Number(process.env['PORT']) || 10000;
 
-app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
 

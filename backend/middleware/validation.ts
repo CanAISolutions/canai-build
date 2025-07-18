@@ -1,12 +1,52 @@
-import Joi from 'joi';
-import { sanitize } from './sanitize.js';
 import { sanitizeWithSchema, ValidationError } from './sanitize.js';
-import posthog, { safeCapture } from '../services/posthog.js';
-import * as Sentry from '../services/instrument.js';
-let _logger;
+import { safeCapture } from '../services/posthog.js';
+import Sentry from '../services/instrument.js';
+import type { Request, Response, NextFunction } from 'express';
+
+interface Logger {
+  debug?: (meta: unknown, msg: string) => void;
+  info?: (msg: string, meta?: unknown) => void;
+  log?: (msg: string, meta?: unknown) => void;
+  error?: (msg: string, error?: unknown, data?: unknown) => void;
+}
+
+interface SanitizeSchemaField {
+  sanitize: boolean;
+  mode?: 'plain' | 'rich';
+}
+
+interface SanitizeSchema {
+  [key: string]: SanitizeSchemaField;
+}
+
+interface ValidationOptions {
+  sanitizeSchemas?: {
+    body?: SanitizeSchema;
+    query?: SanitizeSchema;
+    params?: SanitizeSchema;
+    headers?: SanitizeSchema;
+  };
+  sanitizeSchema?: SanitizeSchema;
+}
+
+interface ValidationSchemas {
+  body?: unknown;
+  query?: unknown;
+  params?: unknown;
+  headers?: unknown;
+}
+
+interface ErrorWithMessage {
+  message: string;
+  field?: string;
+  name?: string;
+  stack?: string;
+}
+
+let _logger: Logger;
 try {
   // ESM dynamic import for Logger
-  const loggerModule = await import('../api/src/Shared/Logger');
+  const loggerModule = await import('../api/src/Shared/Logger.js');
   _logger = loggerModule.default || loggerModule;
 } catch (err) {
   _logger = console;
@@ -32,23 +72,28 @@ try {
  * }
  */
 
-function logDebug(msg, meta) {
+function logDebug(msg: string, meta?: unknown) {
   if (_logger && typeof _logger.debug === 'function') {
     _logger.debug(meta || {}, msg);
+  } else if (_logger && typeof _logger.info === 'function') {
+    _logger.info(msg, meta);
   } else if (_logger && typeof _logger.log === 'function') {
     _logger.log(msg, meta);
   }
 }
 
-function validate(schemas = {}, options = {}) {
-  return (req, res, next) => {
+function validate(
+  schemas: ValidationSchemas = {},
+  options: ValidationOptions = {}
+) {
+  return (req: Request, res: Response, next: NextFunction) => {
     logDebug('[validation] invoked', { method: req.method, path: req.path });
     // Accept per-part sanitize schemas or fallback to default
-    const sanitizeSchemas = options.sanitizeSchemas || {
-      body: options.sanitizeSchema || inferSanitizeSchema(req.body),
-      query: options.sanitizeSchema || inferSanitizeSchema(req.query),
-      params: options.sanitizeSchema || inferSanitizeSchema(req.params),
-      headers: options.sanitizeSchema || inferSanitizeSchema(req.headers),
+    const sanitizeSchemas = options['sanitizeSchemas'] || {
+      body: options['sanitizeSchema'] || inferSanitizeSchema(req.body),
+      query: options['sanitizeSchema'] || inferSanitizeSchema(req.query),
+      params: options['sanitizeSchema'] || inferSanitizeSchema(req.params),
+      headers: options['sanitizeSchema'] || inferSanitizeSchema(req.headers),
     };
     try {
       req.body = sanitizeWithSchema(req.body, sanitizeSchemas.body);
@@ -56,26 +101,29 @@ function validate(schemas = {}, options = {}) {
       req.params = sanitizeWithSchema(req.params, sanitizeSchemas.params);
       req.headers = sanitizeWithSchema(req.headers, sanitizeSchemas.headers);
     } catch (err) {
-      logDebug('[validation] error', { error: err.message, field: err.field });
+      const error = err as ErrorWithMessage;
+      logDebug('[validation] error', {
+        error: error.message || String(err),
+        field: error.field,
+      });
       // Integrate PostHog/Sentry analytics for all failures
       const context = {
         method: req.method,
         path: req.path,
         user: req.user ? { id: req.user.id, email: req.user.email } : undefined,
-        error: err.message,
-        stack: err.stack,
-        type: err.name,
+        error: error.message || String(err),
+        stack: error.stack,
+        type: error.name,
         source: 'sanitize',
       };
       if (safeCapture) {
         safeCapture({
           event: 'error_occurred',
           properties: {
-            errorType: err.name || 'SanitizationError',
-            stackTrace: err.stack,
+            errorType: error.name || 'SanitizationError',
+            stackTrace: error.stack,
             context,
-            sessionId:
-              req.sessionId || (req.user && req.user.sessionId) || 'unknown',
+            sessionId: req.session?.id || 'unknown',
             timestamp: new Date().toISOString(),
           },
         });
@@ -83,24 +131,31 @@ function validate(schemas = {}, options = {}) {
       if (Sentry && typeof Sentry.captureException === 'function') {
         Sentry.captureException(err, { extra: context });
       }
-      res
-        .status(400)
-        .json(
-          err instanceof ValidationError
-            ? { error: err.message, field: err.field }
-            : { error: err.message || 'Invalid input.' }
-        );
+      res.status(400).json(
+        err instanceof ValidationError
+          ? {
+              error: error.message || String(err),
+              field: error.field,
+            }
+          : {
+              error: error.message || 'Invalid input.',
+            }
+      );
       logDebug('[validation] error response sent', {
-        error: err.message,
-        field: err.field,
+        error: error.message || String(err),
+        field: error.field,
       });
       return; // Explicitly stop middleware chain
     }
     // Validate each part if schema provided
-    const sources = ['body', 'query', 'params', 'headers'];
+    const sources = ['body', 'query', 'params', 'headers'] as const;
     for (const source of sources) {
       if (schemas[source]) {
-        const { error } = schemas[source].validate(req[source]);
+        const { error } = (
+          schemas[source] as {
+            validate: (data: unknown) => { error?: ErrorWithMessage };
+          }
+        ).validate(req[source]);
         // In the error handler for Joi validation
         if (error) {
           // Route-specific analytics event name for test plan compliance
@@ -110,7 +165,7 @@ function validate(schemas = {}, options = {}) {
               ? 'preview_error'
               : 'error_occurred';
           if (typeof safeCapture === 'function') {
-            if (process.env.NODE_ENV === 'test') {
+            if (process.env['NODE_ENV'] === 'test') {
               console.log(
                 '[validation middleware] analytics event fired:',
                 eventName
@@ -123,27 +178,20 @@ function validate(schemas = {}, options = {}) {
                 stackTrace: error.stack,
                 path: req.path,
                 method: req.method,
-                sessionId: req.sessionId || 'unknown',
+                sessionId: req.session?.id || 'unknown',
                 timestamp: new Date().toISOString(),
               },
             });
           }
           // Dynamically import Sentry to ensure the test mock is used
-          (async () => {
-            const Sentry = await import('../services/instrument.js');
-            if (
-              Sentry.default &&
-              Sentry.default.logger &&
-              typeof Sentry.default.logger.error === 'function'
-            ) {
-              Sentry.default.logger.error(
-                '[validation middleware] Joi validation error:',
-                error.message,
-                req.body
-              );
-            }
-          })();
-          if (process.env.NODE_ENV === 'test') {
+          if (_logger && typeof _logger.error === 'function') {
+            _logger.error(
+              '[validation middleware] Joi validation error:',
+              error.message,
+              req.body
+            );
+          }
+          if (process.env['NODE_ENV'] === 'test') {
             console.error(
               '[validation middleware] Joi validation error:',
               error.message,
@@ -162,11 +210,11 @@ function validate(schemas = {}, options = {}) {
 }
 
 // Helper: Infer a default sanitize schema (plain mode for all string fields)
-function inferSanitizeSchema(obj) {
+function inferSanitizeSchema(obj: unknown): SanitizeSchema {
   if (!obj || typeof obj !== 'object') return {};
-  const schema = {};
-  for (const key in obj) {
-    if (typeof obj[key] === 'string') {
+  const schema: SanitizeSchema = {};
+  for (const key in obj as Record<string, unknown>) {
+    if (typeof (obj as Record<string, unknown>)[key] === 'string') {
       schema[key] = { sanitize: true, mode: 'plain' };
     }
   }

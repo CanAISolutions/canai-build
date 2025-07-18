@@ -6,16 +6,26 @@ import EmotionalScorer from './emotionalScoring.js';
 import posthog from './posthog.js';
 // Placeholder: import PostHog from 'posthog-js';
 
+interface EmotionalScore {
+  arousal: number;
+  valence: number;
+  confidence: number;
+}
+
 class GPT4oFallbackService {
+  openai: OpenAI;
+  scorer: EmotionalScorer;
+  // this.posthog = PostHog.init(process.env.POSTHOG_API_KEY);
+
   constructor() {
-    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    this.openai = new OpenAI({ apiKey: process.env['OPENAI_API_KEY'] });
     this.scorer = new EmotionalScorer();
     // this.posthog = PostHog.init(process.env.POSTHOG_API_KEY);
   }
 
-  async analyzeEmotion(text) {
+  async analyzeEmotion(text: string): Promise<EmotionalScore> {
     const prompt = this.buildEmotionalAnalysisPrompt(text);
-    let rawScore;
+    let rawScore: EmotionalScore;
     try {
       const response = await this.openai.chat.completions.create({
         model: 'gpt-4o',
@@ -34,8 +44,10 @@ class GPT4oFallbackService {
       }
       rawScore = this.parseResponse(response.choices[0].message.content);
     } catch (error) {
-      // this.posthog.capture('gpt4o_api_error', { error: error.message });
-      throw new Error(`GPT-4o API call failed: ${error.message}`);
+      // this.posthog.capture('gpt4o_api_error', { error: error instanceof Error ? error.message : String(error) });
+      throw new Error(
+        `GPT-4o API call failed: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
     const normalizedScore = this.scorer.normalizeScore(rawScore);
     if (!this.scorer.validateScore(normalizedScore)) {
@@ -48,7 +60,7 @@ class GPT4oFallbackService {
     return normalizedScore;
   }
 
-  buildEmotionalAnalysisPrompt(text) {
+  buildEmotionalAnalysisPrompt(text: string): string {
     return `
 You are an advanced emotional intelligence model, specializing in nuanced emotional analysis of text, similar to Hume AI. Your task is to analyze the provided text and return a JSON object with the following fields:
 
@@ -77,12 +89,14 @@ ${text}
 Return only the JSON object as described above.`;
   }
 
-  parseResponse(content) {
+  parseResponse(content: string): EmotionalScore {
     try {
       return JSON.parse(content);
     } catch (error) {
-      // this.posthog.capture('gpt4o_parse_error', { error: error.message });
-      posthog.capture('gpt4o_parse_error', { error: error.message });
+      // this.posthog.capture('gpt4o_parse_error', { error: error instanceof Error ? error.message : String(error) });
+      posthog.capture('gpt4o_parse_error', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw new Error('Invalid GPT-4o response format');
     }
   }

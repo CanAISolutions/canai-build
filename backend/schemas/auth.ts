@@ -8,7 +8,7 @@ export const refreshTokenSchema = Joi.object({
   refreshToken: Joi.string()
     .min(10)
     .max(512)
-    .pattern(process.env.NODE_ENV === 'test' ? /.*/ : JWT_FORMAT_REGEX)
+    .pattern(process.env['NODE_ENV'] === 'test' ? /.*/ : JWT_FORMAT_REGEX)
     .required()
     .messages({
       'string.base': 'Refresh token must be a string',

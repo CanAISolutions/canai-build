@@ -78,7 +78,7 @@ describe('memberstackAuthMiddleware', () => {
     req = { headers: {} };
     res = { status: vi.fn().mockReturnThis(), json: vi.fn() };
     next = vi.fn();
-    process.env.NODE_ENV = 'production';
+    process.env['NODE_ENV'] = 'production';
     jwt.verify.mockReset();
   });
 
@@ -88,7 +88,7 @@ describe('memberstackAuthMiddleware', () => {
 
   it('bypasses auth in non-production', () => {
     console.log('TEST: bypasses auth in non-production');
-    process.env.NODE_ENV = 'development';
+    process.env['NODE_ENV'] = 'development';
     memberstackAuthMiddleware(req, res, next);
     expect(next).toHaveBeenCalled();
     expect(res.status).not.toHaveBeenCalled();

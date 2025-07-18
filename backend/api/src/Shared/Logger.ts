@@ -3,7 +3,7 @@ import pino from 'pino';
 import pinoHttp from 'pino-http';
 import * as Sentry from '@sentry/node';
 
-const log = pino({
+const log: pino.Logger = pino({
   level: 'debug',
   redact: ['req.headers.authorization'],
 });
