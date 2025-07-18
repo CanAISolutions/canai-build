@@ -4312,6 +4312,7 @@ camelcase@^6.2.0:
     pino "^8.19.0"
     pino-http "^9.0.0"
     postcss "^8.0.0"
+    postgres "3.4.7"
     posthog-js "^1.0.0"
     posthog-node "^5.1.1"
     psl "1.15.0"

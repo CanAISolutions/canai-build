@@ -1,39 +1,39 @@
 # ---- Build Stage ----
-FROM node:20-alpine AS build
-WORKDIR /app
+    FROM node:20-alpine AS build
+    WORKDIR /app
 
-# Install dependencies (including dev)
-COPY package.json package-lock.json ./backend/
-RUN cd backend && npm ci
+    # Optional: Update npm for better dependency handling
+    RUN npm install -g npm@11.4.2
 
-# Copy source code
-COPY backend ./backend
+    # Install dependencies (including dev)
+    COPY backend/api/package.json backend/api/package-lock.json ./
+    RUN npm ci
 
-# Copy tsconfig.json
-COPY tsconfig.json ./
-COPY backend/tsconfig.json ./backend/tsconfig.json
+    # Copy source code (this includes tsconfig.json from backend/api/ to /app/tsconfig.json)
+    COPY backend/api ./
 
-# Build TypeScript
-RUN npx tsc -p backend/tsconfig.json
+    # Build TypeScript
+    RUN npx tsc -p tsconfig.json
 
-# ---- Production Stage ----
-FROM node:20-alpine AS prod
-WORKDIR /app
+    # ---- Production Stage ----
+    FROM node:20-alpine AS prod
+    WORKDIR /app
 
-# Copy only production dependencies
-COPY --from=build /app/backend/package.json /app/backend/package-lock.json ./
-RUN npm ci --only=production
+    # Copy only production dependencies
+    COPY --from=build /app/package.json /app/package-lock.json ./
+    RUN npm ci --only=production
 
-# Copy built code to /app root
-COPY --from=build /app/backend/dist/. ./
-# Copy any other needed static/config files (env, etc.)
-COPY --from=build /app/backend/.env* ./
+    # Copy built code to /app root
+    COPY --from=build /app/dist ./
 
-# Expose the port (default 10000)
-EXPOSE 10000
+    # Copy any other needed static/config files (env, etc.)
+    COPY --from=build /app/.env* ./
 
-# Set environment variables (can be overridden by Render)
-ENV NODE_ENV=production
+    # Expose the port (default 10000)
+    EXPOSE 10000
 
-# Start the server
-CMD ["node", "start.js"]
+    # Set environment variables (can be overridden by Render)
+    ENV NODE_ENV=production
+
+    # Start the server (adjust if your entry point is dist/start.js)
+    CMD ["node", "start.js"]
