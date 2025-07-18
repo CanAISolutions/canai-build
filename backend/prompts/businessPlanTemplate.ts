@@ -7,6 +7,27 @@
 
 import { EmotionallyIntelligentPromptFramework } from './framework.js';
 
+interface BusinessPlanInput {
+  businessName: string;
+  targetAudience: string;
+  primaryGoal: string;
+  brandVoice: string;
+  businessDescription: string;
+  revenueModel?: string;
+  resourceConstraints?: string;
+  currentStatus?: string;
+  competitiveContext?: string;
+  planPurpose?: string;
+}
+
+interface BusinessPlanOutput {
+  systemPrompt: string;
+  userPrompt: string;
+  expectedSchema: unknown;
+  validation: unknown;
+  inputData: BusinessPlanInput;
+}
+
 class BusinessPlanTemplate extends EmotionallyIntelligentPromptFramework {
   constructor() {
     super();
@@ -16,7 +37,9 @@ class BusinessPlanTemplate extends EmotionallyIntelligentPromptFramework {
   /**
    * Generate business plan using the gold standard format
    */
-  async generateBusinessPlan(inputData) {
+  async generateBusinessPlan(
+    inputData: BusinessPlanInput
+  ): Promise<BusinessPlanOutput> {
     // Validate required inputs
     const requiredFields = [
       'businessName',
@@ -55,7 +78,10 @@ class BusinessPlanTemplate extends EmotionallyIntelligentPromptFramework {
   /**
    * Enhance the user prompt with business plan specific requirements
    */
-  enhanceBusinessPlanPrompt(basePrompt, inputData) {
+  enhanceBusinessPlanPrompt(
+    basePrompt: string,
+    inputData: BusinessPlanInput
+  ): string {
     const additionalContext = `
 
 **Additional Business Plan Context:**
@@ -82,52 +108,67 @@ class BusinessPlanTemplate extends EmotionallyIntelligentPromptFramework {
   /**
    * Validate business plan output against gold standard
    */
-  validateBusinessPlanOutput(output) {
+  validateBusinessPlanOutput(output: unknown) {
     const baseValidation = this.validateOutput(output);
-    const businessPlanErrors = [];
+    const businessPlanErrors: string[] = [];
 
     // Validate Plan object specifically
-    if (!output.Plan) {
+    if (!output || typeof output !== 'object' || !('Plan' in output)) {
       businessPlanErrors.push('Missing Plan object');
     } else {
-      if (!output.Plan.CanAI_Output)
-        businessPlanErrors.push('Missing Plan.CanAI_Output');
-      if (!output.Plan.Generic_Output)
-        businessPlanErrors.push('Missing Plan.Generic_Output');
-      if (typeof output.Plan.TrustDelta !== 'number')
-        businessPlanErrors.push('Invalid Plan.TrustDelta type');
+      const plan = (output as { Plan?: unknown }).Plan;
+      if (!plan || typeof plan !== 'object') {
+        businessPlanErrors.push('Invalid Plan object');
+      } else {
+        const planObj = plan as Record<string, unknown>;
+        if (!planObj.CanAI_Output)
+          businessPlanErrors.push('Missing Plan.CanAI_Output');
+        if (!planObj.Generic_Output)
+          businessPlanErrors.push('Missing Plan.Generic_Output');
+        if (typeof planObj.TrustDelta !== 'number')
+          businessPlanErrors.push('Invalid Plan.TrustDelta type');
 
-      // Check word count guidance (flexible but should be substantial)
-      if (output.Plan.CanAI_Output && output.Plan.CanAI_Output.length < 500) {
-        businessPlanErrors.push(
-          'CanAI_Output appears too short for a comprehensive business plan'
-        );
-      }
-      if (
-        output.Plan.Generic_Output &&
-        output.Plan.Generic_Output.length < 500
-      ) {
-        businessPlanErrors.push(
-          'Generic_Output appears too short for a comprehensive business plan'
-        );
+        // Check word count guidance (flexible but should be substantial)
+        if (
+          planObj.CanAI_Output &&
+          typeof planObj.CanAI_Output === 'string' &&
+          planObj.CanAI_Output.length < 500
+        ) {
+          businessPlanErrors.push(
+            'CanAI_Output appears too short for a comprehensive business plan'
+          );
+        }
+        if (
+          planObj.Generic_Output &&
+          typeof planObj.Generic_Output === 'string' &&
+          planObj.Generic_Output.length < 500
+        ) {
+          businessPlanErrors.push(
+            'Generic_Output appears too short for a comprehensive business plan'
+          );
+        }
       }
     }
 
     // Validate PostPurchase for business plan specifics
-    if (output.PostPurchase) {
-      const requiredFields = [
-        'ConfirmationEmail',
-        'FeedbackPrompt',
-        'FollowUpEmail',
-        'ShareOption',
-      ];
-      const missingPostPurchase = requiredFields.filter(
-        field => !output.PostPurchase[field]
-      );
-      if (missingPostPurchase.length > 0) {
-        businessPlanErrors.push(
-          `Missing PostPurchase fields: ${missingPostPurchase.join(', ')}`
+    if (output && typeof output === 'object' && 'PostPurchase' in output) {
+      const postPurchase = (output as { PostPurchase?: unknown }).PostPurchase;
+      if (postPurchase && typeof postPurchase === 'object') {
+        const postPurchaseObj = postPurchase as Record<string, unknown>;
+        const requiredFields = [
+          'ConfirmationEmail',
+          'FeedbackPrompt',
+          'FollowUpEmail',
+          'ShareOption',
+        ];
+        const missingPostPurchase = requiredFields.filter(
+          field => !postPurchaseObj[field]
         );
+        if (missingPostPurchase.length > 0) {
+          businessPlanErrors.push(
+            `Missing PostPurchase fields: ${missingPostPurchase.join(', ')}`
+          );
+        }
       }
     }
 

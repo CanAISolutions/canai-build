@@ -78,7 +78,7 @@ async function testGoldStandardFramework() {
     };
 
     console.log('✅ Validation Test:');
-    const validation = result.validation(mockOutput);
+    const validation = businessPlan.validateBusinessPlanOutput(mockOutput);
     console.log('Is Valid:', validation.isValid);
     if (!validation.isValid) {
       console.log('Errors:', validation.errors);
@@ -93,9 +93,11 @@ async function testGoldStandardFramework() {
     console.log('✅ PostPurchase personalization');
     console.log('✅ Schema validation');
     console.log('✅ Gold standard format compliance');
-  } catch (error) {
-    console.error('❌ Test failed:', error.message);
-    console.error(error.stack);
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    const stackTrace = err instanceof Error ? err.stack : 'No stack trace';
+    console.error('Error in testGoldStandard:', errorMessage);
+    console.error('Stack trace:', stackTrace);
   }
 }
 

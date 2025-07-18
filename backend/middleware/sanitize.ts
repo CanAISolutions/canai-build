@@ -2,34 +2,65 @@
 // Uses jsdom to provide a DOM environment for DOMPurify
 // Supports plain text (strip all HTML) and rich text (allow minimal safe tags)
 
-import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
-let _logger;
-try {
-  // ESM dynamic import for Logger
-  const loggerModule = await import('../api/src/Shared/Logger');
-  _logger = loggerModule.default || loggerModule;
-} catch (err) {
-  _logger = console;
+import createDOMPurify from 'dompurify';
+
+interface SimpleLogger {
+  debug?: (meta: unknown, msg: string) => void;
+  info?: (msg: string, meta?: unknown) => void;
+  log?: (msg: string, meta?: unknown) => void;
 }
 
-function logDebug(msg, meta) {
+const _logger: SimpleLogger = console;
+
+function logDebug(msg: string, meta?: unknown) {
   if (_logger && typeof _logger.debug === 'function') {
     _logger.debug(meta || {}, msg);
+  } else if (_logger && typeof _logger.info === 'function') {
+    _logger.info(msg, meta);
   } else if (_logger && typeof _logger.log === 'function') {
     _logger.log(msg, meta);
   }
 }
 
 // Helper: create a short, redacted snapshot so we never log full user payloads
-function snapshot(value) {
+function snapshot(value: unknown) {
   if (value === null || value === undefined) return value;
   try {
     const str = JSON.stringify(value);
-    return str.length > 150 ? str.slice(0, 140) + '…' : str;
-  } catch (_) {
-    return '[unserialisable]';
+    return str.length > 100 ? str.substring(0, 100) + '...' : str;
+  } catch {
+    return typeof value === 'string'
+      ? value.substring(0, 100)
+      : String(value).substring(0, 100);
   }
+}
+
+// Create a DOMPurify instance with jsdom
+// Fix DOMPurify window type error
+const window = new JSDOM('').window as unknown as Window &
+  typeof globalThis & { trustedTypes: unknown };
+const DOMPurify = createDOMPurify(window);
+
+// Helper for plain string sanitization
+function sanitizePlainString(data: string): string {
+  let sanitizedValue = data.normalize('NFC');
+  sanitizedValue = sanitizedValue
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+  sanitizedValue = sanitizedValue.replace(/<script.*?<\/script>/gis, ''); // extra pass for script tags
+  sanitizedValue = sanitizedValue.replace(/<[^>]+>/g, '');
+  sanitizedValue = sanitizedValue.replace(/[\u200B-\u200D\uFEFF]/g, '');
+  if (/^\s*$/.test(sanitizedValue)) {
+    // Try to extract attribute values from the original string if nothing remains
+    const attrMatches = [...data.matchAll(/\b\w+=(["']?)([^"'>\s]+)\1/g)];
+    if (attrMatches.length > 0) {
+      sanitizedValue = attrMatches.map(m => m[2]).join(' ');
+    } else {
+      sanitizedValue = '';
+    }
+  }
+  return sanitizedValue;
 }
 
 // Minimal safe tags for rich text (customize as needed)
@@ -65,39 +96,39 @@ export const RICH_TEXT_ALLOWED_ATTR = [
   'style',
 ];
 
-// Create a DOMPurify instance with jsdom
-const window = new JSDOM('').window;
-const DOMPurify = createDOMPurify(window);
-
-// Helper for plain string sanitization
-function sanitizePlainString(data) {
-  let sanitizedValue = data.normalize('NFC');
-  sanitizedValue = sanitizedValue
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
-  sanitizedValue = sanitizedValue.replace(/<script.*?<\/script>/gis, ''); // extra pass for script tags
-  sanitizedValue = sanitizedValue.replace(/<[^>]+>/g, '');
-  sanitizedValue = sanitizedValue.replace(/[\u200B-\u200D\uFEFF]/g, '');
-  if (/^\s*$/.test(sanitizedValue)) {
-    // Try to extract attribute values from the original string if nothing remains
-    const attrMatches = [...data.matchAll(/\b\w+=(["']?)([^"'>\s]+)\1/g)];
-    if (attrMatches.length > 0) {
-      sanitizedValue = attrMatches.map(m => m[2]).join(' ');
-    } else {
-      sanitizedValue = '';
-    }
-  }
-  return sanitizedValue;
-}
-
 // --- Task 9.2: Schema-driven, field-level sanitization utility ---
 
 const DEFAULT_URI_REGEXP =
   /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i;
 
+// Type for schema field
+interface SanitizeFieldRule {
+  sanitize?: boolean;
+  mode?: 'plain' | 'rich';
+  uriRegexp?: RegExp;
+  schema?: SanitizeSchema;
+}
+
+// Type for schema object
+interface SanitizeSchema {
+  [key: string]: SanitizeFieldRule;
+}
+
+// Type for sanitize options
+interface SanitizeOptions {
+  mode?: 'plain' | 'rich';
+  uriRegexp?: RegExp;
+  allowedTags?: string[];
+  allowedAttr?: string[];
+  forbidTags?: string[];
+  forbidAttr?: string[];
+}
+
 // Custom ValidationError for user-centric, actionable error handling
 export class ValidationError extends Error {
-  constructor(message, field) {
+  field?: string;
+  status: number;
+  constructor(message: string, field?: string) {
     super(message);
     this.name = 'ValidationError';
     this.field = field;
@@ -107,19 +138,26 @@ export class ValidationError extends Error {
 
 /**
  * Sanitize an object based on a schema definition
- * @param {object} data - The object to sanitize
- * @param {object} schema - Schema: { fieldName: { sanitize: true, mode: 'plain'|'rich' } }
- * @returns {object} - Sanitized object
+ * @param data - The object to sanitize
+ * @param schema - Schema: { fieldName: { sanitize: true, mode: 'plain'|'rich' } }
+ * @returns Sanitized object
  */
-export function sanitizeWithSchema(data, schema, path = '') {
+export function sanitizeWithSchema(
+  data: unknown,
+  schema: SanitizeSchema | SanitizeFieldRule,
+  path = ''
+): unknown {
   // Handle null/undefined
   if (data === null || data === undefined) return data;
   // Handle string sanitization first, before arrays/objects
-  if (typeof data === 'string' && schema && schema.sanitize) {
-    const mode = schema.mode || 'plain';
+  if (
+    typeof data === 'string' &&
+    schema &&
+    (schema as SanitizeFieldRule).sanitize
+  ) {
+    const mode = (schema as SanitizeFieldRule).mode || 'plain';
     console.log('[sanitizeWithSchema][string-handler]', { path, schema, mode });
     if (mode === 'plain') {
-      const before = data;
       const sanitized = sanitizePlainString(data);
       console.log('[sanitizeWithSchema][plain][forced-regex]', {
         key: path,
@@ -139,7 +177,8 @@ export function sanitizeWithSchema(data, schema, path = '') {
           'prototype',
           'constructor',
         ],
-        ALLOWED_URI_REGEXP: schema.uriRegexp || DEFAULT_URI_REGEXP,
+        ALLOWED_URI_REGEXP:
+          (schema as SanitizeFieldRule).uriRegexp || DEFAULT_URI_REGEXP,
         FORCE_BODY: true,
         WHOLE_DOCUMENT: false,
         RETURN_TRUSTED_TYPE: false,
@@ -167,14 +206,17 @@ export function sanitizeWithSchema(data, schema, path = '') {
   if (Array.isArray(data)) {
     return data.map((item, idx) => {
       const currentPath = `${path}[${idx}]`;
-      let appliedSchema = {};
+      let appliedSchema: SanitizeFieldRule = {};
       if (schema && typeof schema === 'object') {
         if (Object.prototype.hasOwnProperty.call(schema, String(idx))) {
-          appliedSchema = schema[String(idx)];
+          appliedSchema = (schema as SanitizeSchema)[String(idx)];
         } else if (Object.prototype.hasOwnProperty.call(schema, '0')) {
-          appliedSchema = schema['0'];
-        } else if (appliedSchema.sanitize || appliedSchema.mode) {
-          appliedSchema = schema;
+          appliedSchema = (schema as SanitizeSchema)['0'];
+        } else if (
+          (schema as SanitizeFieldRule).sanitize ||
+          (schema as SanitizeFieldRule).mode
+        ) {
+          appliedSchema = schema as SanitizeFieldRule;
         }
       }
       if (
@@ -182,7 +224,6 @@ export function sanitizeWithSchema(data, schema, path = '') {
         (appliedSchema.mode || 'plain') === 'plain' &&
         typeof item === 'string'
       ) {
-        const before = item;
         const sanitized = sanitizePlainString(item);
         console.log('[sanitizeWithSchema][plain][forced-regex]', {
           key: currentPath,
@@ -200,13 +241,17 @@ export function sanitizeWithSchema(data, schema, path = '') {
   }
   // Handle objects
   if (typeof data === 'object' && data !== null) {
-    const sanitized = { ...data };
+    const sanitized = { ...data } as Record<string, unknown>;
     for (const key in sanitized) {
       const value = sanitized[key];
-      const fieldRule =
-        schema && Object.prototype.hasOwnProperty.call(schema, key)
-          ? schema[key]
-          : { sanitize: false };
+      let fieldRule: SanitizeFieldRule = { sanitize: false };
+      if (
+        schema &&
+        typeof schema === 'object' &&
+        Object.prototype.hasOwnProperty.call(schema, key)
+      ) {
+        fieldRule = (schema as SanitizeSchema)[key];
+      }
       if (fieldRule.sanitize && typeof value === 'string') {
         const mode = fieldRule.mode || 'plain';
         console.log('[sanitizeWithSchema][string-handler]', {
@@ -215,14 +260,12 @@ export function sanitizeWithSchema(data, schema, path = '') {
           mode,
         });
         if (mode === 'plain') {
-          const before = value;
           sanitized[key] = sanitizePlainString(value);
           console.log('[sanitizeWithSchema][plain][forced-regex]', {
             key: `${path}.${key}`,
             out: sanitized[key],
           });
         } else if (mode === 'rich') {
-          const before = value;
           sanitized[key] = DOMPurify.sanitize(value, {
             ALLOWED_TAGS: RICH_TEXT_ALLOWED_TAGS,
             ALLOWED_ATTR: RICH_TEXT_ALLOWED_ATTR,
@@ -247,16 +290,16 @@ export function sanitizeWithSchema(data, schema, path = '') {
             WHOLE_DOCUMENT: false,
             RETURN_TRUSTED_TYPE: false,
           });
-          sanitized[key] = sanitized[key].replace(
+          sanitized[key] = (sanitized[key] as string).replace(
             /<script.*?<\/script>/gis,
             ''
           );
-          sanitized[key] = sanitized[key]
+          sanitized[key] = (sanitized[key] as string)
             .normalize('NFC')
             .replace(/[\u200B-\u200D\uFEFF]/g, '');
           console.log('[sanitizeWithSchema][rich]', {
             key: `${path}.${key}`,
-            before,
+            before: value,
             after: sanitized[key],
           });
         }
@@ -305,7 +348,10 @@ export function sanitizeWithSchema(data, schema, path = '') {
  * @param {string[]} [options.forbidAttr]
  * @returns {*}
  */
-export function sanitize(value, options = {}) {
+export function sanitize(
+  value: unknown,
+  options: SanitizeOptions = {}
+): unknown {
   console.log('[sanitize] Input:', value, 'Options:', options);
   const mode = options.mode || 'plain';
   const uriRegexp = options.uriRegexp || DEFAULT_URI_REGEXP;
@@ -334,7 +380,7 @@ export function sanitize(value, options = {}) {
   // Logging input (redacted)
   logDebug('[sanitize] entry', { mode, sample: snapshot(value) });
 
-  let result;
+  let result: unknown;
   if (typeof value === 'string') {
     // Normalize Unicode and remove zero-width chars
     const clean = value.normalize('NFC').replace(/[\u200B-\u200D\uFEFF]/g, '');
@@ -351,10 +397,13 @@ export function sanitize(value, options = {}) {
   } else if (Array.isArray(value)) {
     result = value.map(item => sanitize(item, options));
   } else if (value && typeof value === 'object') {
-    const sanitized = {};
+    const sanitized: Record<string, unknown> = {};
     for (const key in value) {
       if (Object.prototype.hasOwnProperty.call(value, key)) {
-        sanitized[key] = sanitize(value[key], options);
+        sanitized[key] = sanitize(
+          (value as Record<string, unknown>)[key],
+          options
+        );
       }
     }
     result = sanitized;

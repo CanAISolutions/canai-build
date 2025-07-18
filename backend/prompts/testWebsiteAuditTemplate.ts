@@ -14,7 +14,7 @@ async function testWebsiteAudit() {
       JSON.stringify(result.expectedSchema, null, 2)
     );
 
-    const validation = result.validation(expectedOutput);
+    const validation = template.validateWebsiteAuditOutput(expectedOutput);
     console.log('Validation:', validation);
 
     if (!validation.isValid) {
@@ -22,8 +22,10 @@ async function testWebsiteAudit() {
     } else {
       console.log('✅ Validation passed!');
     }
-  } catch (err) {
-    console.error('❌ Test failed:', err.message);
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    console.error('❌ Test failed:', errorMessage);
   }
 }
 

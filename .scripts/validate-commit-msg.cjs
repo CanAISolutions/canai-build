@@ -1,9 +1,14 @@
 #!/usr/bin/env ts-node
-
-import fs from 'fs';
-import path from 'path';
-
-const TYPES = [
+'use strict';
+var __importDefault =
+  (this && this.__importDefault) ||
+  function (mod) {
+    return mod && mod.__esModule ? mod : { default: mod };
+  };
+Object.defineProperty(exports, '__esModule', { value: true });
+var fs_1 = __importDefault(require('fs'));
+var path_1 = __importDefault(require('path'));
+var TYPES = [
   'feat',
   'fix',
   'docs',
@@ -17,10 +22,8 @@ const TYPES = [
   'revert',
   'security',
   'canai',
-] as const;
-type Type = (typeof TYPES)[number];
-
-const SCOPES = [
+];
+var SCOPES = [
   'frontend',
   'backend',
   'api',
@@ -44,29 +47,20 @@ const SCOPES = [
   'posthog',
   'cursor',
   'taskmaster',
-] as const;
-type Scope = (typeof SCOPES)[number];
-
-const SUBJECT_MAX_LENGTH = 72;
-
-function getCommitMessage(): string {
+];
+var SUBJECT_MAX_LENGTH = 72;
+function getCommitMessage() {
   if (process.argv[2]) return process.argv[2];
-  const gitMsgPath = path.resolve('.git/COMMIT_EDITMSG');
-  if (fs.existsSync(gitMsgPath)) {
-    return fs.readFileSync(gitMsgPath, 'utf8').trim();
+  var gitMsgPath = path_1.default.resolve('.git/COMMIT_EDITMSG');
+  if (fs_1.default.existsSync(gitMsgPath)) {
+    return fs_1.default.readFileSync(gitMsgPath, 'utf8').trim();
   }
   return '';
 }
-
-interface ValidationResult {
-  valid: boolean;
-  reason?: string;
-}
-
-function validate(msg: string): ValidationResult {
+function validate(msg) {
   // Format: type(scope): subject
-  const regex = /^([a-z]+)\(([a-z]+)\): ([a-z0-9 ,\-_'"()\[\]/]+)$/;
-  const match = msg.match(regex);
+  var regex = /^([a-z]+)\(([a-z]+)\): ([a-z0-9 ,\-_'"()\[\]/]+)$/;
+  var match = msg.match(regex);
   if (!match) {
     return {
       valid: false,
@@ -74,23 +68,32 @@ function validate(msg: string): ValidationResult {
         'Format must be: type(scope): subject (all lowercase, no trailing period)',
     };
   }
-  const [, type, scope, subject] = match;
-  if (!TYPES.includes(type as Type)) {
+  var type = match[1],
+    scope = match[2],
+    subject = match[3];
+  if (!TYPES.includes(type)) {
     return {
       valid: false,
-      reason: `Type '${type}' is not allowed. Allowed: ${TYPES.join(', ')}`,
+      reason: "Type '"
+        .concat(type, "' is not allowed. Allowed: ")
+        .concat(TYPES.join(', ')),
     };
   }
-  if (!SCOPES.includes(scope as Scope)) {
+  if (!SCOPES.includes(scope)) {
     return {
       valid: false,
-      reason: `Scope '${scope}' is not allowed. Allowed: ${SCOPES.join(', ')}`,
+      reason: "Scope '"
+        .concat(scope, "' is not allowed. Allowed: ")
+        .concat(SCOPES.join(', ')),
     };
   }
   if (!subject || subject.length > SUBJECT_MAX_LENGTH) {
     return {
       valid: false,
-      reason: `Subject must be non-empty and <= ${SUBJECT_MAX_LENGTH} characters.`,
+      reason: 'Subject must be non-empty and <= '.concat(
+        SUBJECT_MAX_LENGTH,
+        ' characters.'
+      ),
     };
   }
   if (subject !== subject.toLowerCase()) {
@@ -101,12 +104,13 @@ function validate(msg: string): ValidationResult {
   }
   return { valid: true };
 }
-
 function main() {
-  const msg = getCommitMessage();
-  const result = validate(msg);
+  var msg = getCommitMessage();
+  var result = validate(msg);
   if (!result.valid) {
-    console.error(`\n❌ Invalid commit message!\nReason: ${result.reason}\n`);
+    console.error(
+      '\n\u274C Invalid commit message!\nReason: '.concat(result.reason, '\n')
+    );
     console.error('Correct format:');
     console.error('  <type>(<scope>): <subject>');
     console.error('Example:');
@@ -117,5 +121,4 @@ function main() {
     process.exit(0);
   }
 }
-
 main();

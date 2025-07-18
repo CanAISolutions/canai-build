@@ -91,31 +91,22 @@ function trackSessionEvent(eventType, session) {
 
 // --- User/Session Identification ---
 function getOrCreateAnonymousId() {
-  if (process.env.NODE_ENV === 'test') return 'test-anonymous-id';
+  if (process.env['NODE_ENV'] === 'test') return 'test-anonymous-id';
   if (!global.__ANON_ID) {
     global.__ANON_ID = uuidv4();
   }
   return global.__ANON_ID;
 }
 
-function buildUserContext(user) {
-  if (user && user.id) {
-    return {
-      userId: user.id,
-      role: user.role || 'user',
-      deviceInfo: user.deviceInfo || {},
-      sessionId: user.sessionId || uuidv4(),
-      isAnonymous: false,
-    };
-  }
-  return {
-    userId: getOrCreateAnonymousId(),
-    role: 'anonymous',
-    deviceInfo: {},
-    sessionId: getOrCreateAnonymousId(),
-    isAnonymous: true,
-  };
-}
+// function buildUserContext(userId: string, properties: Record<string, unknown> = {}) {
+//   return {
+//     distinctId: userId,
+//     properties: {
+//       ...properties,
+//       timestamp: new Date().toISOString(),
+//     },
+//   };
+// }
 
 // --- Event Schemas ---
 const funnelStepSchema = Joi.object({
@@ -186,9 +177,9 @@ export function initPosthog() {
   const FLUSH_INTERVAL = envVars.POSTHOG_FLUSH_INTERVAL || 30000;
   SESSION_TIMEOUT_MINUTES = envVars.SESSION_TIMEOUT_MINUTES;
   DEPLOYMENT_ID =
-    envVars.DEPLOYMENT_ID || process.env.DEPLOYMENT_ID || 'unknown';
-  APP_VERSION = process.env.npm_package_version || '0.0.0';
-  APP_ENV = process.env.NODE_ENV || 'development';
+    envVars.DEPLOYMENT_ID || process.env['DEPLOYMENT_ID'] || 'unknown';
+  APP_VERSION = process.env['npm_package_version'] || '0.0.0';
+  APP_ENV = process.env['NODE_ENV'] || 'development';
   posthog = new PostHog(POSTHOG_API_KEY, {
     host: POSTHOG_HOST,
     flushAt: FLUSH_AT,

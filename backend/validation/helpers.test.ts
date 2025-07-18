@@ -6,8 +6,8 @@ import {
   validatePostalCode,
   validateBusinessUrl,
   validateSocialHandle,
-} from './helpers';
-import { maliciousPayloads } from '../tests/helpers/maliciousPayloads';
+} from './helpers.js';
+import { maliciousPayloads } from '../tests/helpers/maliciousPayloads.js';
 
 // Only enable this block for initial evidence-based implementation
 // Logging-first: log all payloads and results for root cause visibility

@@ -1,8 +1,7 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
 # Run the custom validator (compiled from TypeScript)
-node .scripts/validate-commit-msg.js "$1"
+node .scripts/validate-commit-msg.cjs "$1"
 VALIDATOR_STATUS=$?
 if [ $VALIDATOR_STATUS -ne 0 ]; then
   echo "Commit message failed custom validation. See error above."

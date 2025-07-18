@@ -1,0 +1,29 @@
+
+> canai-build@1.0.0 build
+> npm run build:backend && npm run build:frontend
+
+
+> canai-build@1.0.0 build:backend
+> cd backend/api && npx tsc
+
+
+> canai-build@1.0.0 build:frontend
+> cd frontend && vite build
+
+NODE_ENV=production is not supported in the .env file. Only NODE_ENV=development is supported to create a development build of your project. If you need to set process.env.NODE_ENV, you can set it in the Vite config instead.
+[36mvite v7.0.0 [32mbuilding for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 2 modules transformed.
+Γ£ù Build failed in 2.14s
+error during build:
+[commonjs--resolver] Failed to resolve entry for package "@memberstack/react". The package may have incorrect main/module/exports specified in its package.json.
+    at packageEntryFailure (file:///C:/Backups/canai-build/node_modules/vite/dist/node/chunks/dep-Bsx9IwL8.js:12218:32)
+    at resolvePackageEntry (file:///C:/Backups/canai-build/node_modules/vite/dist/node/chunks/dep-Bsx9IwL8.js:12215:2)
+    at tryNodeResolve (file:///C:/Backups/canai-build/node_modules/vite/dist/node/chunks/dep-Bsx9IwL8.js:12116:17)
+    at Object.resolveId (file:///C:/Backups/canai-build/node_modules/vite/dist/node/chunks/dep-Bsx9IwL8.js:11955:15)
+    at Object.handler (file:///C:/Backups/canai-build/node_modules/vite/dist/node/chunks/dep-Bsx9IwL8.js:34268:13)
+    at file:///C:/Backups/canai-build/node_modules/rollup/dist/es/shared/node-entry.js:22288:40
+    at async PluginDriver.hookFirstAndGetPlugin (file:///C:/Backups/canai-build/node_modules/rollup/dist/es/shared/node-entry.js:22170:28)
+    at async resolveId (file:///C:/Backups/canai-build/node_modules/rollup/dist/es/shared/node-entry.js:20651:26)
+    at async ModuleLoader.resolveId (file:///C:/Backups/canai-build/node_modules/rollup/dist/es/shared/node-entry.js:21087:15)
+    at async Object.resolveId (file:///C:/Backups/canai-build/node_modules/vite/dist/node/chunks/dep-Bsx9IwL8.js:4550:21)

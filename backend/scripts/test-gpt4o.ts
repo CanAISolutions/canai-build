@@ -4,6 +4,7 @@
 // Description: CLI tool to test GPT4Service initialization and OpenAI GPT-4o prompt execution.
 
 import { GPT4Service } from '../services/gpt4o.js';
+import supabase from '../supabase/client.js';
 import * as Sentry from '@sentry/node';
 
 // Parse command line arguments
@@ -24,7 +25,7 @@ if (!prompt) {
 }
 
 (async () => {
-  const service = new GPT4Service();
+  const service = new GPT4Service(supabase);
   await service.initialize();
 
   // Test getParameters for each prompt type
@@ -39,7 +40,10 @@ if (!prompt) {
       const params = await service.getParameters(type);
       console.log(`Params for "${type}":`, params);
     } catch (err) {
-      console.error(`Error for "${type}":`, err.message);
+      console.error(
+        `Error for "${type}":`,
+        err instanceof Error ? err.message : String(err)
+      );
     }
   }
 
@@ -55,7 +59,10 @@ if (!prompt) {
     console.log(response.choices[0].message.content);
   } catch (err) {
     Sentry.captureException(err);
-    console.error('❌ Error:', err.message);
+    console.error(
+      '❌ Error:',
+      err instanceof Error ? err.message : String(err)
+    );
     process.exit(1);
   }
 })();

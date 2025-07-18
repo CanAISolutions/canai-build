@@ -1,4 +1,4 @@
-import Joi from 'joi';
+// import Joi from 'joi';
 import { generatePreviewSparkSchema } from '../schemas/generatePreviewSpark.js'; // Fix: Import Joi schema
 import { gpt4oGenerate } from './gpt4o.js'; // Fix: Import GPT-4o integration (mocked in tests)
 
@@ -7,7 +7,7 @@ import { gpt4oGenerate } from './gpt4o.js'; // Fix: Import GPT-4o integration (m
  * Handles missing/optional fields and trims strings.
  */
 export function normalizeInput(input) {
-  if (process.env.NODE_ENV === 'test')
+  if (process.env['NODE_ENV'] === 'test')
     console.log('[normalizeInput] ENTRY', input);
   const normalized = {
     businessType:
@@ -35,11 +35,11 @@ export function normalizeInput(input) {
   };
   // Add required field validation for businessType and tone
   if (!normalized.businessType || !normalized.tone) {
-    if (process.env.NODE_ENV === 'test')
+    if (process.env['NODE_ENV'] === 'test')
       console.error('[normalizeInput] Missing required fields:', normalized);
     throw new Error('businessType and tone are required fields');
   }
-  if (process.env.NODE_ENV === 'test')
+  if (process.env['NODE_ENV'] === 'test')
     console.log('[normalizeInput] OUTPUT', normalized);
   return normalized;
 }
@@ -58,7 +58,8 @@ export function constructPrompt(normalizedInput) {
     prompt += ` Instructions: ${normalizedInput.customInstructions}.`;
   if (normalizedInput.maxLength)
     prompt += ` Limit output to ${normalizedInput.maxLength} characters.`;
-  if (process.env.NODE_ENV === 'test') console.log('[constructPrompt]', prompt);
+  if (process.env['NODE_ENV'] === 'test')
+    console.log('[constructPrompt]', prompt);
   return prompt;
 }
 
@@ -67,7 +68,7 @@ export function constructPrompt(normalizedInput) {
  */
 export async function generatePreviewContent(prompt) {
   // Defensive: In production, call GPT-4o; in tests, this should be mocked
-  if (process.env.NODE_ENV === 'test')
+  if (process.env['NODE_ENV'] === 'test')
     console.log('[generatePreviewContent] prompt:', prompt);
   const response = await gpt4oGenerate(prompt); // Fix: Use real (mocked) GPT-4o
   return { content: response.content, raw: response.raw };
@@ -88,7 +89,7 @@ export function formatOutput(gptResponse, input) {
     maxLength: input.maxLength,
     // Add more fields as needed
   };
-  if (process.env.NODE_ENV === 'test') console.log('[formatOutput]', output);
+  if (process.env['NODE_ENV'] === 'test') console.log('[formatOutput]', output);
   return output;
 }
 
@@ -97,7 +98,7 @@ export function formatOutput(gptResponse, input) {
  */
 export function handleError(error, context) {
   // Log error details for debugging, but do not leak stack traces to users
-  if (process.env.NODE_ENV === 'test')
+  if (process.env['NODE_ENV'] === 'test')
     console.log('[handleError]', error, context);
   // Defensive: Return a generic error message for users
   return {
@@ -111,7 +112,7 @@ export function handleError(error, context) {
  * Follows defensive, testable, and evidence-based patterns.
  */
 export async function generatePreviewSpark(input) {
-  if (process.env.NODE_ENV === 'test')
+  if (process.env['NODE_ENV'] === 'test')
     console.log('[generatePreviewSpark] ENTRY', input);
   try {
     // Defensive: Normalize before validation to be user-friendly and robust to user input quirks.
@@ -128,11 +129,11 @@ export async function generatePreviewSpark(input) {
     const prompt = constructPrompt(normalized);
     const gptResponse = await generatePreviewContent(prompt);
     const output = formatOutput(gptResponse, normalized);
-    if (process.env.NODE_ENV === 'test')
+    if (process.env['NODE_ENV'] === 'test')
       console.log('[generatePreviewSpark] SUCCESS', output);
     return output;
   } catch (error) {
-    if (process.env.NODE_ENV === 'test')
+    if (process.env['NODE_ENV'] === 'test')
       console.log('[generatePreviewSpark] ERROR', error);
     return handleError(error, { input });
   }

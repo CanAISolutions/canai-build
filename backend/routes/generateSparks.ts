@@ -4,7 +4,12 @@ import { generateSparksSchema } from '../schemas/generateSparks.js';
 import { generatePreviewSparkSchema } from '../schemas/generatePreviewSpark.js';
 import previewGenerator from '../services/previewGenerator.js';
 import posthog from '../services/posthog.js';
-import * as Sentry from '../services/instrument.js';
+
+// Simple logger for route logging
+const logger = {
+  info: (...args: unknown[]) => console.info('[generateSparks]', ...args),
+  error: (...args: unknown[]) => console.error('[generateSparks]', ...args),
+};
 
 const router = express.Router();
 
@@ -29,24 +34,18 @@ router.post(
   '/generate-preview-spark',
   validate({ body: generatePreviewSparkSchema }),
   async (req, res) => {
-    if (process.env.NODE_ENV === 'test')
-      Sentry.default.logger.info(
-        '[route] /generate-preview-spark ENTRY',
-        req.body
-      );
+    if (process.env['NODE_ENV'] === 'test')
+      logger.info('[route] /generate-preview-spark ENTRY', req.body);
     try {
       let result;
       try {
         result = await previewGenerator.generatePreviewSpark(req.body);
       } catch (userErr) {
-        if (process.env.NODE_ENV === 'test')
-          Sentry.default.logger.info(
-            '[route] /generate-preview-spark USER ERROR',
-            userErr
-          );
+        if (process.env['NODE_ENV'] === 'test')
+          logger.error('[route] /generate-preview-spark USER ERROR', userErr);
         if (posthog && typeof posthog.capture === 'function') {
           posthog.capture('preview_error', {
-            error: userErr.message,
+            error: userErr instanceof Error ? userErr.message : String(userErr),
             input: req.body,
             timestamp: new Date().toISOString(),
           });
@@ -57,11 +56,8 @@ router.post(
         });
       }
       if (result && !result.error) {
-        if (process.env.NODE_ENV === 'test')
-          Sentry.default.logger.info(
-            '[route] /generate-preview-spark SUCCESS',
-            result
-          );
+        if (process.env['NODE_ENV'] === 'test')
+          logger.info('[route] /generate-preview-spark SUCCESS', result);
         if (posthog && typeof posthog.capture === 'function') {
           posthog.capture('preview_viewed', {
             ...result,
@@ -80,18 +76,14 @@ router.post(
             maxLength: result.maxLength,
           },
         };
-        if (process.env.NODE_ENV === 'test')
-          Sentry.default.logger.info(
-            '[route] /generate-preview-spark RESPONSE',
-            { previewSpark }
-          );
+        if (process.env['NODE_ENV'] === 'test')
+          logger.info('[route] /generate-preview-spark RESPONSE', {
+            previewSpark,
+          });
         return res.status(200).json({ previewSpark });
       } else if (result && result.error) {
-        if (process.env.NODE_ENV === 'test')
-          Sentry.default.logger.info(
-            '[route] /generate-preview-spark ERROR',
-            result
-          );
+        if (process.env['NODE_ENV'] === 'test')
+          logger.info('[route] /generate-preview-spark ERROR', result);
         if (posthog && typeof posthog.capture === 'function') {
           posthog.capture('preview_error', {
             error: result.error,
@@ -105,22 +97,19 @@ router.post(
         });
       } else {
         // Defensive: Unexpected result
-        if (process.env.NODE_ENV === 'test')
-          Sentry.default.logger.info(
+        if (process.env['NODE_ENV'] === 'test')
+          logger.info(
             '[route] /generate-preview-spark UNEXPECTED RESULT',
             result
           );
         return res.status(500).json({ error: 'Internal server error.' });
       }
     } catch (err) {
-      if (process.env.NODE_ENV === 'test')
-        Sentry.default.logger.info(
-          '[route] /generate-preview-spark FATAL',
-          err
-        );
+      if (process.env['NODE_ENV'] === 'test')
+        logger.error('[route] /generate-preview-spark FATAL', err);
       if (posthog && typeof posthog.capture === 'function') {
         posthog.capture('preview_error', {
-          error: err.message,
+          error: err instanceof Error ? err.message : String(err),
           input: req.body,
           timestamp: new Date().toISOString(),
         });
@@ -128,8 +117,8 @@ router.post(
       // Defensive: Only truly unexpected errors reach here
       return res.status(500).json({ error: 'Internal server error.' });
     } finally {
-      if (process.env.NODE_ENV === 'test')
-        Sentry.default.logger.info('[route] /generate-preview-spark EXIT');
+      if (process.env['NODE_ENV'] === 'test')
+        logger.info('[route] /generate-preview-spark EXIT');
     }
   }
 );

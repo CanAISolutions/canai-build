@@ -1,5 +1,22 @@
 import { createClient } from '@supabase/supabase-js';
 
+interface PaymentLogsParams {
+  user_id?: string;
+  event_type?: string;
+  status?: string;
+  from?: string;
+  to?: string;
+  limit?: number;
+  offset?: number;
+  sort?: string;
+}
+
+interface PaymentAnalyticsParams {
+  user_id?: string;
+  from?: string;
+  to?: string;
+}
+
 /**
  * Query payment logs with filters, pagination, sorting, and RLS enforcement.
  * @param {Object} params - Query parameters
@@ -15,7 +32,11 @@ import { createClient } from '@supabase/supabase-js';
  * @param {boolean} isAdmin - Whether the requester is an admin
  * @returns {Promise<{ data: any[], total: number, error: any }>} Query result
  */
-export async function queryPaymentLogs(params, jwtToken, isAdmin) {
+export async function queryPaymentLogs(
+  params: PaymentLogsParams,
+  jwtToken: string,
+  isAdmin: boolean
+) {
   const {
     user_id,
     event_type,
@@ -28,8 +49,8 @@ export async function queryPaymentLogs(params, jwtToken, isAdmin) {
   } = params;
 
   const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
+    process.env['SUPABASE_URL'],
+    process.env['SUPABASE_ANON_KEY'],
     jwtToken
       ? { global: { headers: { Authorization: `Bearer ${jwtToken}` } } }
       : {}
@@ -69,11 +90,15 @@ export async function queryPaymentLogs(params, jwtToken, isAdmin) {
  * @param {boolean} isAdmin - Whether the requester is an admin
  * @returns {Promise<{ totalRevenue: number, totalRefunds: number, eventCounts: Object, error: any }>}
  */
-export async function getPaymentAnalytics(params = {}, jwtToken, isAdmin) {
+export async function getPaymentAnalytics(
+  params: PaymentAnalyticsParams = {},
+  jwtToken: string,
+  isAdmin: boolean
+) {
   const { from, to } = params;
   const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
+    process.env['SUPABASE_URL'],
+    process.env['SUPABASE_ANON_KEY'],
     jwtToken
       ? { global: { headers: { Authorization: `Bearer ${jwtToken}` } } }
       : {}

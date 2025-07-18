@@ -1,33 +1,39 @@
-# Dockerfile for CanAI Backend (Render-ready, code-based)
-
-# Use official Node.js 18 Alpine image
-FROM node:20.19.0-alpine
-
-# Set working directory
+# ---- Build Stage ----
+FROM node:20-alpine AS build
 WORKDIR /app
 
-# Copy backend package files and install production dependencies
-COPY backend/package.json backend/package-lock.json ./
-RUN npm install --only=production
+# Install dependencies (including dev)
+COPY package.json package-lock.json ./backend/
+RUN cd backend && npm ci
 
-# Copy all backend source code
-COPY backend/. ./
+# Copy source code
+COPY backend ./backend
 
-# (Optional: Use a non-root user for security)
-RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nodejs
-RUN chown -R nodejs:nodejs /app
-USER nodejs
+# Copy tsconfig.json
+COPY tsconfig.json ./
+COPY backend/tsconfig.json ./backend/tsconfig.json
 
-# Set environment variables
-ENV NODE_ENV=production
-ENV PORT=10000
+# Build TypeScript
+RUN npx tsc -p backend/tsconfig.json
 
-# Expose the backend port
+# ---- Production Stage ----
+FROM node:20-alpine AS prod
+WORKDIR /app
+
+# Copy only production dependencies
+COPY --from=build /app/backend/package.json /app/backend/package-lock.json ./
+RUN npm ci --only=production
+
+# Copy built code to /app root
+COPY --from=build /app/backend/dist/. ./
+# Copy any other needed static/config files (env, etc.)
+COPY --from=build /app/backend/.env* ./
+
+# Expose the port (default 10000)
 EXPOSE 10000
 
-# Healthcheck for Render (optional, since /healthz is handled in code)
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 10000) + '/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
+# Set environment variables (can be overridden by Render)
+ENV NODE_ENV=production
 
-# Start the backend
+# Start the server
 CMD ["node", "start.js"]

@@ -2,13 +2,13 @@ import './instrument';
 import * as Sentry from '@sentry/node';
 import { serializeError } from 'serialize-error';
 
-import startup from './App';
-import log from './Shared/Logger';
+import startup from './App.js';
+import log from './Shared/Logger.js';
 
 const logger = log.child({ module: 'server' });
 
 // Test Sentry connection (remove in production)
-if (process.env.SENTRY_TEST_ERROR === 'true') {
+if (process.env['SENTRY_TEST_ERROR'] === 'true') {
   Sentry.captureException(new Error('Sentry test error from Server.ts'));
 }
 
@@ -18,7 +18,7 @@ startup()
     app.get('/test-error', (_req, _res) => {
       throw new Error('Backend test error');
     });
-    const port = process.env.PORT ? Number(process.env.PORT) : 10000;
+    const port = process.env['PORT'] ? Number(process.env['PORT']) : 10000;
     console.log(`[Startup] About to call app.listen on port ${port}`);
     try {
       const server = app.listen(port, '0.0.0.0', () => {

@@ -63,7 +63,7 @@
     "allowUnusedLabels": false
   },
   "files": [],
-  "references": [{ "path": "./backend/tsconfig.json" }, { "path": "./frontend/tsconfig.json" }],
+  "references": [{ "path": "./frontend/tsconfig.json" }],
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node"

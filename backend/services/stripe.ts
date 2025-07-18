@@ -8,16 +8,16 @@ dotenv.config();
  * Throws an error if no valid key is found.
  */
 function getStripeSecretKey() {
-  const env = process.env.NODE_ENV || 'development';
+  const env = process.env['NODE_ENV'] || 'development';
   let key = null;
   if (env === 'production') {
-    key = process.env.STRIPE_SECRET_KEY_LIVE;
+    key = process.env['STRIPE_SECRET_KEY_LIVE'];
   } else {
-    key = process.env.STRIPE_SECRET_KEY_TEST;
+    key = process.env['STRIPE_SECRET_KEY_TEST'];
   }
   // Fallback for legacy setups
-  if (!key && process.env.STRIPE_SECRET_KEY) {
-    key = process.env.STRIPE_SECRET_KEY;
+  if (!key && process.env['STRIPE_SECRET_KEY']) {
+    key = process.env['STRIPE_SECRET_KEY'];
   }
   if (!key) {
     throw new Error(
@@ -45,7 +45,10 @@ export async function testStripeConnection() {
     await stripe.balance.retrieve();
     return true;
   } catch (err) {
-    throw new Error('Stripe connection test failed: ' + err.message);
+    throw new Error(
+      'Stripe connection test failed: ' +
+        (err instanceof Error ? err.message : String(err))
+    );
   }
 }
 

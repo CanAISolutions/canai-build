@@ -2,13 +2,13 @@
 require('../../../testEnvSetup');
 import * as posthogNode from 'posthog-node';
 
-process.env.POSTHOG_HOST = 'http://localhost';
-process.env.npm_package_version = '1.2.3';
-process.env.NODE_ENV = 'test';
-process.env.DEPLOYMENT_ID = 'test-deploy';
-process.env.POSTHOG_FLUSH_AT = '20';
-process.env.POSTHOG_FLUSH_INTERVAL = '10000';
-process.env.SESSION_TIMEOUT_MINUTES = '30';
+process.env['POSTHOG_HOST'] = 'http://localhost';
+process.env['npm_package_version'] = '1.2.3';
+process.env['NODE_ENV'] = 'test';
+process.env['DEPLOYMENT_ID'] = 'test-deploy';
+process.env['POSTHOG_FLUSH_AT'] = '20';
+process.env['POSTHOG_FLUSH_INTERVAL'] = '10000';
+process.env['SESSION_TIMEOUT_MINUTES'] = '30';
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {

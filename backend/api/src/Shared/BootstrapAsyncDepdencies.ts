@@ -7,7 +7,7 @@ import { createClient } from '@supabase/supabase-js';
 export default async function bootstrapAsyncDependencies(_app: Application) {
   console.log('[Bootstrap] Starting bootstrapAsyncDependencies...');
   try {
-    const redisUrl = process.env.REDIS_URL;
+    const redisUrl = process.env['REDIS_URL'];
     if (!redisUrl) {
       throw new Error(
         'REDIS_URL is not set. Please configure it in your environment.'
@@ -18,15 +18,12 @@ export default async function bootstrapAsyncDependencies(_app: Application) {
 
     // Supabase connection
     const supabase = createClient(
-      process.env.DATABASE_URL!,
-      process.env.SUPABASE_ANON_KEY || ''
+      process.env['DATABASE_URL']!,
+      process.env['SUPABASE_ANON_KEY'] || ''
       // Remove custom fetch unless you have a specific reason to override
     );
     try {
-      const { data, error } = await supabase
-        .from('your_table')
-        .select('id')
-        .limit(1);
+      const { error } = await supabase.from('your_table').select('id').limit(1);
       if (error) throw error;
       console.log('Supabase connection successful');
     } catch (err) {

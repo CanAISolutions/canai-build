@@ -6,265 +6,201 @@
 
 import Joi from 'joi';
 
+// Gold Standard Schema Description
+interface GoldStandardSchemaDescription {
+  Summary: {
+    Summary: string;
+    ConfidenceScore: string;
+    ClarifyingQuestions: string;
+  };
+  CoreContent: {
+    CanAI_Output: string;
+    Generic_Output: string;
+    TrustDelta: string;
+  };
+  PostPurchase: {
+    ConfirmationEmail: string;
+    PDFDownload: string;
+    FeedbackPrompt: string;
+    FollowUpEmail: string;
+    ShareOption: string;
+  };
+}
+
+interface InputData {
+  [key: string]: unknown;
+  businessName?: string;
+  businessDescription?: string;
+  targetAudience?: string;
+  primaryGoal?: string;
+  brandVoice?: string;
+}
+
+interface EmotionalDrivers {
+  brandVoice: Record<string, string[]>;
+  businessContext: Record<string, string[]>;
+  audienceContext: Record<string, string[]>;
+}
+
+interface CulturalContext {
+  [location: string]: {
+    values: string[];
+    businessContext: string[];
+    demographicInsights?: string[];
+    localReferences?: string[];
+  };
+}
+
+interface OutputData {
+  [key: string]: unknown;
+  Summary?: {
+    Summary?: string;
+    ConfidenceScore?: number;
+    ClarifyingQuestions?: string[];
+  };
+  Plan?: {
+    CanAI_Output?: string;
+    Generic_Output?: string;
+    TrustDelta?: number;
+  };
+  PostPurchase?: {
+    ConfirmationEmail?: string;
+    PDFDownload?: string;
+    FeedbackPrompt?: string;
+    FollowUpEmail?: string;
+    ShareOption?: string;
+  };
+}
+
 class EmotionallyIntelligentPromptFramework {
+  templateType: string;
+  goldStandardSchema: GoldStandardSchemaDescription;
+  inputSchema: Joi.ObjectSchema;
+  emotionalDrivers: EmotionalDrivers;
+  culturalContext: CulturalContext;
+
   constructor() {
+    this.templateType = 'default';
     this.goldStandardSchema = {
       Summary: {
-        Summary: 'string (15-25 words)',
-        ConfidenceScore: 'number (0.0-1.0)',
-        ClarifyingQuestions: 'array',
+        Summary: 'Brief summary of the generated content',
+        ConfidenceScore: 'Confidence score (0.0-1.0)',
+        ClarifyingQuestions: 'Array of clarifying questions if needed',
       },
       CoreContent: {
-        CanAI_Output: 'string (emotionally resonant, culturally aware)',
-        Generic_Output: 'string (neutral, formulaic)',
-        TrustDelta: 'number (0.0-5.0)',
+        CanAI_Output: 'Emotionally intelligent, culturally-aware output',
+        Generic_Output: 'Neutral, formulaic output for comparison',
+        TrustDelta: 'Emotional resonance advantage score (0.0-5.0)',
       },
       PostPurchase: {
-        ConfirmationEmail: 'string',
-        PDFDownload: 'string (optional)',
-        FeedbackPrompt: 'string',
-        FollowUpEmail: 'string',
-        ShareOption: 'string',
+        ConfirmationEmail: 'Thank you email template',
+        PDFDownload: 'PDF download link',
+        FeedbackPrompt: 'Feedback collection prompt',
+        FollowUpEmail: 'Follow-up email template',
+        ShareOption: 'Social sharing option',
       },
     };
 
-    // Input validation schema (PRD Section 6.2)
+    // Input validation schema
     this.inputSchema = Joi.object({
-      businessName: Joi.string().min(3).max(100).required(),
-      targetAudience: Joi.string().min(5).max(100).required(),
-      primaryGoal: Joi.string()
-        .regex(/^[a-zA-Z0-9\s,.$%&()-]{5,100}$/)
-        .required(),
-      brandVoice: Joi.string()
-        .valid(
-          'warm',
-          'bold',
-          'optimistic',
-          'professional',
-          'playful',
-          'inspirational',
-          'custom'
-        )
-        .required(),
-      customTone: Joi.string()
-        .regex(/^[a-zA-Z0-9\s]{1,50}$/)
-        .when('brandVoice', { is: 'custom', then: Joi.required() }),
-      businessDescription: Joi.string().min(10).max(500).required(),
-      socialPlatforms: Joi.string().when('templateType', {
-        is: 'socialMedia',
-        then: Joi.required(),
-      }),
-      contentStrategy: Joi.string().when('templateType', {
-        is: 'socialMedia',
-        then: Joi.required(),
-      }),
-      contentSource: Joi.string()
-        .uri()
-        .when('templateType', { is: 'websiteAudit', then: Joi.required() }),
-      auditScope: Joi.string().when('templateType', {
-        is: 'websiteAudit',
-        then: Joi.required(),
-      }),
-    }).unknown(true);
+      businessName: Joi.string().required(),
+      businessDescription: Joi.string().required(),
+      targetAudience: Joi.string().required(),
+      primaryGoal: Joi.string().required(),
+      brandVoice: Joi.string().required(),
+      templateType: Joi.string().required(),
+    });
 
-    // Emotional Driver Intelligence Engine
+    // Emotional drivers mapping
     this.emotionalDrivers = {
       brandVoice: {
-        warm: [
-          'heartfelt connection',
-          'community-focused',
-          'nurturing',
-          'welcoming',
-          'authentic',
-        ],
-        innovative: [
-          'forward-thinking',
-          'pioneering',
-          'disruptive',
-          'cutting-edge',
-          'visionary',
-        ],
-        professional: [
-          'trustworthy',
-          'reliable',
-          'expert-driven',
-          'authoritative',
-          'polished',
-        ],
-        playful: [
-          'joyful',
-          'creative',
-          'engaging',
-          'lighthearted',
-          'inspiring',
-        ],
-        bold: [
-          'confident',
-          'daring',
-          'impactful',
-          'ambitious',
-          'transformative',
-        ],
-        caring: [
-          'empathetic',
-          'supportive',
-          'understanding',
-          'compassionate',
-          'healing',
-        ],
+        warm: ['trust', 'comfort', 'nurturing', 'community'],
+        professional: ['reliability', 'expertise', 'confidence', 'authority'],
+        playful: ['joy', 'creativity', 'spontaneity', 'fun'],
+        sophisticated: ['elegance', 'refinement', 'exclusivity', 'prestige'],
+        friendly: ['approachability', 'openness', 'genuineness', 'welcome'],
       },
       businessContext: {
-        family_business: [
-          'generational',
-          'legacy-building',
-          'family values',
-          'tradition',
-          'heritage',
-        ],
+        family_business: ['legacy', 'tradition', 'trust', 'community'],
         tech_startup: [
-          'scalable',
-          'data-driven',
-          'user-centric',
-          'agile',
-          'innovative',
+          'innovation',
+          'progress',
+          'efficiency',
+          'transformation',
         ],
-        local_business: [
-          'community-rooted',
-          'neighborhood-focused',
-          'locally-sourced',
-          'personal',
-          'intimate',
-        ],
-        b2b_service: [
-          'partnership-focused',
-          'results-driven',
-          'strategic',
-          'collaborative',
-          'growth-oriented',
-        ],
-        creative_agency: [
-          'artistic',
-          'expressive',
-          'original',
-          'inspiring',
-          'boundary-pushing',
+        local_business: ['community', 'authenticity', 'connection', 'support'],
+        service_business: ['care', 'attention', 'dedication', 'excellence'],
+        creative_business: [
+          'expression',
+          'inspiration',
+          'uniqueness',
+          'passion',
         ],
       },
       audienceContext: {
-        families: [
-          'safety-focused',
-          'value-driven',
-          'community-minded',
-          'future-planning',
-          'nurturing',
-        ],
+        families: ['security', 'nurturing', 'growth', 'togetherness'],
         professionals: [
-          'efficiency-focused',
-          'growth-oriented',
-          'network-building',
-          'career-advancing',
-          'time-conscious',
+          'achievement',
+          'efficiency',
+          'recognition',
+          'advancement',
         ],
-        entrepreneurs: [
-          'risk-taking',
-          'opportunity-seeking',
-          'independence-valued',
-          'innovation-driven',
-          'resilience-focused',
-        ],
-        creatives: [
-          'self-expression',
-          'authenticity-seeking',
-          'inspiration-driven',
-          'uniqueness-valued',
-          'artistic',
-        ],
+        entrepreneurs: ['independence', 'innovation', 'growth', 'impact'],
+        creatives: ['expression', 'inspiration', 'authenticity', 'freedom'],
+        community: ['connection', 'belonging', 'support', 'collaboration'],
       },
     };
 
-    // Cultural Context Intelligence Engine
+    // Cultural context mapping
     this.culturalContext = {
-      'Denver, CO': {
+      default: {
+        values: ['authenticity', 'community', 'growth', 'innovation'],
+        businessContext: ['customer-centric', 'quality-focused', 'sustainable'],
+        demographicInsights: ['diverse', 'educated', 'tech-savvy'],
+        localReferences: [
+          'local landmarks',
+          'community events',
+          'regional culture',
+        ],
+      },
+      'denver, co': {
         values: [
           'outdoor lifestyle',
-          'craft culture',
-          'community-minded',
-          'environmentally conscious',
-          'work-life balance',
+          'innovation',
+          'community',
+          'sustainability',
         ],
         businessContext: [
-          'local sourcing',
-          'sustainability focus',
-          'craft brewing culture',
-          'outdoor recreation',
           'tech-friendly',
+          'outdoor-oriented',
+          'community-focused',
         ],
         demographicInsights: [
-          'health-conscious',
-          'environmentally aware',
-          'tech-savvy',
-          'active lifestyle',
-          'community-engaged',
-        ],
-        localReferences: [
-          'Mile High City',
-          'Rocky Mountains',
-          'craft beer scene',
-          'outdoor recreation',
-          'tech hub',
-        ],
-      },
-      'Austin, TX': {
-        values: [
-          'keep it weird',
-          'music culture',
-          'entrepreneurial spirit',
-          'food scene',
-          'tech innovation',
-        ],
-        businessContext: [
-          'creative industries',
-          'tech startups',
-          'music venues',
-          'food trucks',
-          'SXSW culture',
-        ],
-        demographicInsights: [
-          'creative professionals',
           'young professionals',
-          'music lovers',
-          'foodie culture',
+          'outdoor enthusiasts',
           'tech workers',
         ],
-        localReferences: [
-          'Keep Austin Weird',
-          'SXSW',
-          'food truck culture',
-          'live music',
-          'tech corridor',
-        ],
+        localReferences: ['Rocky Mountains', 'Denver Tech Center', 'Red Rocks'],
       },
-      default: {
-        values: [
-          'quality',
-          'community',
-          'innovation',
-          'growth',
-          'authenticity',
-        ],
-        businessContext: [
-          'customer-focused',
-          'growth-oriented',
-          'quality-driven',
-          'service-excellence',
-        ],
+      'new york, ny': {
+        values: ['diversity', 'ambition', 'innovation', 'culture'],
+        businessContext: ['fast-paced', 'competitive', 'diverse'],
         demographicInsights: [
-          'value-conscious',
-          'quality-seeking',
-          'relationship-focused',
-          'results-oriented',
+          'cosmopolitan',
+          'career-focused',
+          'culturally diverse',
         ],
-        localReferences: [],
+        localReferences: ['Broadway', 'Central Park', 'Wall Street'],
+      },
+      'los angeles, ca': {
+        values: ['creativity', 'wellness', 'diversity', 'innovation'],
+        businessContext: ['creative', 'wellness-focused', 'entertainment'],
+        demographicInsights: [
+          'creative professionals',
+          'health-conscious',
+          'diverse',
+        ],
+        localReferences: ['Hollywood', 'Venice Beach', 'Silicon Beach'],
       },
     };
   }
@@ -272,7 +208,7 @@ class EmotionallyIntelligentPromptFramework {
   /**
    * Validate inputs with Joi schema
    */
-  validateInputs(inputData, templateType) {
+  validateInputs(inputData: InputData, templateType: string) {
     const { error } = this.inputSchema.validate(
       { ...inputData, templateType },
       { abortEarly: false }
@@ -288,61 +224,79 @@ class EmotionallyIntelligentPromptFramework {
   /**
    * Store template in Supabase (no-op if not configured)
    */
-  async storeTemplate(templateType, version, content) {
+  async storeTemplate(templateType: string, version: string, content: string) {
     if (
       typeof process === 'undefined' ||
-      !process.env ||
-      !process.env.SUPABASE_URL ||
-      !process.env.SUPABASE_KEY
-    )
+      !process.env['SUPABASE_URL'] ||
+      !process.env['SUPABASE_KEY']
+    ) {
       return;
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_KEY
-    );
-    const { error } = await supabase.from('prompt_templates').insert({
-      template_type: templateType,
-      version,
-      content,
-      created_at: new Date().toISOString(),
-    });
-    if (error) {
-      throw new Error(`Failed to store template: ${error.message}`);
+    }
+    try {
+      const { createClient: createSupabaseClient } = await import(
+        '@supabase/supabase-js'
+      );
+      const supabaseClient = createSupabaseClient(
+        process.env['SUPABASE_URL'],
+        process.env['SUPABASE_KEY']
+      );
+      const { error } = await supabaseClient.from('prompt_templates').insert({
+        template_type: templateType,
+        version,
+        content,
+        created_at: new Date().toISOString(),
+      });
+      if (error) {
+        throw new Error(
+          `Failed to store template: ${error instanceof Error ? error.message : String(error)}`
+        );
+      }
+    } catch (error) {
+      console.error('Error storing template:', error);
+      throw new Error(
+        `Failed to store template: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 
   /**
    * Retrieve latest template version (no-op if not configured)
    */
-  async getLatestTemplateVersion(templateType) {
+  async getLatestTemplateVersion(templateType: string) {
     if (
       typeof process === 'undefined' ||
-      !process.env ||
-      !process.env.SUPABASE_URL ||
-      !process.env.SUPABASE_KEY
-    )
-      return null;
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_KEY
-    );
-    const { data, error } = await supabase
-      .from('prompt_templates')
-      .select('version, content')
-      .eq('template_type', templateType)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
-    if (error) {
-      throw new Error(`Failed to retrieve template: ${error.message}`);
+      !process.env['SUPABASE_URL'] ||
+      !process.env['SUPABASE_KEY']
+    ) {
+      return '1.0.0';
     }
-    return data;
+    try {
+      const { createClient: createSupabaseClient } = await import(
+        '@supabase/supabase-js'
+      );
+      const supabaseClient = createSupabaseClient(
+        process.env['SUPABASE_URL'],
+        process.env['SUPABASE_KEY']
+      );
+      const { data, error } = await supabaseClient
+        .from('prompt_templates')
+        .select('version, content')
+        .eq('template_type', templateType)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      if (error) {
+        throw new Error(`Failed to retrieve template: ${error.message}`);
+      }
+      return data;
+    } catch (error) {
+      console.error('Error retrieving template version:', error);
+      return '1.0.0';
+    }
   }
 
-  generateSystemPrompt(templateType) {
-    const basePrompts = {
+  generateSystemPrompt(templateType: string) {
+    const basePrompts: Record<string, string[]> = {
       businessPlan: [
         "Act as a world-class Business Strategy Consultant and Emotional Intelligence Specialist, crafting investor-ready business plans that reflect the customer's vision and voice.",
         'Deliver two comprehensive business plans: a tone-aligned, emotionally resonant **CanAI_Output**, and a neutral **Generic_Output**.',
@@ -372,7 +326,7 @@ class EmotionallyIntelligentPromptFramework {
     return basePrompts[templateType] || basePrompts.businessPlan;
   }
 
-  generateUserPrompt(inputData, templateType) {
+  generateUserPrompt(inputData: InputData, templateType: string) {
     this.validateInputs(inputData, templateType);
     const emotionalContext = this.buildEmotionalContext(inputData);
     const culturalContext = this.buildCulturalContext(inputData);
@@ -410,14 +364,17 @@ ${culturalContext}
     return basePrompt;
   }
 
-  buildEmotionalContext(inputData) {
+  buildEmotionalContext(inputData: InputData) {
     const brandDrivers =
-      this.emotionalDrivers.brandVoice[inputData.brandVoice?.toLowerCase()] ||
-      [];
-    const businessType = this.inferBusinessType(inputData.businessDescription);
+      this.emotionalDrivers.brandVoice[
+        inputData.brandVoice?.toLowerCase() as keyof typeof this.emotionalDrivers.brandVoice
+      ] || [];
+    const businessType = this.inferBusinessType(
+      inputData.businessDescription || ''
+    );
     const businessDrivers =
       this.emotionalDrivers.businessContext[businessType] || [];
-    const audienceType = this.inferAudienceType(inputData.targetAudience);
+    const audienceType = this.inferAudienceType(inputData.targetAudience || '');
     const audienceDrivers =
       this.emotionalDrivers.audienceContext[audienceType] || [];
 
@@ -429,8 +386,8 @@ ${culturalContext}
     `.trim();
   }
 
-  buildCulturalContext(inputData) {
-    const location = this.extractLocation(inputData.targetAudience);
+  buildCulturalContext(inputData: InputData) {
+    const location = this.extractLocation(inputData.targetAudience || '');
     const context =
       this.culturalContext[location] || this.culturalContext.default;
 
@@ -438,122 +395,157 @@ ${culturalContext}
 - Location: ${location}
 - Cultural Values: ${context.values.join(', ')}
 - Business Context: ${context.businessContext.join(', ')}
-- Demographic Insights: ${context.demographicInsights.join(', ')}
+- Demographic Insights: ${context.demographicInsights?.join(', ') || 'N/A'}
 - Local References: ${context.localReferences.join(', ')}
     `.trim();
   }
 
-  inferBusinessType(description) {
-    const keywords = {
+  inferBusinessType(description: string) {
+    const keywords: Record<string, string[]> = {
       family_business: ['family', 'heritage', 'tradition', 'generational'],
       tech_startup: ['app', 'platform', 'software', 'tech', 'digital', 'AI'],
       local_business: [
         'local',
         'community',
         'neighborhood',
-        'bakery',
-        'restaurant',
+        'small business',
+        'independent',
       ],
-      b2b_service: [
-        'consulting',
-        'services',
-        'business',
-        'enterprise',
-        'corporate',
-      ],
-      creative_agency: [
-        'design',
+      service_business: ['service', 'consulting', 'help', 'support', 'care'],
+      creative_business: [
         'creative',
-        'agency',
-        'marketing',
-        'advertising',
+        'design',
+        'art',
+        'music',
+        'writing',
+        'photography',
       ],
     };
 
-    for (const [type, words] of Object.entries(keywords)) {
-      if (words.some(word => description.toLowerCase().includes(word))) {
+    const lowerDescription = description.toLowerCase();
+    for (const [type, typeKeywords] of Object.entries(keywords)) {
+      if (typeKeywords.some(keyword => lowerDescription.includes(keyword))) {
         return type;
       }
     }
     return 'local_business';
   }
 
-  inferAudienceType(audience) {
-    const keywords = {
-      families: ['families', 'parents', 'children', 'family'],
-      professionals: ['professionals', 'executives', 'managers', 'workers'],
-      entrepreneurs: [
-        'entrepreneurs',
-        'business owners',
-        'startups',
-        'founders',
-      ],
-      creatives: ['artists', 'designers', 'creatives', 'musicians'],
+  inferAudienceType(audience: string) {
+    const keywords: Record<string, string[]> = {
+      families: ['family', 'children', 'parents', 'kids', 'home'],
+      professionals: ['professional', 'business', 'corporate', 'executive'],
+      entrepreneurs: ['entrepreneur', 'startup', 'founder', 'business owner'],
+      creatives: ['creative', 'artist', 'designer', 'musician', 'writer'],
+      community: ['community', 'local', 'neighborhood', 'residents'],
     };
 
-    for (const [type, words] of Object.entries(keywords)) {
-      if (words.some(word => audience.toLowerCase().includes(word))) {
+    const lowerAudience = audience.toLowerCase();
+    for (const [type, typeKeywords] of Object.entries(keywords)) {
+      if (typeKeywords.some(keyword => lowerAudience.includes(keyword))) {
         return type;
       }
     }
-    return 'professionals';
+    return 'community';
   }
 
-  extractLocation(targetAudience) {
-    const locationMatch = targetAudience.match(/in ([^,]+,?\s*[A-Z]{2})/i);
-    return locationMatch ? locationMatch[1] : 'default';
-  }
-
-  inferEmotionalThemes(inputData) {
-    const themes = [];
-    if (inputData.businessDescription?.includes('community'))
-      themes.push('community connection');
-    if (inputData.primaryGoal?.includes('funding'))
-      themes.push('growth ambition');
-    if (inputData.brandVoice === 'warm') themes.push('authentic relationships');
-    if (inputData.targetAudience?.includes('families'))
-      themes.push('family values');
-    return themes.join(', ') || 'authenticity, growth, connection';
-  }
-
-  validateOutput(output) {
-    const errors = [];
-    // Validate Summary
-    if (!output.Summary) errors.push('Missing Summary');
-    // Validate CoreContent/Plan/Campaign/Audit
-    if (
-      !output.CoreContent &&
-      !output.Plan &&
-      !output.Campaign &&
-      !output.Audit
-    ) {
-      errors.push('Missing CoreContent/Plan/Campaign/Audit');
+  extractLocation(targetAudience: string) {
+    const locationMatch = targetAudience.match(/([^,]+),\s*([A-Z]{2})/i);
+    if (locationMatch) {
+      return `${locationMatch[1].toLowerCase()}, ${locationMatch[2].toLowerCase()}`;
     }
+    return 'default';
+  }
+
+  inferEmotionalThemes(inputData: InputData) {
+    const themes: string[] = [];
+    const description = inputData.businessDescription?.toLowerCase() || '';
+    const audience = inputData.targetAudience?.toLowerCase() || '';
+
+    if (description.includes('community') || audience.includes('community')) {
+      themes.push('connection');
+    }
+    if (description.includes('family') || audience.includes('family')) {
+      themes.push('nurturing');
+    }
+    if (description.includes('tech') || description.includes('innovation')) {
+      themes.push('progress');
+    }
+    if (description.includes('creative') || description.includes('art')) {
+      themes.push('expression');
+    }
+
+    return themes.length > 0 ? themes.join(', ') : 'authenticity, growth';
+  }
+
+  validateOutput(output: OutputData) {
+    const errors: string[] = [];
+
+    // Validate Summary
+    if (!output.Summary) {
+      errors.push('Missing Summary object');
+    } else {
+      if (!output.Summary.Summary) errors.push('Missing Summary.Summary');
+      if (typeof output.Summary.ConfidenceScore !== 'number') {
+        errors.push('Invalid Summary.ConfidenceScore type');
+      }
+    }
+
+    // Validate Core Content (Plan for business plans)
+    const coreContent = output.Plan || output.CoreContent;
+    if (!coreContent) {
+      errors.push('Missing Plan/CoreContent object');
+    } else {
+      const coreContentObj = coreContent as Record<string, unknown>;
+      if (!coreContentObj.CanAI_Output) errors.push('Missing CanAI_Output');
+      if (!coreContentObj.Generic_Output) errors.push('Missing Generic_Output');
+      if (typeof coreContentObj.TrustDelta !== 'number') {
+        errors.push('Invalid TrustDelta type');
+      }
+    }
+
     // Validate PostPurchase
-    if (!output.PostPurchase) errors.push('Missing PostPurchase');
+    if (!output.PostPurchase) {
+      errors.push('Missing PostPurchase object');
+    } else {
+      const requiredFields = [
+        'ConfirmationEmail',
+        'FeedbackPrompt',
+        'FollowUpEmail',
+        'ShareOption',
+      ];
+      const missingFields = requiredFields.filter(
+        field =>
+          !output.PostPurchase![field as keyof typeof output.PostPurchase]
+      );
+      if (missingFields.length > 0) {
+        errors.push(`Missing PostPurchase fields: ${missingFields.join(', ')}`);
+      }
+    }
+
     return {
       isValid: errors.length === 0,
       errors,
     };
   }
 
-  async generateCompletePrompt(inputData, templateType, customization = {}) {
-    const systemPrompt = this.generateSystemPrompt(templateType, customization);
+  async generateCompletePrompt(
+    inputData: InputData,
+    templateType: string,
+    customization: { version?: string } = {}
+  ) {
+    const systemPrompt = this.generateSystemPrompt(templateType);
     const userPrompt = this.generateUserPrompt(inputData, templateType);
 
-    // Store template in Supabase
-    await this.storeTemplate(
-      templateType,
-      customization.version || '1.0.0',
-      systemPrompt.join('\n')
-    );
+    // Store template version if configured
+    if (customization.version) {
+      await this.storeTemplate(templateType, customization.version, userPrompt);
+    }
 
     return {
       system: systemPrompt.join('\n'),
       user: userPrompt,
-      expectedSchema: this.goldStandardSchema,
-      validation: output => this.validateOutput(output),
-      templateVersion: customization.version || '1.0.0',
+      validation: this.validateOutput,
     };
   }
 }

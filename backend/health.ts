@@ -4,16 +4,34 @@
 import express from 'express';
 const router = express.Router();
 
+// Add HealthStatus type
+interface HealthStatus {
+  status: string;
+  timestamp: string;
+  version: string;
+  environment: string;
+  uptime: number;
+  memory: NodeJS.MemoryUsage;
+  checks: Record<string, { status: string; message?: string } | string>;
+  performance?: { responseTimeMs: number; withinSLA?: boolean };
+  error?: string;
+}
+
+interface HealthCheck {
+  status: string;
+  message?: string;
+}
+
 // Health check endpoint for TaskMaster deployment verification
 router.get('/health', async (req, res) => {
   const startTime = Date.now();
 
   try {
-    const healthStatus = {
+    const healthStatus: HealthStatus = {
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      version: process.env.npm_package_version || '1.0.0',
-      environment: process.env.NODE_ENV || 'development',
+      version: process.env['npm_package_version'] || '1.0.0',
+      environment: process.env['NODE_ENV'] || 'development',
       uptime: process.uptime(),
       memory: process.memoryUsage(),
       checks: {},
@@ -21,34 +39,34 @@ router.get('/health', async (req, res) => {
 
     // Database connectivity check (Supabase)
     try {
-      if (process.env.SUPABASE_URL) {
-        // Simple connectivity test
-        healthStatus.checks.database = {
+      if (process.env['SUPABASE_URL']) {
+        healthStatus.checks['database'] = {
           status: 'healthy',
           message: 'Supabase connection configured',
         };
       } else {
-        healthStatus.checks.database = {
+        healthStatus.checks['database'] = {
           status: 'warning',
           message: 'Supabase URL not configured',
         };
       }
-    } catch (error) {
-      healthStatus.checks.database = {
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      healthStatus.checks['database'] = {
         status: 'unhealthy',
-        message: error.message,
+        message: errorMessage,
       };
     }
 
     // External services check
-    healthStatus.checks.externalServices = {
-      openai: process.env.OPENAI_API_KEY ? 'configured' : 'missing',
-      hume: process.env.HUME_API_KEY ? 'configured' : 'missing',
-      stripe: process.env.STRIPE_SECRET_KEY ? 'configured' : 'missing',
-      memberstack: process.env.MEMBERSTACK_API_KEY ? 'configured' : 'missing',
-      posthog: process.env.POSTHOG_API_KEY ? 'configured' : 'missing',
-      makecom: process.env.MAKECOM_API_KEY ? 'configured' : 'missing',
-    };
+    healthStatus.checks['externalServices'] =
+      `openai: ${process.env['OPENAI_API_KEY'] ? 'configured' : 'missing'}, ` +
+      `hume: ${process.env['HUME_API_KEY'] ? 'configured' : 'missing'}, ` +
+      `stripe: ${process.env['STRIPE_SECRET_KEY'] ? 'configured' : 'missing'}, ` +
+      `memberstack: ${process.env['MEMBERSTACK_API_KEY'] ? 'configured' : 'missing'}, ` +
+      `posthog: ${process.env['POSTHOG_API_KEY'] ? 'configured' : 'missing'}, ` +
+      `makecom: ${process.env['MAKECOM_API_KEY'] ? 'configured' : 'missing'}`;
 
     // Performance metrics
     const responseTime = Date.now() - startTime;
@@ -59,7 +77,10 @@ router.get('/health', async (req, res) => {
 
     // Overall health determination
     const hasUnhealthyChecks = Object.values(healthStatus.checks).some(
-      check => check.status === 'unhealthy'
+      (check: HealthCheck | string) => {
+        if (typeof check === 'string') return false;
+        return check.status === 'unhealthy';
+      }
     );
 
     if (hasUnhealthyChecks) {
@@ -69,12 +90,14 @@ router.get('/health', async (req, res) => {
 
     // Success response
     res.status(200).json(healthStatus);
-  } catch (error) {
+  } catch (error: unknown) {
     // Error response
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
     res.status(500).json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
-      error: error.message,
+      error: errorMessage,
       performance: {
         responseTimeMs: Date.now() - startTime,
       },
@@ -89,8 +112,8 @@ router.get('/ready', (req, res) => {
     timestamp: new Date().toISOString(),
     checks: {
       server: 'running',
-      environment: process.env.NODE_ENV || 'development',
-      port: process.env.PORT || 10000,
+      environment: process.env['NODE_ENV'] || 'development',
+      port: process.env['PORT'] || 10000,
       memoryUsage: process.memoryUsage().heapUsed / 1024 / 1024, // MB
     },
   };

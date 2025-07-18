@@ -26,7 +26,10 @@ try {
     readFileSync(new URL('./package.json', import.meta.url), 'utf-8')
   );
 } catch (err) {
-  console.warn('[Startup] Could not read package.json:', err.message);
+  console.warn(
+    '[Startup] Could not read package.json:',
+    err instanceof Error ? err.message : String(err)
+  );
 }
 
 dotenv.config();
@@ -36,7 +39,7 @@ export function createApp() {
 
   // Startup log for version and environment
   console.log(
-    `CanAI Backend version: ${pkg.version} (${process.env.NODE_ENV || 'development'})`
+    `CanAI Backend version: ${pkg.version} (${process.env['NODE_ENV'] || 'development'})`
   );
 
   // ==============================================
@@ -85,7 +88,7 @@ export function createApp() {
   app.use(
     cors({
       origin: function (origin, callback) {
-        const allowedOrigins = parseOrigins(process.env.CORS_ORIGIN);
+        const allowedOrigins = parseOrigins(process.env['CORS_ORIGIN']);
         if (!origin) return callback(null, true);
         if (allowedOrigins.includes(origin)) {
           return callback(null, true);
@@ -106,7 +109,9 @@ export function createApp() {
     })
   );
 
-  app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+  app.use(
+    morgan(process.env['NODE_ENV'] === 'production' ? 'combined' : 'dev')
+  );
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -118,7 +123,7 @@ export function createApp() {
       status: 'ok',
       message: 'CanAI Backend Server is running',
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development',
+      environment: process.env['NODE_ENV'] || 'development',
     });
   });
 
@@ -138,9 +143,19 @@ export function createApp() {
       } catch (err) {
         dbStatus = 'unhealthy';
       }
-      if (process.env.REDIS_URL && process.env.REDIS_URL !== 'your_redis_url') {
+      if (
+        process.env['REDIS_URL'] &&
+        process.env['REDIS_URL'] !== 'your_redis_url'
+      ) {
         try {
-          const redis = new Redis(process.env.REDIS_URL, {
+          const redis = new (
+            Redis as unknown as {
+              default: new (
+                url: string,
+                options: { connectTimeout: number }
+              ) => { ping: () => Promise<string>; quit: () => Promise<string> };
+            }
+          ).default(process.env['REDIS_URL'], {
             connectTimeout: 1000,
           });
           await redis.ping();
@@ -154,7 +169,8 @@ export function createApp() {
             });
           // Structured logging: log Redis connection errors to Sentry (see logging guidelines)
           Sentry.captureMessage?.(
-            '[Health] Redis connection failed: ' + err.message,
+            '[Health] Redis connection failed: ' +
+              (err instanceof Error ? err.message : String(err)),
             'warning'
           );
         }
@@ -163,12 +179,14 @@ export function createApp() {
       }
       checks = {
         supabase: dbStatus,
-        stripe: process.env.STRIPE_SECRET_KEY ? 'configured' : 'missing',
-        makecom: process.env.MAKECOM_API_KEY ? 'configured' : 'missing',
-        posthog: process.env.POSTHOG_API_KEY ? 'configured' : 'missing',
-        sentry: process.env.SENTRY_DSN ? 'configured' : 'missing',
-        hume: process.env.HUME_API_KEY ? 'configured' : 'missing',
-        memberstack: process.env.MEMBERSTACK_API_KEY ? 'configured' : 'missing',
+        stripe: process.env['STRIPE_SECRET_KEY'] ? 'configured' : 'missing',
+        makecom: process.env['MAKECOM_API_KEY'] ? 'configured' : 'missing',
+        posthog: process.env['POSTHOG_API_KEY'] ? 'configured' : 'missing',
+        sentry: process.env['SENTRY_DSN'] ? 'configured' : 'missing',
+        hume: process.env['HUME_API_KEY'] ? 'configured' : 'missing',
+        memberstack: process.env['MEMBERSTACK_API_KEY']
+          ? 'configured'
+          : 'missing',
         redis: redisStatus,
       };
       const responseTime = Date.now() - startTime;
@@ -186,7 +204,7 @@ export function createApp() {
       const status = allConfigured ? 'healthy' : 'degraded';
       res.status(200).json({
         status,
-        version: process.env.APP_VERSION || pkg.version || '0.0.0',
+        version: process.env['APP_VERSION'] || pkg.version || '0.0.0',
         checks,
         uptime: process.uptime(),
         timestamp: new Date().toISOString(),
@@ -201,9 +219,9 @@ export function createApp() {
         : { supabase: dbStatus, redis: redisStatus };
       res.status(200).json({
         status: 'degraded',
-        version: process.env.APP_VERSION || pkg.version || '0.0.0',
+        version: process.env['APP_VERSION'] || pkg.version || '0.0.0',
         checks,
-        error: err.message,
+        error: err instanceof Error ? err.message : String(err),
         uptime: process.uptime(),
         timestamp: new Date().toISOString(),
         memory: process.memoryUsage(),
@@ -241,10 +259,10 @@ export function createApp() {
   });
 
   // Global error handler
-  app.use((err, req, res, next) => {
+  app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
     if (
-      process.env.NODE_ENV === 'test' ||
-      process.env.NODE_ENV === 'development'
+      process.env['NODE_ENV'] === 'test' ||
+      process.env['NODE_ENV'] === 'development'
     ) {
       Sentry.captureException?.(err, {
         extra: { context: 'global error handler' },
@@ -273,7 +291,8 @@ export function createApp() {
     res.status(500).json({
       error: 'Internal server error.',
       code: err.code || 'INTERNAL_SERVER_ERROR',
-      stack: process.env.NODE_ENV === 'production' ? undefined : err.stack,
+      stack: process.env['NODE_ENV'] === 'production' ? undefined : err.stack,
+      message: err instanceof Error ? err.message : String(err),
     });
   });
   return app;

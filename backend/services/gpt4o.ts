@@ -7,7 +7,8 @@ import { PostHog } from 'posthog-node';
 import Joi from 'joi';
 import { encoding_for_model } from '@dqbd/tiktoken';
 import hume from './hume.js';
-import log from '../api/src/Shared/Logger';
+import log from './logger.js';
+const logger = log as unknown as import('pino').Logger;
 
 dotenv.config();
 
@@ -16,10 +17,50 @@ const paramSchema = Joi.object({
   max_tokens: Joi.number().min(1).max(4096).default(4096),
 });
 
+interface SupabaseClient {
+  rpc: (
+    name: string,
+    params: Record<string, unknown>
+  ) => Promise<{ data: unknown; error: unknown }>;
+  from: (table: string) => {
+    insert: (data: Record<string, unknown>) => Promise<{ error?: unknown }>;
+    select: (columns: string) => {
+      eq: (
+        column: string,
+        value: unknown
+      ) => {
+        gte: (column: string, value: string) => Promise<{ data: unknown[] }>;
+      };
+    };
+  };
+}
+
+interface PostHogInstance {
+  capture: (event: string, properties?: Record<string, unknown>) => void;
+}
+
+interface GenerateParams {
+  temperature?: number;
+  max_tokens?: number;
+  prompt_type?: string;
+}
+
+interface ValidationOptions {
+  promptType?: string;
+  userId?: string | null;
+  trustDelta?: number | null;
+}
+
 class GPT4Service {
+  supabase: SupabaseClient;
+  posthog: PostHogInstance;
+  client: OpenAI | null;
+
   constructor(
-    supabase,
-    posthogInstance = new PostHog(process.env.POSTHOG_API_KEY)
+    supabase: SupabaseClient,
+    posthogInstance: PostHogInstance = new PostHog(
+      process.env['POSTHOG_API_KEY']
+    ) as unknown as PostHogInstance
   ) {
     this.supabase = supabase;
     this.posthog = posthogInstance;
@@ -28,40 +69,48 @@ class GPT4Service {
 
   async initialize() {
     try {
-      log.info('Initializing GPT-4o client');
+      logger.info('Initializing GPT-4o client');
       const { data, error } = await this.supabase.rpc('get_secret', {
         secret_name: 'openai_api_key',
       });
-      log.info('Vault get_secret', { data, error });
-      if (error) throw new Error(`Vault error: ${error.message}`);
+      logger.info('Vault get_secret', { data, error });
+      if (error)
+        throw new Error(
+          `Vault error: ${error instanceof Error ? error.message : String(error)}`
+        );
       let apiKey = '';
       if (typeof data === 'string') {
         apiKey = data.replace(/\s+/g, '');
-      } else if (data && typeof data.openai_api_key === 'string') {
+      } else if (
+        data &&
+        typeof data === 'object' &&
+        'openai_api_key' in data &&
+        typeof data.openai_api_key === 'string'
+      ) {
         apiKey = data.openai_api_key.replace(/\s+/g, '');
       }
       if (!apiKey) {
-        apiKey = process.env.OPENAI_API_KEY
-          ? process.env.OPENAI_API_KEY.replace(/\s+/g, '')
+        apiKey = process.env['OPENAI_API_KEY']
+          ? process.env['OPENAI_API_KEY'].replace(/\s+/g, '')
           : '';
       }
       if (!apiKey) throw new Error('OPENAI_API_KEY is required');
       this.client = new OpenAI({ apiKey });
       await this.client.models.list();
-      log.info('GPT-4o client initialized');
+      logger.info('GPT-4o client initialized');
     } catch (err) {
       Sentry.captureException(err);
       throw err;
     }
   }
 
-  async generate(prompt, params = {}) {
+  async generate(prompt: string, params: GenerateParams = {}) {
     let retries = 0;
     const maxRetries = 3;
     const baseDelay = 1000;
     while (retries <= maxRetries) {
       try {
-        const response = await this.client.chat.completions.create({
+        const response = await this.client!.chat.completions.create({
           model: 'gpt-4o',
           messages: [{ role: 'user', content: prompt }],
           ...params,
@@ -75,26 +124,34 @@ class GPT4Service {
         retries++;
         this.posthog.capture('gpt4o_retry', {
           retry_count: retries,
-          error: err.message,
+          error: err instanceof Error ? err.message : String(err),
         });
         if (retries > maxRetries) {
           Sentry.captureException(err);
           await this.supabase.from('error_logs').insert({
             error_type: 'gpt4o_error',
-            message: err.message,
+            message: err instanceof Error ? err.message : String(err),
             details: JSON.stringify({ prompt, params }),
           });
-          throw new Error(`Max retries exceeded: ${err.message}`);
+          throw new Error(
+            `Max retries exceeded: ${err instanceof Error ? err.message : String(err)}`
+          );
         }
         const delay =
           Math.pow(2, retries) * baseDelay + Math.floor(Math.random() * 100);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
+    throw new Error(
+      'Unexpected error: generate() exited loop without returning'
+    );
   }
 
-  async getParameters(promptType) {
-    const defaults = {
+  async getParameters(promptType: string) {
+    const defaults: Record<
+      string,
+      { temperature: number; max_tokens: number }
+    > = {
       business_plan: { temperature: 0.7, max_tokens: 4096 },
       social_media: { temperature: 0.9, max_tokens: 1000 },
       website_audit: { temperature: 0.6, max_tokens: 2000 },
@@ -105,19 +162,29 @@ class GPT4Service {
     return value;
   }
 
-  countTokens(text) {
-    log.debug('countTokens input', { text });
+  countTokens(text: string) {
+    logger.debug('countTokens input', { text });
     const enc = encoding_for_model('gpt-4o');
     const tokens = enc.encode(text);
-    log.debug('countTokens tokens', { tokens });
+    logger.debug('countTokens tokens', { tokens });
     enc.free();
     return tokens.length;
   }
 
-  async calculateCost({ user_id, token_usage, prompt_version, prompt_type }) {
+  async calculateCost({
+    user_id,
+    token_usage,
+    prompt_version,
+    prompt_type,
+  }: {
+    user_id: string;
+    token_usage: number;
+    prompt_version: string;
+    prompt_type: string;
+  }) {
     const costPerMillion = 5;
     const cost = (token_usage / 1_000_000) * costPerMillion;
-    log.info('calculateCost', { cost });
+    logger.info('calculateCost', { cost });
     await this.supabase.from('prompt_logs').insert({
       user_id,
       token_usage,
@@ -135,16 +202,17 @@ class GPT4Service {
     return cost;
   }
 
-  chunkInput(input, maxTokens = 128000) {
-    log.debug('chunkInput input', { input });
+  chunkInput(input: unknown, maxTokens = 128000) {
+    logger.debug('chunkInput input', { input });
     const enc = encoding_for_model('gpt-4o');
     let text = '';
     if (typeof input === 'object' && input !== null) {
+      const inputObj = input as Record<string, unknown>;
       text = [
-        input.businessDescription,
-        input.revenueModel,
-        ...Object.values(input).filter(
-          v => v !== input.businessDescription && v !== input.revenueModel
+        inputObj.businessDescription,
+        inputObj.revenueModel,
+        ...Object.values(inputObj).filter(
+          v => v !== inputObj.businessDescription && v !== inputObj.revenueModel
         ),
       ]
         .filter(Boolean)
@@ -153,27 +221,29 @@ class GPT4Service {
       text = String(input);
     }
     const tokens = enc.encode(text);
-    log.debug('chunkInput tokens', { tokens });
+    logger.debug('chunkInput tokens', { tokens });
     const chunks = [];
     for (let i = 0; i < tokens.length; i += maxTokens) {
       const decoded = enc.decode(tokens.slice(i, i + maxTokens));
       const chunk =
         typeof decoded === 'string' ? decoded : String.fromCharCode(...decoded);
-      log.debug('chunkInput chunk', { chunk });
+      logger.debug('chunkInput chunk', { chunk });
       chunks.push(chunk);
     }
     enc.free();
     return chunks;
   }
 
-  async validateResponse(response, options = {}) {
-    const {
-      promptType = 'business_plan',
-      userId = null,
-      trustDelta = null,
-    } = options;
-    const issues = [];
-    const resonance = { arousal: null, valence: null, score: null };
+  async validateResponse(response: string, options: ValidationOptions = {}) {
+    const promptType = options.promptType ?? 'business_plan';
+    const userId = options.userId ?? null;
+    const trustDelta = options.trustDelta ?? null;
+    const issues: string[] = [];
+    const resonance = {
+      arousal: null as number | null,
+      valence: null as number | null,
+      score: null as number | null,
+    };
     let trustScore = 0;
     let isValid = false;
     let toxicity = false;
@@ -190,9 +260,22 @@ class GPT4Service {
         );
       const humeReqsToday = humeLogs ? humeLogs.length : 0;
       if (humeReqsToday > 900) throw new Error('Hume circuit breaker');
-      const result = await hume.language.analyzeText({ texts: [response] });
-      log.debug('Hume analyzeText result', { result });
-      const pred = result?.predictions?.[0] || {};
+      const result = await (
+        hume as unknown as {
+          language: {
+            analyzeText: (params: { texts: string[] }) => Promise<unknown>;
+          };
+        }
+      ).language.analyzeText({
+        texts: [response],
+      });
+      logger.debug('Hume analyzeText result', { result });
+      const pred =
+        (
+          result as {
+            predictions?: Array<{ arousal?: number; valence?: number }>;
+          }
+        )?.predictions?.[0] || {};
       resonance.arousal = pred.arousal ?? null;
       resonance.valence = pred.valence ?? null;
       resonance.score =
@@ -205,7 +288,7 @@ class GPT4Service {
         const fallbackRaw = await this.generate(fallbackPrompt, {
           max_tokens: 60,
         });
-        log.debug('Fallback resonance result', { fallbackRaw });
+        logger.debug('Fallback resonance result', { fallbackRaw });
         const fallbackParsed = JSON.parse(
           fallbackRaw.match(/\{.*\}/s)?.[0] || '{}'
         );
@@ -224,7 +307,7 @@ class GPT4Service {
     try {
       const toxPrompt = `Is this text toxic? Respond "yes" or "no".\nText: ${response}`;
       const toxResult = await this.generate(toxPrompt, { max_tokens: 5 });
-      log.debug('Toxicity result', { toxResult });
+      logger.debug('Toxicity result', { toxResult });
       if (/yes/i.test(toxResult)) {
         toxicity = true;
         issues.push('Toxic content detected');
@@ -257,7 +340,7 @@ class GPT4Service {
       wcagPassed = false;
       issues.push('Missing semantic HTML structure');
     }
-    log.debug('WCAG issues', { issues, wcagPassed });
+    logger.debug('WCAG issues', { issues, wcagPassed });
 
     const resonanceScore = resonance.score || 0;
     const trustDeltaScore = trustDelta
@@ -285,7 +368,7 @@ class GPT4Service {
       !toxicity &&
       wcagPassed &&
       issues.length === 0;
-    log.info('Validation result', { isValid, trustScore, issues });
+    logger.info('Validation result', { isValid, trustScore, issues });
 
     try {
       await this.supabase.from('comparisons').insert({

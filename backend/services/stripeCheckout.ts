@@ -5,6 +5,11 @@
 import stripe from './stripe.js';
 import crypto from 'crypto';
 
+interface CheckoutMetadata {
+  idempotency_key?: string;
+  [key: string]: unknown;
+}
+
 /**
  * Maps productTrack to Stripe price and product details.
  * TODO: Replace with backend fetch for dynamic pricing.
@@ -35,7 +40,11 @@ const PRODUCT_TRACKS = {
 export async function createCheckoutSession({
   productTrack,
   userId,
-  metadata = {},
+  metadata = {} as CheckoutMetadata,
+}: {
+  productTrack: string;
+  userId: string;
+  metadata?: CheckoutMetadata;
 }) {
   const config = PRODUCT_TRACKS[productTrack];
   if (!config) throw new Error('Invalid product track');
@@ -106,6 +115,9 @@ export async function createCheckoutSession({
     );
     return session;
   } catch (err) {
-    throw new Error('Stripe checkout session creation failed: ' + err.message);
+    throw new Error(
+      'Stripe checkout session creation failed: ' +
+        (err instanceof Error ? err.message : String(err))
+    );
   }
 }

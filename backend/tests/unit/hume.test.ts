@@ -1,6 +1,6 @@
 import '../../../testEnvSetup';
 import 'dotenv/config';
-if (!process.env.HUME_API_KEY) throw new Error('HUME_API_KEY not set');
+if (!process.env['HUME_API_KEY']) throw new Error('HUME_API_KEY not set');
 import { vi, describe, it, expect, beforeAll, afterAll } from 'vitest';
 
 // Mock Redis before any imports to prevent connection issues
@@ -84,25 +84,25 @@ vi.mock('../../services/gpt4oFallback.js', () => {
 
 describe('HumeService', () => {
   it('throws if HUME_API_KEY is missing', async () => {
-    const original = process.env.HUME_API_KEY;
-    delete process.env.HUME_API_KEY;
+    const original = process.env['HUME_API_KEY'];
+    delete process.env['HUME_API_KEY'];
     const service = new HumeService();
     await expect(service.initialize()).rejects.toThrow(
       'HUME_API_KEY is missing'
     );
-    process.env.HUME_API_KEY = original;
+    process.env['HUME_API_KEY'] = original;
   });
 
   it('initializes and stores key in Supabase', async () => {
-    process.env.HUME_API_KEY = 'test-key';
+    process.env['HUME_API_KEY'] = 'test-key';
     const service = new HumeService();
     await expect(service.initialize()).resolves.toBeUndefined();
   });
 
   it('enforces rate limiting', async () => {
-    process.env.HUME_API_KEY = 'test-key';
-    process.env.HUME_RATE_LIMIT = '2'; // Set a low limit for testing
-    delete process.env.REDIS_URL; // Force memory rate limiter by removing Redis URL
+    process.env['HUME_API_KEY'] = 'test-key';
+    process.env['HUME_RATE_LIMIT'] = '2'; // Set a low limit for testing
+    delete process.env['REDIS_URL']; // Force memory rate limiter by removing Redis URL
 
     const service = new HumeService();
 
@@ -245,7 +245,7 @@ describe('EmotionalScorer', () => {
 
 describe('HumeService emotional scoring', () => {
   it('returns normalized and validated score', async () => {
-    process.env.HUME_API_KEY = 'test-key';
+    process.env['HUME_API_KEY'] = 'test-key';
     const service = new HumeService();
     const result = await service.analyzeEmotion('test', 'uuid');
     expect(result).toEqual({
@@ -257,7 +257,7 @@ describe('HumeService emotional scoring', () => {
   });
 
   it('throws if score is below threshold', async () => {
-    process.env.HUME_API_KEY = 'test-key';
+    process.env['HUME_API_KEY'] = 'test-key';
 
     // Create a fresh service instance to avoid any state pollution
     const service = new HumeService();
@@ -288,7 +288,7 @@ describe('HumeService emotional scoring', () => {
 
 describe('HumeService fallback logic', () => {
   it('uses fallback when circuit breaker is open', async () => {
-    process.env.HUME_API_KEY = 'test-key';
+    process.env['HUME_API_KEY'] = 'test-key';
     const service = new HumeService();
 
     // Mock the circuit breaker to return true for isOpen
@@ -312,7 +312,7 @@ describe('HumeService fallback logic', () => {
   });
 
   it('uses fallback when score is below threshold', async () => {
-    process.env.HUME_API_KEY = 'test-key';
+    process.env['HUME_API_KEY'] = 'test-key';
     const service = new HumeService();
 
     // Ensure circuit breaker is closed

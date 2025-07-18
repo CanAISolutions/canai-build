@@ -33,24 +33,6 @@ vi.mock('../utils/supabase', () => ({
   insertErrorLog: vi.fn(),
 }));
 
-import { vi } from 'vitest';
-
-// Mock the Memberstack client
-vi.mock('@memberstack/react', () => ({
-  useMemberstack: () => ({
-    member: {
-      id: 'test-user-id',
-      email: 'test@example.com',
-      metadata: {},
-      auth: {
-        uid: 'test-uid',
-        accessToken: 'test-token',
-        refreshToken: 'test-refresh-token',
-      },
-    },
-  }),
-}));
-
 // Mock PostHog
 vi.mock('posthog-js', () => ({
   default: {

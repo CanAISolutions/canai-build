@@ -4,13 +4,13 @@ import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import type { Request, Response, NextFunction } from 'express';
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN, // Set this in your .env file
-  environment: process.env.SENTRY_ENV || 'development',
+  dsn: process.env['SENTRY_DSN'], // Set this in your .env file
+  environment: process.env['SENTRY_ENV'] || 'development',
   sendDefaultPii: false, // Privacy: don't send PII by default
   tracesSampleRate: 0.1, // Adjust for production
   profilesSampleRate: 0.1, // Adjust for production
   integrations: [nodeProfilingIntegration()],
-  release: process.env.npm_package_version, // Optional: tag with version
+  release: process.env['npm_package_version'], // Optional: tag with version
   beforeSend(event) {
     // Scrub PII from event.request.data and event.contexts.profile
     if (event.request?.data) {
