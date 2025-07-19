@@ -1,12 +1,12 @@
 ---
 description:
-globs: backend/api/src/**/*.ts, backend/routes/*.js, backend/services/*.js
+globs: backend/**/*.ts, backend/routes/*.js, backend/services/*.js
 alwaysApply: false
 ---
 
 ---
 
-description: Guides REST API design and implementation globs: backend/api/src/\*_/_.ts,
+description: Guides REST API design and implementation globs: backend/\*\*/_.ts,
 backend/routes/_.js, backend/services/_.js alwaysApply: false
 
 ---

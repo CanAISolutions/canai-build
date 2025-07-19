@@ -40,6 +40,7 @@ interface RateLimiter {
 
 interface CircuitBreaker {
   isOpen: () => boolean;
+  state?: string; // Add state property
 }
 
 interface EmotionalScorerInstance {

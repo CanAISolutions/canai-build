@@ -11,6 +11,7 @@ import {
 import supabase from '../supabase/client.js';
 import { checkoutSessionSchema } from '../schemas/stripe.js';
 import validate from '../middleware/validation.js';
+import { CustomError } from '../server.js';
 
 const router = express.Router();
 
@@ -55,12 +56,16 @@ router.post(
             updated_at: new Date().toISOString(),
           },
         ]);
-      } catch (logErr) {
-        console.error('Failed to log payment event:', logErr.message);
+      } catch (logErr: unknown) {
+        console.error(
+          'Failed to log payment event:',
+          (logErr as Error).message
+        );
       }
       res.json({ session });
-    } catch (error) {
-      res.status(500).json({ error: { message: error.message } });
+    } catch (error: unknown) {
+      const customError = error as CustomError;
+      res.status(500).json({ error: { message: customError.message } });
     }
   }
 );
@@ -73,7 +78,7 @@ router.post('/refund', async (req, res) => {
     const paymentIntentId = checkoutSession.payment_intent;
 
     const refund = await stripe.refunds.create({
-      payment_intent: paymentIntentId,
+      payment_intent: paymentIntentId as string,
       reason,
     });
 
@@ -88,13 +93,17 @@ router.post('/refund', async (req, res) => {
           updated_at: new Date().toISOString(),
         })
         .eq('stripe_payment_id', paymentIntentId);
-    } catch (logErr) {
-      console.error('Failed to update payment log for refund:', logErr.message);
+    } catch (logErr: unknown) {
+      console.error(
+        'Failed to update payment log for refund:',
+        (logErr as Error).message
+      );
     }
 
     res.json({ refund });
-  } catch (error) {
-    res.status(500).json({ error: { message: error.message } });
+  } catch (error: unknown) {
+    const customError = error as CustomError;
+    res.status(500).json({ error: { message: customError.message } });
   }
 });
 
@@ -121,7 +130,7 @@ router.get('/payment-logs', async (req, res) => {
         decodedJwt['https://hasura.io/jwt/claims']?.['x-hasura-role'] ===
           'admin');
     // For non-admins, require user_id to match JWT sub
-    let user_id = req.query.user_id;
+    let user_id = req.query.user_id as string;
     if (!isAdmin) {
       user_id = decodedJwt?.sub;
       if (!user_id)
@@ -130,13 +139,13 @@ router.get('/payment-logs', async (req, res) => {
     // Validate and parse query params
     const params = {
       user_id,
-      event_type: req.query.event_type,
-      status: req.query.status,
-      from: req.query.from,
-      to: req.query.to,
-      limit: req.query.limit ? parseInt(req.query.limit, 10) : 20,
-      offset: req.query.offset ? parseInt(req.query.offset, 10) : 0,
-      sort: req.query.sort || 'created_at.desc',
+      event_type: req.query.event_type as string,
+      status: req.query.status as string,
+      from: req.query.from as string,
+      to: req.query.to as string,
+      limit: req.query.limit ? parseInt(req.query.limit as string, 10) : 20,
+      offset: req.query.offset ? parseInt(req.query.offset as string, 10) : 0,
+      sort: (req.query.sort as string) || 'created_at.desc',
     };
     const { data, total, error } = await queryPaymentLogs(
       params,
@@ -148,9 +157,10 @@ router.get('/payment-logs', async (req, res) => {
       return res.status(500).json({ error });
     }
     res.json({ data, metadata: { total } });
-  } catch (err) {
-    console.error('Payment logs route error:', err);
-    res.status(500).json({ error: err.message || err });
+  } catch (err: unknown) {
+    const customError = err as CustomError;
+    console.error('Payment logs route error:', customError);
+    res.status(500).json({ error: customError.message || customError });
   }
 });
 
@@ -175,7 +185,7 @@ router.get('/payment-logs/analytics', async (req, res) => {
       (decodedJwt.role === 'admin' ||
         decodedJwt['https://hasura.io/jwt/claims']?.['x-hasura-role'] ===
           'admin');
-    let user_id = req.query.user_id;
+    let user_id = req.query.user_id as string;
     if (!isAdmin) {
       user_id = decodedJwt?.sub;
       if (!user_id)
@@ -183,8 +193,8 @@ router.get('/payment-logs/analytics', async (req, res) => {
     }
     const params = {
       user_id,
-      from: req.query.from,
-      to: req.query.to,
+      from: req.query.from as string,
+      to: req.query.to as string,
     };
     const { totalRevenue, totalRefunds, eventCounts, error } =
       await getPaymentAnalytics(params, jwtToken, isAdmin);
@@ -193,9 +203,10 @@ router.get('/payment-logs/analytics', async (req, res) => {
       return res.status(500).json({ error });
     }
     res.json({ totalRevenue, totalRefunds, eventCounts });
-  } catch (err) {
-    console.error('Payment analytics route error:', err);
-    res.status(500).json({ error: err.message || err });
+  } catch (err: unknown) {
+    const customError = err as CustomError;
+    console.error('Payment analytics route error:', customError);
+    res.status(500).json({ error: customError.message || customError });
   }
 });
 

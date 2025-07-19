@@ -109,8 +109,8 @@
   API/validation/tests are TS.
 - **No explicit backend build output folder** (e.g., no `dist/` for server.js; TS code may be run
   via ts-node or built elsewhere).
-- **Dockerfile and render.yaml** must match this structure: run `npm install`, then `npm run build`
-  (if needed), then `npm start`.
+- **render.yaml** must match this structure: run `npm install`, then `npm run build` (if needed),
+  then `npm start`.
 
 ---
 

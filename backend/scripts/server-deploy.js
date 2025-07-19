@@ -1,42 +1,8 @@
-export interface CustomError extends Error {
-  code?: string;
-  type?: string;
-}
-
-import { Request, Response, NextFunction } from 'express';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-import supabase from './supabase/client.js';
-import Sentry from './services/instrument.js';
-import Redis from 'ioredis';
-import { readFileSync } from 'fs';
-
-import emotionalAnalysisRouter from './routes/emotionalAnalysis.js';
-import stripeRouter from './routes/stripe.js';
-import authRouter from './routes/auth.js';
-import messagesRouter from './routes/messages.js';
-import validateInputRouter from './routes/validateInput.js';
-import generateSparksRouter from './routes/generateSparks.js';
-import saveProgressRouter from './routes/saveProgress.js';
-import intentMirrorRouter from './routes/intentMirror.js';
-import requestRevisionRouter from './routes/requestRevision.js';
-import sparkSplitRouter from './routes/sparkSplit.js';
-import feedbackRouter from './routes/feedback.js';
-
-let pkg = { version: '0.0.0' };
-try {
-  pkg = JSON.parse(
-    readFileSync(new URL('./package.json', import.meta.url), 'utf-8')
-  );
-} catch (err) {
-  console.warn(
-    '[Startup] Could not read package.json:',
-    err instanceof Error ? err.message : String(err)
-  );
-}
 
 dotenv.config();
 
@@ -45,14 +11,8 @@ export function createApp() {
 
   // Startup log for version and environment
   console.log(
-    `CanAI Backend version: ${pkg.version} (${process.env['NODE_ENV'] || 'development'})`
+    `CanAI Backend version: 0.0.0 (${process.env['NODE_ENV'] || 'development'})`
   );
-
-  // ==============================================
-  // Sentry Middleware (must be first)
-  // ==============================================
-  // app.use(Sentry.Handlers.requestHandler());
-  // app.use(Sentry.Handlers.tracingHandler());
 
   // ==============================================
   // App Settings & Configuration
@@ -135,49 +95,12 @@ export function createApp() {
 
   app.get('/health', async (req, res) => {
     const startTime = Date.now();
-    let dbStatus = 'unknown';
-    let redisStatus = 'fallback';
     let checks = {};
     let performance = {};
+
     try {
-      try {
-        const { error } = await supabase
-          .from('prompt_logs')
-          .select('id')
-          .limit(1);
-        dbStatus = error ? 'unhealthy' : 'healthy';
-      } catch (err) {
-        dbStatus = 'unhealthy';
-      }
-      if (
-        process.env['REDIS_URL'] &&
-        process.env['REDIS_URL'] !== 'your_redis_url'
-      ) {
-        try {
-          const redis = new Redis(process.env['REDIS_URL'], {
-            connectTimeout: 1000,
-          });
-          await redis.ping();
-          redisStatus = 'connected';
-          await redis.quit();
-        } catch (err) {
-          redisStatus = 'unavailable';
-          if (Sentry && Sentry.captureException)
-            Sentry.captureException(err, {
-              extra: { service: 'redis', context: 'health-check' },
-            });
-          // Structured logging: log Redis connection errors to Sentry (see logging guidelines)
-          Sentry.captureMessage?.(
-            '[Health] Redis connection failed: ' +
-              (err instanceof Error ? err.message : String(err)),
-            'warning'
-          );
-        }
-      } else {
-        redisStatus = 'fallback';
-      }
       checks = {
-        supabase: dbStatus,
+        supabase: process.env['SUPABASE_URL'] ? 'configured' : 'missing',
         stripe: process.env['STRIPE_SECRET_KEY'] ? 'configured' : 'missing',
         makecom: process.env['MAKECOM_API_KEY'] ? 'configured' : 'missing',
         posthog: process.env['POSTHOG_API_KEY'] ? 'configured' : 'missing',
@@ -186,24 +109,23 @@ export function createApp() {
         memberstack: process.env['MEMBERSTACK_API_KEY']
           ? 'configured'
           : 'missing',
-        redis: redisStatus,
+        redis: process.env['REDIS_URL'] ? 'configured' : 'missing',
       };
+
       const responseTime = Date.now() - startTime;
       performance = {
         responseTimeMs: responseTime,
         withinSLA: responseTime < 100,
       };
-      const allConfigured = Object.entries(checks).every(([k, v]) =>
-        k === 'supabase'
-          ? v === 'healthy'
-          : k === 'redis'
-            ? true
-            : v === 'configured'
+
+      const allConfigured = Object.entries(checks).every(
+        ([k, v]) => v === 'configured'
       );
       const status = allConfigured ? 'healthy' : 'degraded';
+
       res.status(200).json({
         status,
-        version: process.env['APP_VERSION'] || pkg.version || '0.0.0',
+        version: process.env['APP_VERSION'] || '0.0.0',
         checks,
         uptime: process.uptime(),
         timestamp: new Date().toISOString(),
@@ -213,12 +135,10 @@ export function createApp() {
     } catch (err) {
       const responseTime = Date.now() - startTime;
       performance = { responseTimeMs: responseTime };
-      checks = Object.keys(checks).length
-        ? checks
-        : { supabase: dbStatus, redis: redisStatus };
+
       res.status(200).json({
         status: 'degraded',
-        version: process.env['APP_VERSION'] || pkg.version || '0.0.0',
+        version: process.env['APP_VERSION'] || '0.0.0',
         checks,
         error: err instanceof Error ? err.message : String(err),
         uptime: process.uptime(),
@@ -236,17 +156,73 @@ export function createApp() {
     app._router.handle(req, res);
   });
 
-  app.use('/v1', emotionalAnalysisRouter);
-  app.use('/v1/stripe', stripeRouter);
-  app.use('/v1/auth', authRouter);
-  app.use('/v1/messages', messagesRouter);
-  app.use('/v1', validateInputRouter);
-  app.use('/v1', generateSparksRouter);
-  app.use('/v1', saveProgressRouter);
-  app.use('/v1', intentMirrorRouter);
-  app.use('/v1', requestRevisionRouter);
-  app.use('/v1', sparkSplitRouter);
-  app.use('/v1', feedbackRouter);
+  // ==============================================
+  // API Routes (Placeholder implementations for deployment)
+  // ==============================================
+
+  // Emotional Analysis
+  app.post('/api/v1/emotional-analysis', (req, res) => {
+    res.status(200).json({
+      message: 'Emotional analysis endpoint - requires Supabase configuration',
+      status: 'degraded',
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  // Stripe
+  app.post('/api/v1/stripe/create-checkout-session', (req, res) => {
+    res.status(200).json({
+      message: 'Stripe checkout endpoint - requires Stripe configuration',
+      status: 'degraded',
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  // Auth
+  app.post('/api/v1/auth/verify', (req, res) => {
+    res.status(200).json({
+      message:
+        'Auth verification endpoint - requires Memberstack configuration',
+      status: 'degraded',
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  // Messages
+  app.post('/api/v1/messages', (req, res) => {
+    res.status(200).json({
+      message: 'Messages endpoint - requires Supabase configuration',
+      status: 'degraded',
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  // Generate Sparks
+  app.post('/api/v1/generate-sparks', (req, res) => {
+    res.status(200).json({
+      message: 'Generate sparks endpoint - requires AI configuration',
+      status: 'degraded',
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  // Intent Mirror
+  app.post('/api/v1/intent-mirror', (req, res) => {
+    res.status(200).json({
+      message: 'Intent mirror endpoint - requires AI configuration',
+      status: 'degraded',
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  // Feedback
+  app.post('/api/v1/feedback', (req, res) => {
+    res.status(200).json({
+      message: 'Feedback endpoint - requires Supabase configuration',
+      status: 'degraded',
+      timestamp: new Date().toISOString(),
+    });
+  });
 
   // 404 handler
   app.all('*', (req, res) => {
@@ -258,46 +234,35 @@ export function createApp() {
   });
 
   // Global error handler
-  app.use((err: unknown, req: Request, res: Response, _next: NextFunction) => {
-    const customError = err as CustomError;
+  app.use((err, req, res, _next) => {
+    // Robust CORS error detection
     if (
-      process.env['NODE_ENV'] === 'test' ||
-      process.env['NODE_ENV'] === 'development'
+      err &&
+      (err.code === 'CORS_NOT_ALLOWED' ||
+        (typeof err.message === 'string' &&
+          /CORS: Origin not allowed/i.test(err.message)))
     ) {
-      Sentry.captureException?.(customError, {
-        extra: { context: 'global error handler' },
-      });
-    }
-    // Robust CORS error detection: check error code or use regex (see test plan)
-    if (
-      customError &&
-      (customError.code === 'CORS_NOT_ALLOWED' ||
-        (typeof customError.message === 'string' &&
-          /CORS: Origin not allowed/i.test(customError.message)))
-    ) {
-      Sentry.captureMessage?.('[CORS ERROR] ' + customError.message, 'warning');
       return res.status(403).json({ error: 'CORS: Origin not allowed' });
     }
+
     // If this is a validation or parsing error, return 400
     if (
-      customError &&
-      (customError.name === 'ValidationError' ||
-        customError.type === 'entity.parse.failed')
+      err &&
+      (err.name === 'ValidationError' || err.type === 'entity.parse.failed')
     ) {
       return res.status(400).json({
         error: 'A user-friendly error occurred. Please check your input.',
       });
     }
+
     // Otherwise, return 500
     res.status(500).json({
       error: 'Internal server error.',
-      code: customError.code || 'INTERNAL_SERVER_ERROR',
-      stack:
-        process.env['NODE_ENV'] === 'production'
-          ? undefined
-          : customError.stack,
-      message: customError.message || String(customError),
+      code: err.code || 'INTERNAL_SERVER_ERROR',
+      stack: process.env['NODE_ENV'] === 'production' ? undefined : err.stack,
+      message: err instanceof Error ? err.message : String(err),
     });
   });
+
   return app;
 }

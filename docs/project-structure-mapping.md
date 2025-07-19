@@ -29,7 +29,7 @@ canai-build/
 ├── scripts/                    # Automation scripts
 ├── coverage/                   # Test coverage
 ├── node_modules/               # Dependencies
-├── Dockerfile                  # Docker container config (Render deployment)
+# Dockerfile removed - no longer using Docker containers
 └── [config files]              # Root configs
 ```
 
@@ -56,7 +56,7 @@ canai-build/
   - tsconfig.json
   - vitest.config.ts
   - render.yaml
-  - docker-compose.yml
+  # docker-compose.yml removed - no longer using Docker containers
   - taskmaster_tasks.md
 
 ### 2. Backend (Workspace)
@@ -92,7 +92,7 @@ backend/
 - **Middleware Stack**: Helmet (security), CORS, Morgan (logging), Body parsing
 - **Health Endpoints**: `/` and `/health` with system metrics
 - **Environment**: Production deployment with graceful shutdown
-- **Docker**: Containerized with Alpine Node.js 18, non-root user
+- **Deployment**: Direct Node.js deployment on Render
 
 - **db.js**: Provides a direct Postgres connection using the `postgres` library. Use only for
   backend admin scripts, migrations, or advanced analytics that require raw SQL. Always use

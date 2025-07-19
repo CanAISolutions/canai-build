@@ -71,7 +71,7 @@ graph LR
 ### Backend
 
 - **Node.js 18.0, Express 4.18**: API server (`backend/server.js`) with TypeScript 4.9.
-- **Docker 24.0**: Containerization (`docker-compose.yml`) for development and deployment.
+- **Deployment**: Direct Node.js deployment on Render with environment-based configuration.
 - **Performance Targets**: <200ms API responses, <1.5s spark generation, <2s deliverable generation.
 
 ### Database

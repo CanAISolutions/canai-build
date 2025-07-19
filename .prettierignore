@@ -50,8 +50,6 @@ tasks/generated/
 .husky/*
 .github/workflows/*.yml
 .github/workflows/*.yaml
-docker-compose.yml
-docker-compose.*.yml
 .pre-commit-config.yaml
 
 # Markdown files with specific formatting requirements

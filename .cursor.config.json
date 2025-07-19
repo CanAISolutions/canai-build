@@ -14,7 +14,7 @@
       "canai-sentry-rules.mdc": {
         "path": ".cursor/rules/canai-sentry-rules.mdc",
         "tags": ["sentry", "canai"],
-        "context": ["backend/api/*", ".github/workflows/*"]
+        "context": ["backend/**/*", ".github/workflows/*"]
     },
       "canai-ci-cd-rules": {
         "path": ".cursor/rules/canai-ci-cd-rules.mdc",
@@ -24,7 +24,7 @@
       "canai-api-rules": {
         "path": ".cursor/rules/canai-api-rules.mdc",
         "tags": ["api", "canai", "prd"],
-        "context": ["backend/api/**/*", "backend/routes/**/*"]
+        "context": ["backend/**/*", "backend/routes/**/*"]
       },
       "canai-data-lifecycle-rules": {
         "path": ".cursor/rules/canai-data-lifecycle-rules.mdc",
@@ -34,7 +34,7 @@
       "canai-api-client-patterns": {
         "path": ".cursor/rules/canai-api-client-patterns.mdc",
         "tags": ["api", "client", "patterns", "canai", "prd"],
-        "context": ["backend/api/**/*", "frontend/src/utils/**/*"]
+        "context": ["backend/**/*", "frontend/src/utils/**/*"]
       },
       "canai-test-debugging-best-practices": {
         "path": ".cursor/rules/canai-test-debugging-best-practices.mdc",

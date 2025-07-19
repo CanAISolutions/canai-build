@@ -1,13 +1,13 @@
 ---
 description:
-globs: frontend/src/**/*.{ts,tsx}, backend/api/src/**/*.{ts}, backend/**/*.{ts}
+globs: frontend/src/**/*.{ts,tsx}, backend/**/*.{ts}
 alwaysApply: false
 ---
 
 ---
 
 description: Enforces TypeScript best practices for reliable code globs:
-frontend/src/**/\*.{ts,tsx}, backend/api/src/**/_.{ts}, backend/\*\*/_.{ts} alwaysApply: true
+frontend/src/**/\*.{ts,tsx}, backend/\*\*/_.{ts} alwaysApply: true
 
 ---
 

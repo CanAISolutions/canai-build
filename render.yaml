@@ -1,21 +1,173 @@
-# Exported from Render on 2025-07-15T15:42:53Z
 services:
   - type: web
-    name: canai-router
-    runtime: docker
+    name: canai-build
+    runtime: node
     repo: https://github.com/CanAISolutions/canai-build
     plan: starter
+    buildCommand: cd backend && npm ci && npm run build:deploy
+    startCommand: cd backend && npm start
+    healthCheckPath: /healthz
     envVars:
+      # Core Application
+      - key: NODE_ENV
+        value: production
       - key: PORT
+        value: 10000
+      - key: CORS_ORIGIN
         sync: false
-      - key: .env2
+
+      # Database Configuration (Supabase)
+      - key: SUPABASE_URL
         sync: false
-      # RENDER_SECRET is managed via Render's "Secret Files" feature. Do not hardcode secrets here.
-      - key: RENDER_SECRET
+      - key: SUPABASE_ANON_KEY
         sync: false
-      - fromGroup: CanAI ENV
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+
+      # AI Services
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: HUME_API_KEY
+        sync: false
+      - key: HUME_API_ENDPOINT
+        value: https://api.hume.ai/v1
+      - key: HUME_RATE_LIMIT
+        value: 100
+      - key: HUME_TIMEOUT
+        value: 5000
+
+      # Payment Processing (Stripe)
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY_TEST
+        sync: false
+      - key: STRIPE_SECRET_KEY_LIVE
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+
+      # Authentication & User Management
+      - key: MEMBERSTACK_API_KEY
+        sync: false
+      - key: MEMBERSTACK_SECRET_KEY
+        sync: false
+      - key: MEMBERSTACK_JWKS_URI
+        sync: false
+      - key: MEMBERSTACK_ISSUER
+        sync: false
+      - key: MEMBERSTACK_AUDIENCE
+        sync: false
+
+      # Analytics & Monitoring
+      - key: POSTHOG_API_KEY
+        sync: false
+      - key: VITE_POSTHOG_API_KEY
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: SENTRY_ENV
+        value: production
+      - key: SENTRY_AUTH_TOKEN
+        sync: false
+
+      # Workflow Automation
+      - key: MAKE_COM_API_KEY
+        sync: false
+      - key: MAKE_COM_WEBHOOK_URL
+        sync: false
+
+      # Security
+      - key: JWT_SECRET
+        sync: false
+      - key: ENCRYPTION_KEY
+        sync: false
+
+      # Redis (for caching and sessions)
+      - key: REDIS_URL
+        sync: false
+
+      # Test Environment
+      - key: TEST_USER_EMAIL
+        sync: false
+      - key: TEST_USER_ID
+        sync: false
+      - key: TEST_ADMIN_JWT
+        sync: false
+      - key: TEST_USER_JWT
+        sync: false
+
+      # Render Platform
+      - key: RENDER_API_KEY
+        sync: false
+
+      # Frontend Configuration
+      - key: VITE_API_BASE
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: REACT_APP_SUPABASE_ANON_KEY
+        sync: false
+      - key: REACT_APP_SUPABASE_URL
+        sync: false
+
+      # Legacy/Alternative Keys (for compatibility)
+      - key: SUPABASE_DB_URL
+        sync: false
+      - key: SUPABASE_PROJECT_ID
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: STRIPE_API_KEY
+        sync: false
+      - key: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: MAKE_API_KEY
+        sync: false
+      - key: MAKE_WEBHOOK_URL
+        sync: false
+      - key: MEMBERSTACK_WEBHOOK_SECRET
+        sync: false
+      - key: WEBFLOW_API_KEY
+        sync: false
+      - key: NEXTAUTH_URL
+        sync: false
+      - key: GITHUB_PAT
+        sync: false
+      - key: CANAI_GITHUB_PAT
+        sync: false
+      - key: NEXT_PUBLIC_KLAVIYO_PUBLIC_KEY
+        sync: false
+      - key: KLAVIYO_PUBLIC_KEY
+        sync: false
+      - key: KLAVIYO_API_KEY
+        sync: false
+      - key: env.txt
+        sync: false
+      - key: ENV
+        sync: false
+
     region: oregon
-    dockerContext: .
-    dockerfilePath: ./Dockerfile
     autoDeployTrigger: commit
+    scaling:
+      minInstances: 1
+      maxInstances: 3
+      targetMemoryPercent: 80
 version: '1'

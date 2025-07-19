@@ -24,29 +24,13 @@
     "skipLibCheck": true,
     "noEmitOnError": false,
     "strictPropertyInitialization": false,
+    "noEmit": false,
     "paths": {
       "@/*": ["../*"],
       "@backend/*": ["./*"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "src/types/express.d.ts",
-    "services/**/*",
-    "middleware/**/*",
-    "routes/**/*",
-    "supabase/**/*",
-    "prompts/**/*",
-    "scripts/**/*",
-    "schemas/**/*",
-    "constants/**/*",
-    "db.ts",
-    "server.ts",
-    "health.ts",
-    "start.ts",
-    "api/**/*",
-    "config/**/*"
-  ],
+  "include": ["**/*.ts"],
   "exclude": [
     "node_modules",
     "dist",

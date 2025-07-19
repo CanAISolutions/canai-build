@@ -2,6 +2,7 @@ import { sanitizeWithSchema, ValidationError } from './sanitize.js';
 import { safeCapture } from '../services/posthog.js';
 import Sentry from '../services/instrument.js';
 import type { Request, Response, NextFunction } from 'express';
+import type { Logger as PinoLogger } from 'pino';
 
 interface Logger {
   debug?: (meta: unknown, msg: string) => void;
@@ -46,8 +47,8 @@ interface ErrorWithMessage {
 let _logger: Logger;
 try {
   // ESM dynamic import for Logger
-  const loggerModule = await import('../api/src/Shared/Logger.js');
-  _logger = loggerModule.default || loggerModule;
+  const loggerModule = await import('../Shared/Logger.js');
+  _logger = loggerModule.default as PinoLogger;
 } catch (err) {
   _logger = console;
 }
@@ -96,10 +97,22 @@ function validate(
       headers: options['sanitizeSchema'] || inferSanitizeSchema(req.headers),
     };
     try {
-      req.body = sanitizeWithSchema(req.body, sanitizeSchemas.body);
-      req.query = sanitizeWithSchema(req.query, sanitizeSchemas.query);
-      req.params = sanitizeWithSchema(req.params, sanitizeSchemas.params);
-      req.headers = sanitizeWithSchema(req.headers, sanitizeSchemas.headers);
+      req.body = sanitizeWithSchema(
+        req.body,
+        sanitizeSchemas.body
+      ) as Request['body'];
+      req.query = sanitizeWithSchema(
+        req.query,
+        sanitizeSchemas.query
+      ) as Request['query'];
+      req.params = sanitizeWithSchema(
+        req.params,
+        sanitizeSchemas.params
+      ) as Request['params'];
+      req.headers = sanitizeWithSchema(
+        req.headers,
+        sanitizeSchemas.headers
+      ) as Request['headers'];
     } catch (err) {
       const error = err as ErrorWithMessage;
       logDebug('[validation] error', {
