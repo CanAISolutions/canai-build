@@ -1,5 +1,6 @@
-# --- TEMPORARILY DISABLED TESTS (2025-06-24) ---
-# To re-enable, uncomment the line below.
-# npm test
+#!/usr/bin/env sh
+
+# Re-enabled tests as of 2025-07-17 (originally disabled 2025-06-24)
+npm test
 
 sh scripts/check-secrets.sh

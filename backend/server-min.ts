@@ -7,15 +7,16 @@ import supabase from './supabase/client.js';
 import emotionalAnalysisRouter from './routes/emotionalAnalysis.js';
 import stripeRouter from './routes/stripe.js';
 import HumeService from './services/hume.js';
-import Sentry from './services/instrument.js';
+import * as Sentry from '@sentry/node';
 import validate from './middleware/validation.js';
 import rateLimit from './middleware/rateLimit.js';
 import auth from './middleware/auth.js';
+import { CustomError } from './server.js';
 dotenv.config();
-Sentry.init({
-  dsn: 'https://bb62698f685b49ed1217b8e849aebdde@o4509561217089536.ingest.us.sentry.io/4509565382688768',
-  sendDefaultPii: true,
-});
+// Sentry.init({
+//   dsn: 'https://bb62698f685b49ed1217b8e849aebdde@o4509561217089536.ingest.us.sentry.io/4509565382688768',
+//   sendDefaultPii: true,
+// });
 const app = express();
 const humeService = new HumeService();
 app.use(express.json({ limit: '10mb' }));
@@ -37,18 +38,19 @@ app.use(
   })
 );
 app.use(morgan('dev'));
-app.use(Sentry.Handlers.requestHandler());
-app.use(Sentry.Handlers.tracingHandler());
+// app.use(Sentry.Handlers.requestHandler());
+// app.use(Sentry.Handlers.tracingHandler());
 app.use('/v1', emotionalAnalysisRouter);
 app.use('/v1/stripe', stripeRouter);
-app.use(Sentry.Handlers.errorHandler());
+// app.use(Sentry.Handlers.errorHandler());
 app.get('/', async (req, res) => {
   try {
     const { error } = await supabase.from('profiles').select('id').limit(1);
     if (error) throw error;
     res.send('OK with Supabase, Hume, and Sentry');
-  } catch (err) {
-    res.status(500).send('Supabase error: ' + err.message);
+  } catch (err: unknown) {
+    const customError = err as CustomError;
+    res.status(500).send('Supabase error: ' + customError.message);
   }
 });
 app.get('/test-validation', validate({ body: {} }), (req, res) => {

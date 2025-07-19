@@ -204,22 +204,7 @@ jobs:
           config: >-
             p/security-audit p/secrets p/owasp-top-ten
 
-  docker-security:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build Docker image
-        run: docker build -t canai-backend -f Dockerfile.backend .
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'canai-backend'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-      - name: Upload Trivy scan results
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'trivy-results.sarif'
+  # Docker security scanning removed - no longer using Docker containers
 ```
 
 ### Performance Testing (`performance.yml`)
@@ -594,7 +579,7 @@ assignees: ''
 
 1. **Dependency Scanning**: Weekly npm audit and vulnerability assessment
 2. **Code Analysis**: CodeQL static analysis on every PR
-3. **Container Security**: Trivy scanning of Docker images
+3. **Container Security**: Removed - no longer using Docker containers
 4. **OWASP Compliance**: ZAP security testing for web vulnerabilities
 5. **Secret Detection**: Automated scanning for exposed credentials
 6. **License Compliance**: Automated license compatibility checking

@@ -5,9 +5,13 @@
  * for Sprinkle Haven Bakery, ensuring consistent quality and structure.
  */
 
-import { EmotionallyIntelligentPromptFramework } from './framework.js';
+import {
+  EmotionallyIntelligentPromptFramework,
+  OutputData,
+} from './framework.js';
 
 interface BusinessPlanInput {
+  [key: string]: unknown;
   businessName: string;
   targetAudience: string;
   primaryGoal: string;
@@ -21,6 +25,7 @@ interface BusinessPlanInput {
 }
 
 interface BusinessPlanOutput {
+  [key: string]: unknown;
   systemPrompt: string;
   userPrompt: string;
   expectedSchema: unknown;
@@ -109,7 +114,7 @@ class BusinessPlanTemplate extends EmotionallyIntelligentPromptFramework {
    * Validate business plan output against gold standard
    */
   validateBusinessPlanOutput(output: unknown) {
-    const baseValidation = this.validateOutput(output);
+    const baseValidation = this.validateOutput(output as OutputData);
     const businessPlanErrors: string[] = [];
 
     // Validate Plan object specifically

@@ -2218,7 +2218,7 @@ to deliver seamless user experiences.
   - Enable async/await for GPT-4o and Hume AI calls (`backend/services/gpt4o.js`,
     `backend/services/hume.js`) to reduce blocking.
   - Minify Webflow assets (`frontend/public/`) via Vite (`frontend/vite.config.ts`).
-  - Configure Render auto-scaling to handle 10k monthly users (`docker-compose.yml`).
+  - Configure Render auto-scaling to handle 10k monthly users.
 - **Monitoring**:
   - Track latency with Sentry (`backend/services/sentry.js`) and PostHog
     (`backend/services/posthog.js`):
@@ -2331,8 +2331,7 @@ The platform scales to support 10k monthly users without performance degradation
   - **Load Handling**: Support 10k monthly users with ≤2s deliverable generation
     (`/v1/request-revision`).
 - **Implementation**:
-  - Configure Render auto-scaling (`docker-compose.yml`) for 10k users, with health checks
-    (`backend/health.js`).
+  - Configure Render auto-scaling for 10k users, with health checks (`backend/health.js`).
   - Store cached sparks in `databases/spark_cache`:
 
     ```sql
@@ -2531,7 +2530,7 @@ tasks:
       - backend/server.js
       - backend/services/cache.js
       - databases/migrations/spark_cache.sql
-      - docker-compose.yml
+      - render.yaml
       - backend/health.js
       - .env (SUPABASE_URL, PROJECT_ID)
     outputs:
@@ -2541,7 +2540,7 @@ tasks:
     dependencies:
       - T7.1.1-performance-optimization
     cursor-ai-instructions:
-      - Configure Render auto-scaling in docker-compose.yml
+      - Configure Render auto-scaling in render.yaml
       - Implement cache-first strategy in backend/services/cache.js
       - Create spark_cache table with index
       - Add health check endpoint (/health)
@@ -2629,7 +2628,7 @@ webhooks, and cached data for performance. Key components:
   - **PostHog**: Tracks events (`backend/services/posthog.js`).
   - **GPT-4o**: Generates content (`backend/services/gpt4o.js`, `backend/prompts/`).
   - **Hume AI**: Validates emotional resonance (`backend/services/hume.js`).
-- **Deployment**: Render for backend/frontend, with Heroku fallback (`docker-compose.yml`).
+- **Deployment**: Render for backend/frontend, with Heroku fallback.
 - **Monitoring**: Sentry for errors (`backend/services/sentry.js`), PostHog for analytics.
 
 ### Architecture Diagram
@@ -2704,7 +2703,7 @@ graph TD
   - `backend/services/sentry.js`: Error tracking.
   - `backend/prompts/business_plan.js`: GPT-4o prompt for Business Plan Builder.
 - **Scalability**:
-  - Stateless design, auto-scaling via Render (`docker-compose.yml`).
+  - Stateless design, auto-scaling via Render.
   - Health check endpoint (`/health`, `backend/health.js`).
 - **Acceptance Criteria**:
   - AC-1: API latency <200ms, validated by Locust (`backend/tests/load.test.js`).
@@ -3124,7 +3123,7 @@ tasks:
     inputs:
       - backend/server.js
       - backend/health.js
-      - docker-compose.yml
+      - render.yaml
       - .env (PORT=10000, SUPABASE_URL, PROJECT_ID)
     outputs:
       - Running backend at https://canai-router.onrender.com
@@ -3134,7 +3133,7 @@ tasks:
     cursor-ai-instructions:
       - Initialize Express server in backend/server.js
       - Add /health endpoint that returns a status of 'ok'
-      - Configure Render port and SSL in docker-compose.yml
+      - Configure Render port and SSL in render.yaml
       - Log server start event with PostHog
       - Write Jest test for /health (backend/tests/health.test.js)
 
@@ -5172,8 +5171,7 @@ backend deployment implementation, optimized for Cursor AI.
   - Deploy a serverless Node.js/TypeScript backend (`backend/server.js`) on Render
     (`https://canai-router.onrender.com`, port 10000, IPs: 52.41.36.82, 54.191.253.12,
     44.226.122.3`).
-  - Use `docker-compose.yml` for containerization, with Heroku as a fallback configured in
-    `package.json`.
+  - Use direct Node.js deployment on Render, with Heroku as a fallback configured in `package.json`.
   - Health checks (`backend/health.js`) ensure 99.9% uptime.
   - Example: Serves APIs like `POST /v1/stripe-session` for payments.
 
@@ -5238,7 +5236,7 @@ tasks:
     description: Deploy serverless backend to Render with Heroku fallback.
     inputs:
       - backend/server.js
-      - docker-compose.yml
+      - render.yaml
       - backend/health.js
       - package.json
       - .github/workflows/backend-deploy.yml

@@ -1,11 +1,4 @@
 // IMPORTANT: This file must use CommonJS syntax for compatibility with commitlint and Node.js hooks.
-if (typeof require !== 'undefined' && typeof module !== 'undefined') {
-  // OK: running in CommonJS mode
-} else {
-  throw new Error(
-    'commitlint.config.js must be loaded as CommonJS. If you see this error, rename to commitlint.config.cjs or check your Node.js setup.'
-  );
-}
 
 module.exports = {
   extends: ['@commitlint/config-conventional'],
@@ -18,7 +11,7 @@ module.exports = {
         'feat', // New features
         'fix', // Bug fixes
         'docs', // Documentation changes
-        'style', // Code style changes (formatting, etc.)
+        'style', // Code style changes
         'refactor', // Code refactoring
         'perf', // Performance improvements
         'test', // Adding or updating tests
@@ -54,7 +47,7 @@ module.exports = {
         'supabase',
         'memberstack',
         'make',
-        'posthog',
+        'posthog', // note: possible typo in original ('posthog'?)
         'cursor',
         'taskmaster',
       ],

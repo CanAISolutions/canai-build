@@ -106,7 +106,7 @@ export function validatePostalCode(
     }
     return { error: 'Invalid postal code.' };
   }
-  if (validator.isPostalCode(value, country)) {
+  if (validator.isPostalCode(value, country as validator.PostalCodeLocale)) {
     return true;
   }
   return { error: 'Invalid postal code.' };

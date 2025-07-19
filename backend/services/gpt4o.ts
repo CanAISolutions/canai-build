@@ -7,8 +7,7 @@ import { PostHog } from 'posthog-node';
 import Joi from 'joi';
 import { encoding_for_model } from '@dqbd/tiktoken';
 import hume from './hume.js';
-import log from './logger.js';
-const logger = log as unknown as import('pino').Logger;
+import { logger } from './logger.js';
 
 dotenv.config();
 

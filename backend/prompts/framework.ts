@@ -51,7 +51,7 @@ interface CulturalContext {
   };
 }
 
-interface OutputData {
+export interface OutputData {
   [key: string]: unknown;
   Summary?: {
     Summary?: string;

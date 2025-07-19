@@ -3,7 +3,7 @@ import { memberstackAuthMiddleware } from '../../middleware/auth.js';
 import jwt from 'jsonwebtoken';
 import * as Sentry from '../../services/instrument.js';
 import posthog from '../../services/posthog.js';
-import log from '../../api/src/Shared/Logger.js';
+import log from '../../Shared/Logger.js';
 import authRouter from '../../routes/auth.js';
 import request from 'supertest';
 import * as jwtUtils from '../../middleware/jwtUtils.js';
@@ -68,7 +68,7 @@ vi.mock('../../services/posthog.js', () => {
     capture,
   };
 });
-vi.mock('../../api/src/Shared/Logger');
+vi.mock('../../Shared/Logger');
 vi.mock('axios');
 
 describe('memberstackAuthMiddleware', () => {

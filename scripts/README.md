@@ -226,7 +226,7 @@ echo "🎭 Setting up E2E test environment..."
 
 # Start test database
 echo "🗄️ Starting test database..."
-docker-compose -f docker-compose.test.yml up -d postgres
+# Docker removed - using direct database connection for testing
 
 # Wait for database to be ready
 echo "⏳ Waiting for database to be ready..."
