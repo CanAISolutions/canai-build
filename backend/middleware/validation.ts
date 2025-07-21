@@ -1,3 +1,4 @@
+/// <reference path="../src/types/express.d.ts" />
 import { sanitizeWithSchema, ValidationError } from './sanitize.js';
 import { safeCapture } from '../services/posthog.js';
 import Sentry from '../services/instrument.js';

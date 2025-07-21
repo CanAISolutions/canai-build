@@ -1,3 +1,5 @@
+/// <reference path="./src/types/express.d.ts" />
+/// <reference path="./src/types/missing.d.ts" />
 export interface CustomError extends Error {
   code?: string;
   type?: string;
@@ -11,7 +13,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import supabase from './supabase/client.js';
 import Sentry from './services/instrument.js';
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 import { readFileSync } from 'fs';
 
 import emotionalAnalysisRouter from './routes/emotionalAnalysis.js';

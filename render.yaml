@@ -1,11 +1,10 @@
 services:
   - type: web
     name: canai-build
-    runtime: node
-    repo: https://github.com/CanAISolutions/canai-build
+    runtime: docker
     plan: starter
-    buildCommand: cd backend && npm ci && npm run build:deploy:fallback
-    startCommand: cd backend && node dist/start.js
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /healthz
     envVars:
       # Core Application

@@ -1,46 +1,36 @@
-// TEMP PATCH: Loosened TypeScript strictness to unblock production build for Render. Restore strict settings after migration is complete.
 {
-  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "module": "NodeNext",
     "target": "ES2022",
+    "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "outDir": "./dist",
     "rootDir": "./",
-    "allowJs": true,
-    "incremental": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": false,
+    "skipLibCheck": true,
+    "noEmit": false,
     "noImplicitAny": false,
-    "noImplicitThis": false,
-    "alwaysStrict": false,
-    "strictNullChecks": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noImplicitReturns": false,
-    "exactOptionalPropertyTypes": false,
     "noPropertyAccessFromIndexSignature": false,
-    "skipLibCheck": true,
-    "noEmitOnError": false,
-    "strictPropertyInitialization": false,
-    "noEmit": false,
-    "paths": {
-      "@/*": ["../*"],
-      "@backend/*": ["./*"]
-    }
+    "exactOptionalPropertyTypes": false,
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@types"
+    ],
+    "types": [
+      "node"
+    ]
   },
-  "include": ["**/*.ts"],
+  
   "exclude": [
     "node_modules",
     "dist",
-    "coverage",
-    "tests/**/*",
-    "**/*.test.ts",
-    "**/*.test.js",
-    "**/*.tsx",
-    "../frontend/**/*",
-    "../supabase/page.tsx"
-  ]
+    "tests"
+  ],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
 }
-// END TEMP PATCH
