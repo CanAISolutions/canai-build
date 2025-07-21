@@ -15,6 +15,7 @@ import supabase from './supabase/client.js';
 import Sentry from './services/instrument.js';
 import { Redis } from 'ioredis';
 import { readFileSync } from 'fs';
+import { retryMiddleware } from './middleware/retry.js';
 
 import emotionalAnalysisRouter from './routes/emotionalAnalysis.js';
 import stripeRouter from './routes/stripe.js';
@@ -122,6 +123,17 @@ export function createApp() {
   );
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+  // ==============================================
+  // Retry Middleware (apply to all routes)
+  // ==============================================
+  app.use(retryMiddleware({
+    maxAttempts: 3,
+    baseDelay: 500,
+    multiplier: 2,
+    maxDelay: 5000,
+    timeout: 10000
+  }));
 
   // ==============================================
   // Routes

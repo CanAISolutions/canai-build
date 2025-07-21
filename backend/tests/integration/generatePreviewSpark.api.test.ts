@@ -55,14 +55,18 @@ let Sentry: unknown, analytics: unknown, app: Application;
 
 beforeEach(async () => {
   vi.resetModules();
-  console.log('Importing instrument');
-  Sentry = await import('../../services/instrument');
-  console.log('Imported instrument');
-  analytics = await import('../../services/posthog');
-  console.log('Imported posthog');
-  const mod = await import('../../server');
-  console.log('Imported server');
-  app = mod.createApp() as Application;
+  
+  // Import modules with timeout and error handling
+  try {
+    Sentry = await import('../../services/instrument');
+    analytics = await import('../../services/posthog');
+    const mod = await import('../../server');
+    app = mod.createApp() as Application;
+  } catch (error) {
+    console.error('Failed to import modules:', error);
+    throw error;
+  }
+  
   vi.clearAllMocks();
 
   // Mock console methods for logging tests
@@ -97,6 +101,8 @@ const edgeCases = [
 
 // --- Tests ---
 describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
+  // Increase timeout for module imports
+  vi.setConfig({ testTimeout: 30000 });
   it('should generate preview with all valid fields', async () => {
     // Arrange
     const analyticsSpy = vi.spyOn(

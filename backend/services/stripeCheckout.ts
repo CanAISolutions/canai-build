@@ -4,6 +4,7 @@
  */
 import stripe from './stripe.js';
 import crypto from 'crypto';
+import { retryWithBackoff } from '../middleware/retry.js';
 
 interface CheckoutMetadata {
   idempotency_key?: string;
@@ -86,8 +87,8 @@ export async function createCheckoutSession({
       .update(`${userId}-${productTrack}-${Date.now()}`)
       .digest('hex');
 
-  try {
-    const session = await stripe.checkout.sessions.create(
+  const createSessionWithRetry = async () => {
+    return await stripe.checkout.sessions.create(
       {
         payment_method_types: ['card'],
         line_items: [
@@ -113,11 +114,36 @@ export async function createCheckoutSession({
         idempotencyKey,
       }
     );
-    return session;
-  } catch (err) {
-    throw new Error(
-      'Stripe checkout session creation failed: ' +
-        (err instanceof Error ? err.message : String(err))
-    );
+  };
+
+  try {
+    return await retryWithBackoff(createSessionWithRetry, {
+      maxAttempts: 3,
+      baseDelay: 1000,
+      multiplier: 2,
+      maxDelay: 5000,
+      jitterEnabled: true,
+      jitterFactor: 0.2,
+      timeout: 30000,
+      onRetry: (error, attempt, delay) => {
+        console.log('Stripe checkout retry attempt', { 
+          attempt, 
+          delay, 
+          error: error.message,
+          productTrack,
+          userId 
+        });
+      },
+      onFailure: (error, attempts) => {
+        console.error('Stripe checkout max retries exceeded', { 
+          attempts, 
+          error: error.message,
+          productTrack,
+          userId 
+        });
+      }
+    }, 'stripe-checkout');
+  } catch (error) {
+    throw new Error('Stripe checkout session creation failed: ' + error.message);
   }
 }

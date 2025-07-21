@@ -9,6 +9,7 @@ import { Redis } from 'ioredis';
 import EmotionalScorer from './emotionalScoring.js';
 import GPT4oFallbackService from './gpt4oFallback.js';
 import posthog from './posthog.js';
+import { retryWithBackoff } from '../middleware/retry.js';
 
 // Type definitions for better type safety
 interface EmotionalScore {
@@ -233,7 +234,8 @@ class HumeService {
     await this.rateLimiter.consume(1);
     let normalizedScore: EmotionalScore;
     let source = 'hume';
-    try {
+    
+    const analyzeWithRetry = async () => {
       if (this.circuitBreaker.isOpen()) {
         throw new Error('Hume circuit breaker is OPEN');
       }
@@ -253,6 +255,54 @@ class HumeService {
       if (!this.scorer.validateScore(normalizedScore)) {
         throw new Error('Emotional score below thresholds');
       }
+      return normalizedScore;
+    };
+
+    try {
+      normalizedScore = await retryWithBackoff(analyzeWithRetry, {
+        maxAttempts: 2,
+        baseDelay: 1000,
+        multiplier: 2,
+        maxDelay: 3000,
+        jitterEnabled: true,
+        jitterFactor: 0.2,
+        timeout: 10000,
+        onRetry: (error, attempt, delay) => {
+          console.log('Hume AI retry attempt', { 
+            attempt, 
+            delay, 
+            error: error.message,
+            textLength: text.length 
+          });
+          this.posthog.capture({
+            distinctId: 'system',
+            event: 'hume_retry_attempt',
+            properties: { 
+              attempt, 
+              delay, 
+              error: error.message,
+              textLength: text.length 
+            },
+          });
+        },
+        onFailure: (error, attempts) => {
+          console.error('Hume AI max retries exceeded', { 
+            attempts, 
+            error: error.message,
+            textLength: text.length 
+          });
+          this.posthog.capture({
+            distinctId: 'system',
+            event: 'hume_max_retries_exceeded',
+            properties: { 
+              attempts, 
+              error: error.message,
+              textLength: text.length 
+            },
+          });
+        }
+      }, 'hume-ai');
+
       // Store result in Supabase (comparisons table)
       await supabase
         .from('comparisons')

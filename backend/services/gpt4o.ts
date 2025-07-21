@@ -8,6 +8,7 @@ import Joi from 'joi';
 import { encoding_for_model } from '@dqbd/tiktoken';
 import hume from './hume.js';
 import { logger } from './logger.js';
+import { retryWithBackoff, createRetryWrapper } from '../middleware/retry.js';
 
 dotenv.config();
 
@@ -104,46 +105,73 @@ class GPT4Service {
   }
 
   async generate(prompt: string, params: GenerateParams = {}) {
-    let retries = 0;
-    const maxRetries = 3;
-    const baseDelay = 1000;
-    while (retries <= maxRetries) {
-      try {
-        const response = await this.client!.chat.completions.create({
-          model: 'gpt-4o',
-          messages: [{ role: 'user', content: prompt }],
-          ...params,
-        });
-        this.posthog.capture('gpt4o_request', {
-          prompt_type: params.prompt_type || 'unknown',
-          token_usage: response.usage ? response.usage.total_tokens : undefined,
-        });
-        return response.choices[0].message.content;
-      } catch (err) {
-        retries++;
-        this.posthog.capture('gpt4o_retry', {
-          retry_count: retries,
-          error: err instanceof Error ? err.message : String(err),
-        });
-        if (retries > maxRetries) {
-          Sentry.captureException(err);
+    const generateWithRetry = async () => {
+      const response = await this.client!.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [{ role: 'user', content: prompt }],
+        ...params,
+      });
+      
+      this.posthog.capture('gpt4o_request', {
+        prompt_type: params.prompt_type || 'unknown',
+        token_usage: response.usage ? response.usage.total_tokens : undefined,
+      });
+      
+      return response.choices[0].message.content;
+    };
+
+    try {
+      return await retryWithBackoff(generateWithRetry, {
+        maxAttempts: 3,
+        baseDelay: 1000,
+        multiplier: 2,
+        maxDelay: 10000,
+        jitterEnabled: true,
+        jitterFactor: 0.2,
+        timeout: 30000,
+        onRetry: (error, attempt, delay) => {
+          logger.info('GPT-4o retry attempt', { 
+            attempt, 
+            delay, 
+            error: error.message,
+            prompt_type: params.prompt_type 
+          });
+          this.posthog.capture('gpt4o_retry', {
+            retry_count: attempt,
+            error: error.message,
+            delay,
+            prompt_type: params.prompt_type
+          });
+        },
+        onFailure: async (error, attempts) => {
+          logger.error('GPT-4o max retries exceeded', { 
+            attempts, 
+            error: error.message,
+            prompt_type: params.prompt_type 
+          });
+          Sentry.captureException(error, {
+            extra: { 
+              service: 'gpt4o',
+              attempts,
+              prompt_type: params.prompt_type,
+              prompt_length: prompt.length
+            }
+          });
+          
           await this.supabase.from('error_logs').insert({
             error_type: 'gpt4o_error',
-            message: err instanceof Error ? err.message : String(err),
-            details: JSON.stringify({ prompt, params }),
+            message: error.message,
+            details: JSON.stringify({ 
+              prompt_length: prompt.length, 
+              params,
+              attempts 
+            }),
           });
-          throw new Error(
-            `Max retries exceeded: ${err instanceof Error ? err.message : String(err)}`
-          );
         }
-        const delay =
-          Math.pow(2, retries) * baseDelay + Math.floor(Math.random() * 100);
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
+      }, 'gpt4o');
+    } catch (error) {
+      throw new Error(`GPT-4o generation failed after retries: ${error.message}`);
     }
-    throw new Error(
-      'Unexpected error: generate() exited loop without returning'
-    );
   }
 
   async getParameters(promptType: string) {

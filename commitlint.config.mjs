@@ -1,6 +1,6 @@
-// IMPORTANT: This file must use CommonJS syntax for compatibility with commitlint and Node.js hooks.
+// IMPORTANT: This file must use ES module syntax for compatibility with commitlint and Node.js hooks.
 
-module.exports = {
+export default {
   extends: ['@commitlint/config-conventional'],
   rules: {
     // Enforce a consistent commit message format
