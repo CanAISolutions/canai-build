@@ -34,7 +34,8 @@ jsFiles.forEach(file => {
     console.log(`📄 Copying ${file.src} -> ${file.dest}`);
     fs.copyFileSync(srcPath, destPath);
   } else {
-    console.log(`⚠️  Warning: ${file.src} not found at ${srcPath}`);
+    console.error(`❌ Error: ${file.src} not found at ${srcPath}`);
+    process.exit(1);
   }
 });
 
@@ -48,7 +49,17 @@ if (fs.existsSync(packageJsonPath)) {
   console.log('📦 Copying package.json');
   fs.copyFileSync(packageJsonPath, distPackageJsonPath);
 } else {
-  console.log(`⚠️  Warning: package.json not found at ${packageJsonPath}`);
+  console.error(`❌ Error: package.json not found at ${packageJsonPath}`);
+  process.exit(1);
+}
+
+// Verify all required files exist
+const requiredFiles = ['start.js', 'server.js', 'package.json'];
+const missingFiles = requiredFiles.filter(file => !fs.existsSync(path.join(distDir, file)));
+
+if (missingFiles.length > 0) {
+  console.error(`❌ Error: Missing required files in dist: ${missingFiles.join(', ')}`);
+  process.exit(1);
 }
 
 console.log('✅ Deployment build completed successfully!');

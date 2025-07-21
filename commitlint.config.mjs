@@ -3,24 +3,24 @@
 module.exports = {
   extends: ['@commitlint/config-conventional'],
   rules: {
-    // CanAI Platform Specific Rules
+    // Enforce a consistent commit message format
     'type-enum': [
       2,
       'always',
       [
-        'feat', // New features
-        'fix', // Bug fixes
-        'docs', // Documentation changes
-        'style', // Code style changes
-        'refactor', // Code refactoring
-        'perf', // Performance improvements
-        'test', // Adding or updating tests
-        'chore', // Maintenance tasks
-        'ci', // CI/CD changes
-        'build', // Build system changes
-        'revert', // Reverting changes
-        'security', // Security fixes
-        'canai', // CanAI platform specific changes
+        'feat',      // New feature
+        'fix',       // Bug fix
+        'docs',      // Documentation change
+        'style',     // Code style change (formatting, missing semi-colons, etc.)
+        'refactor',  // A code change that neither fixes a bug nor adds a feature
+        'perf',      // A code change that improves performance
+        'test',      // Adding missing tests or correcting existing tests
+        'chore',     // Changes to the build process or auxiliary tools
+        'ci',        // Changes to our CI configuration files and scripts
+        'build',     // Changes that affect the build system or external dependencies
+        'revert',    // Reverts a previous commit
+        'security',  // A code change that improves security
+        'canai',     // CanAI platform specific changes
       ],
     ],
     'scope-enum': [
@@ -47,15 +47,16 @@ module.exports = {
         'supabase',
         'memberstack',
         'make',
-        'posthog', // note: possible typo in original ('posthog'?)
+        'posthog',
         'cursor',
         'taskmaster',
       ],
     ],
-    'subject-max-length': [2, 'always', 72],
+    'subject-max-length': [2, 'always', 72], // Max 72 characters
     'subject-case': [2, 'always', 'lower-case'],
     'subject-empty': [2, 'never'],
     'type-case': [2, 'always', 'lower-case'],
     'type-empty': [2, 'never'],
+    'header-max-length': [2, 'always', 100], // Enforce a maximum header length
   },
 };
