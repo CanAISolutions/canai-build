@@ -1,4 +1,17 @@
-backend/tests/**
-backend/node_modules/
-backend/package-lock.json
+# Ignore all node_modules directories
+**/node_modules
+
+# Ignore other development and build artifacts
+.git
+.gitignore
+.dockerignore
+Dockerfile
+README.md
+.env
+
+# Ignore test files
 **/*.test.ts
+**/*.spec.ts
+
+# Ignore frontend code if not needed for backend build
+frontend/
