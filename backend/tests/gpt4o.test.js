@@ -39,8 +39,8 @@ const mockSupabaseFrom = vi.fn(() => ({
 const mockSupabaseRpc = vi
   .fn()
   .mockResolvedValue({ data: 'test_openai_key', error: null });
-const mockSentryCapture = vi.fn();
 
+// Define Sentry mocks inline to avoid hoisting issues
 vi.mock('posthog-node', () => ({
   PostHog: vi.fn(() => {
     console.log('PostHog mock instantiated');
@@ -69,11 +69,10 @@ vi.mock('../supabase/client.js', () => ({
   },
 }));
 vi.mock('@sentry/node', () => ({
-  captureException: mockSentryCapture,
+  captureException: vi.fn(),
+  captureMessage: vi.fn(),
+  init: vi.fn(),
 }));
-
-// 5. Imports
-import { describe, test, expect, beforeEach, vi } from 'vitest';
 
 // Set environment variables
 process.env.OPENAI_API_KEY = 'test_openai_key';
@@ -82,10 +81,16 @@ process.env.HUME_API_KEY = 'test_hume_key';
 describe('GPT4Service', () => {
   let GPT4Service;
   let service;
+  let mockSentryCapture;
 
   beforeEach(async () => {
     vi.clearAllMocks();
     vi.resetModules(); // Reset module cache to ensure fresh mocks
+    
+    // Get the mocked Sentry functions
+    const Sentry = await import('@sentry/node');
+    mockSentryCapture = Sentry.captureException;
+    
     // Now import GPT4Service and hume after the mocks
     const module = await import('../services/gpt4o.js');
     GPT4Service = module.GPT4Service;
