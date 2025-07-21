@@ -4,8 +4,8 @@ services:
     runtime: node
     repo: https://github.com/CanAISolutions/canai-build
     plan: starter
-    buildCommand: cd backend && npm ci && npm run build:deploy
-    startCommand: cd backend && npm start
+    buildCommand: cd backend && npm ci && npm run build:deploy:fallback
+    startCommand: cd backend && node dist/start.js
     healthCheckPath: /healthz
     envVars:
       # Core Application
