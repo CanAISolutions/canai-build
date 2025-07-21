@@ -4,6 +4,7 @@ WORKDIR /app
 # Copy root package.json and tsconfig.json
 COPY package*.json ./
 COPY tsconfig.json ./
+COPY .env.example ./
 
 # Copy backend-specific files
 COPY backend/package*.json ./backend/
@@ -26,15 +27,15 @@ RUN npm run build
 # Production image – copy only the necessary artifacts
 # --------------------------------------------------
 FROM node:20-alpine
-WORKDIR /app
+WORKDIR /app/backend
 
 # Copy production package metadata and install prod deps only
-COPY --from=builder /app/node_modules ./node_modules
-WORKDIR /app/backend
+COPY --from=builder /app/backend/node_modules ./node_modules
 
 # Copy compiled JS and all other runtime assets
 COPY --from=builder /app/backend/dist ./dist
-COPY --from=builder /app/backend/.env.example ./
+COPY --from=builder /app/backend/package.json ./package.json
+COPY --from=builder /app/.env.example ./
 
 ENV NODE_ENV=development
 ENV PORT=10000

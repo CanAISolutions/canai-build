@@ -23,11 +23,17 @@
       "node"
     ]
   },
-  
+
+  "include": [
+    "**/*.ts"
+  ],
   "exclude": [
     "node_modules",
     "dist",
-    "tests"
+    "tests",
+    "start.js",
+    "test-server.js",
+    "simple-test-server.js"
   ],
   "ts-node": {
     "esm": true,
