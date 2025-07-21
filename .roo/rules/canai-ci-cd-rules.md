@@ -1,13 +1,13 @@
 ---
 description:
-globs: .github/workflows/*.yml, backend/docker-compose.yml, render.yaml
+globs: .github/workflows/*.yml, render.yaml
 alwaysApply: false
 ---
 
 ---
 
 description: Guides efficient deployment pipelines globs: .github/workflows/\*.yml,
-backend/docker-compose.yml, render.yaml alwaysApply: true
+render.yaml alwaysApply: true
 
 ---
 

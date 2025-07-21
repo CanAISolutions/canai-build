@@ -1,0 +1,50 @@
+2025-07-21T14:47:55.371522924Z
+2025-07-21T14:47:55.371526004Z Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'express' imported from /app/backend/dist/server.js
+2025-07-21T14:47:55.371530164Z     at packageResolve (node:internal/modules/esm/resolve:873:9)
+2025-07-21T14:47:55.371532544Z     at moduleResolve (node:internal/modules/esm/resolve:946:18)
+2025-07-21T14:47:55.371535075Z     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-07-21T14:47:55.371537535Z     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+2025-07-21T14:47:55.371539995Z     at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+2025-07-21T14:47:55.371542415Z     at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+2025-07-21T14:47:55.371545575Z     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+2025-07-21T14:47:55.371548025Z     at ModuleJob._link (node:internal/modules/esm/module_job:130:49) {
+2025-07-21T14:47:55.371551385Z   code: 'ERR_MODULE_NOT_FOUND'
+2025-07-21T14:47:55.371554265Z }
+2025-07-21T14:47:55.371556486Z
+2025-07-21T14:47:55.371558876Z Node.js v20.19.4
+2025-07-21T14:47:56.04587033Z ==> Exited with status 1
+2025-07-21T14:47:56.061942689Z ==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+2025-07-21T14:47:56.171697553Z node:internal/modules/esm/resolve:873
+2025-07-21T14:47:56.171775766Z   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+2025-07-21T14:47:56.171782717Z         ^
+2025-07-21T14:47:56.171785197Z
+2025-07-21T14:47:56.171788827Z Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'express' imported from /app/backend/dist/server.js
+2025-07-21T14:47:56.171792407Z     at packageResolve (node:internal/modules/esm/resolve:873:9)
+2025-07-21T14:47:56.171794957Z     at moduleResolve (node:internal/modules/esm/resolve:946:18)
+2025-07-21T14:47:56.171797567Z     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-07-21T14:47:56.171800087Z     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+2025-07-21T14:47:56.171802567Z     at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+2025-07-21T14:47:56.171805168Z     at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+2025-07-21T14:47:56.171808248Z     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+2025-07-21T14:47:56.171810548Z     at ModuleJob._link (node:internal/modules/esm/module_job:130:49) {
+2025-07-21T14:47:56.171813828Z   code: 'ERR_MODULE_NOT_FOUND'
+2025-07-21T14:47:56.171816788Z }
+2025-07-21T14:47:56.171819278Z
+2025-07-21T14:47:56.171821639Z Node.js v20.19.4
+2025-07-21T14:48:11.547069734Z node:internal/modules/esm/resolve:873
+2025-07-21T14:48:11.547110846Z   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+2025-07-21T14:48:11.547114576Z         ^
+2025-07-21T14:48:11.547116956Z
+2025-07-21T14:48:11.547120246Z Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'express' imported from /app/backend/dist/server.js
+2025-07-21T14:48:11.547123507Z     at packageResolve (node:internal/modules/esm/resolve:873:9)
+2025-07-21T14:48:11.547126277Z     at moduleResolve (node:internal/modules/esm/resolve:946:18)
+2025-07-21T14:48:11.547129357Z     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-07-21T14:48:11.547132057Z     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+2025-07-21T14:48:11.547134777Z     at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+2025-07-21T14:48:11.547137447Z     at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+2025-07-21T14:48:11.547140598Z     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+2025-07-21T14:48:11.547142938Z     at ModuleJob._link (node:internal/modules/esm/module_job:130:49) {
+2025-07-21T14:48:11.547145838Z   code: 'ERR_MODULE_NOT_FOUND'
+2025-07-21T14:48:11.547148278Z }
+2025-07-21T14:48:11.547184909Z
+2025-07-21T14:48:11.5471902Z Node.js v20.19.4

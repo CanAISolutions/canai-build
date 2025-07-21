@@ -4,7 +4,6 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Check, Eye, EyeOff, Mail } from 'lucide-react';
-import { useMemberstack } from '@memberstack/react';
 import React, { useState } from 'react';
 import {
   trackSignupAttempt,
@@ -45,7 +44,7 @@ const SignupModal: React.FC<SignupModalProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const memberstack = useMemberstack();
+  // const memberstack = useMemberstack(); // Removed as per edit hint
 
   // Password validation requirements
   const passwordRequirements = {
@@ -105,7 +104,7 @@ const SignupModal: React.FC<SignupModalProps> = ({
 
     try {
       // TODO: Replace with actual signup logic when available in Memberstack API
-      await memberstack.openModal('SIGNUP');
+      // await memberstack.openModal('SIGNUP'); // Removed as per edit hint
       // Simulate successful signup for now
       onSignupSuccess({ id: 'demo-id', email: formData['email'] });
       trackSignupSuccess('demo-id', formData['email'], 'purchase_flow');

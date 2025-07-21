@@ -1,29 +1,42 @@
 {
-  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "CommonJS",
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "outDir": "./dist",
     "rootDir": "./",
-    "allowJs": true,
-    "incremental": true,
-    "paths": {
-      "@/*": ["../*"],
-      "@backend/*": ["./*"]
-    }
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "noEmit": false,
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "exactOptionalPropertyTypes": false,
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@types"
+    ],
+    "types": [
+      "node"
+    ]
   },
+
   "include": [
-    "src/**/*",
-    "tests/**/*",
-    "services/**/*",
-    "middleware/**/*",
-    "routes/**/*",
-    "supabase/**/*",
-    "prompts/**/*",
-    "scripts/**/*",
-    "db.js",
-    "server.js",
-    "health.js"
+    "**/*.ts"
   ],
-  "exclude": ["node_modules", "dist", "coverage"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tests",
+    "start.js",
+    "test-server.js",
+    "simple-test-server.js"
+  ],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
 }

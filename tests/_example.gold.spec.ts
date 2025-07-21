@@ -4,7 +4,14 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
  * Gold-standard Vitest template for CanAI.
  * Replace `sampleFunction` with your real import and adjust scenarios.
  */
-import { sampleFunction } from '../backend/api/src/Shared/Constants';
+// TODO: Replace with actual import when implementing real tests
+// import { sampleFunction } from '../backend/Shared/Constants';
+
+// Mock function for example purposes
+const sampleFunction = (input: string): string => {
+  if (!input) throw new Error('empty input');
+  return input.toUpperCase();
+};
 
 // 🟢 Arrange – shared setup
 let input: string;

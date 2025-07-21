@@ -26,9 +26,9 @@ achieving TrustDelta ≥4.2.
     `/v1/generate-preview-spark`
   - **Memberstack JWT**: F3–F9 endpoints, user-specific operations requiring `auth.uid()` validation
   - **Admin JWT**: `/v1/admin-metrics` only with enhanced privileges
-- **Rate Limiting**: 100 req/min/IP (`backend/middleware/rateLimit.js`) with exponential backoff
+- **Rate Limiting**: 100 req/min/IP (`backend/middleware/rateLimit.ts`) with exponential backoff
 - **Input Sanitization**: DOMPurify + Joi validation on all inputs
-  (`backend/middleware/validation.js`)
+  (`backend/middleware/validation.ts`)
 - **Error Handling**: <100ms empathetic responses with PostHog logging
   (`backend/middleware/error.js`)
 - **Caching**: Node-cache for responses with optimized TTL (5min for static, 1hr for pricing)

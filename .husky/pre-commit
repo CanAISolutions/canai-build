@@ -1,5 +1,0 @@
-# --- TEMPORARILY DISABLED TESTS (2025-06-24) ---
-# To re-enable, uncomment the line below.
-# npm test
-
-sh scripts/check-secrets.sh

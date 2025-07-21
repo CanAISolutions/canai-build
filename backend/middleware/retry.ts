@@ -473,4 +473,4 @@ export function createRetryWrapper(serviceName: string, config?: Partial<RetryCo
 }
 
 // Export default configuration for easy import
-export { DEFAULT_RETRY_CONFIG }; 
+export { DEFAULT_RETRY_CONFIG };

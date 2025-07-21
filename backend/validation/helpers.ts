@@ -1,4 +1,4 @@
-import { BUSINESS_TYPE_REGEX, SOCIAL_HANDLE_REGEX } from './patterns';
+import { BUSINESS_TYPE_REGEX, SOCIAL_HANDLE_REGEX } from './patterns.js';
 import validator from 'validator';
 
 // PRD References: Section 6 (Requirements), 7.2 (Security), 12 (Metrics)
@@ -106,7 +106,7 @@ export function validatePostalCode(
     }
     return { error: 'Invalid postal code.' };
   }
-  if (validator.isPostalCode(value, country)) {
+  if (validator.isPostalCode(value, country as validator.PostalCodeLocale)) {
     return true;
   }
   return { error: 'Invalid postal code.' };

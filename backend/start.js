@@ -1,16 +1,28 @@
-import { createApp } from './server.js';
+#!/usr/bin/env node
 
-const app = createApp();
+// Simple JavaScript wrapper to run TypeScript files
+import { spawn } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const PORT = process.env.PORT || 10000;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
+// Run ts-node with proper ES module support
+const tsNode = spawn(
+  'npx',
+  ['ts-node', '--esm', '--experimental-specifier-resolution=node', 'start.ts'],
+  {
+    stdio: 'inherit',
+    cwd: __dirname,
+  }
+);
+
+tsNode.on('error', error => {
+  console.error('Failed to start ts-node:', error);
+  process.exit(1);
 });
 
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
-  });
+tsNode.on('exit', code => {
+  process.exit(code);
 });

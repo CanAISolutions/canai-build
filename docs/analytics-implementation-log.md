@@ -11,7 +11,7 @@ onboarding, audits, and future planning.
 ### Summary
 
 - Implemented Joi-based validation for all required analytics environment variables at startup in
-  backend/services/posthog.js
+  backend/services/posthog.ts
 - Validates API key, host, batching, and session timeout configuration before initializing PostHog
 - If validation fails, logs clear, privacy-compliant errors and disables analytics to prevent silent
   failures
@@ -83,7 +83,7 @@ onboarding, audits, and future planning.
 
 ### Summary
 
-- Integrated PostHog client (posthog-node) into backend/services/posthog.js
+- Integrated PostHog client (posthog-node) into backend/services/posthog.ts
 - Configured environment-based analytics settings (API key, host, batching)
 - Implemented connection validation and startup health check event
 - Added graceful shutdown and analytics queue flushing on SIGTERM
@@ -106,7 +106,7 @@ onboarding, audits, and future planning.
 
 ### Summary
 
-- Implemented robust session tracking in backend/services/posthog.js:
+- Implemented robust session tracking in backend/services/posthog.ts:
   - Session start/end logic with unique sessionId per user/session
   - Session timeout (default: 30 min inactivity, configurable via SESSION_TIMEOUT_MINUTES)
   - Session duration calculation and enrichment of all tracked events
@@ -138,7 +138,7 @@ onboarding, audits, and future planning.
 - **Date:** 2025-06-25
 - **Summary:** All analytics events (backend and frontend) are now automatically enriched with
   appVersion, environment, and deploymentId for every event.
-- **Files Updated:** backend/services/posthog.js, frontend/src/utils/analytics.ts
+- **Files Updated:** backend/services/posthog.ts, frontend/src/utils/analytics.ts
 - **PRD/Rule Alignment:** PRD analytics enrichment requirements, canai-analytics-rules
 - **Technical Notes:**
   - Backend: Enrichment uses process.env.npm_package_version, NODE_ENV, DEPLOYMENT_ID (with
@@ -154,7 +154,7 @@ onboarding, audits, and future planning.
 - **PRD/Rule Alignment**: Fully aligned with PRD.md Sections 3, 7.1, 7.2, 8.6, 12.8, and
   canai-analytics-rules. All subtasks addressed.
 - **Technical Notes**:
-  - Added connection health check and SIGTERM shutdown handler in `posthog.js`.
+  - Added connection health check and SIGTERM shutdown handler in `posthog.ts`.
   - Improved `safeCapture` with 3 retries and exponential backoff.
   - Batching config is now PRD-aligned and configurable.
   - Unit tests expanded for event tracking and batching; test environment setup via
@@ -165,7 +165,7 @@ onboarding, audits, and future planning.
 
 ## [YYYY-MM-DD] TaskMaster 3: PostHog Analytics Integration Complete
 
-- All analytics logic implemented in `backend/services/posthog.js`.
+- All analytics logic implemented in `backend/services/posthog.ts`.
 - Unit tests cover event validation, PII scrubbing, session management, event enrichment, all event
   tracking functions, and batching.
 - Integration test skeleton created for dashboard verification.
@@ -278,7 +278,7 @@ onboarding, audits, and future planning.
 ## [2025-07-03] Payment Log Querying Service & Endpoint Implemented
 
 - **Summary:**
-  - Implemented `backend/services/paymentLogs.js` to encapsulate payment log querying logic
+  - Implemented `backend/services/paymentLogs.ts` to encapsulate payment log querying logic
     (filters, pagination, sorting, RLS).
   - Refactored `/v1/stripe/payment-logs` endpoint to use the new service, with robust param
     validation and RLS enforcement.

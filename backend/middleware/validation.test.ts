@@ -62,10 +62,11 @@ describe('validation.js', () => {
       status: function () {
         return this;
       },
-      json: function (j: any) {
+      json: function (j: unknown) {
         try {
-          expect(j).toHaveProperty('error');
-          expect(typeof j.error).toBe('string');
+          const response = j as { error: string };
+          expect(response).toHaveProperty('error');
+          expect(typeof response.error).toBe('string');
           done();
         } catch (err) {
           done(err);
@@ -132,10 +133,11 @@ describe('validation.js', () => {
       status: function () {
         return this;
       },
-      json: function (j: any) {
+      json: function (j: unknown) {
         try {
-          expect(j).toHaveProperty('error');
-          expect(typeof j.error).toBe('string');
+          const response = j as { error: string };
+          expect(response).toHaveProperty('error');
+          expect(typeof response.error).toBe('string');
           done();
         } catch (err) {
           done(err);

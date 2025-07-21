@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Retry Middleware Test Plan - Task 11
 
 ## Purpose & Scope
@@ -336,3 +337,9 @@ const errorScenarios = [
 
 **Last Updated**: 2025-07-16
 **Status**: Ready for Canary Deployment 
+
+
+---
+
+**Last updated:** 2025-07-16
+>>>>>>> origin/main

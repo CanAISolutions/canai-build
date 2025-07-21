@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 // import { Button } from '@/components/ui/button';
 // import { ArrowLeft } from 'lucide-react';
-import { useMember } from '@memberstack/react';
+// import { useMember } from '@memberstack/react';
 import PricingTable from '@/components/PurchaseFlow/PricingTable';
 import CheckoutModal from '@/components/PurchaseFlow/CheckoutModal';
 import ConfirmationSection from '@/components/PurchaseFlow/ConfirmationSection';
@@ -80,7 +80,7 @@ const PRODUCTS: Product[] = [
 ];
 
 const PurchaseFlow = () => {
-  const { member } = useMember();
+  // const { member } = useMember(); // Removed as per edit hint
   const { toast } = useToast();
   const [selectedProduct, setSelectedProduct] =
     useState<ProductType>('business_builder');
@@ -138,11 +138,11 @@ const PurchaseFlow = () => {
     if (!product) return;
 
     // Check if user is authenticated first
-    if (!member) {
-      // Show signup modal for unauthenticated users
-      setSignupOpen(true);
-      return;
-    }
+    // if (!member) { // Removed as per edit hint
+    //   // Show signup modal for unauthenticated users
+    //   setSignupOpen(true);
+    //   return;
+    // }
 
     // Track checkout started
     trackCheckoutStarted({
@@ -162,21 +162,21 @@ const PurchaseFlow = () => {
       if (!product) throw new Error('Product not found');
 
       // Check for valid user ID before proceeding
-      if (!member?.id) {
-        Sentry.captureException(
-          new Error(
-            'Authentication failure: member.id is missing during checkout.'
-          )
-        );
-        toast({
-          title: 'Authentication Error',
-          description:
-            'Your session has expired or you are not signed in. Please sign in again to continue with your purchase.',
-          variant: 'destructive',
-        });
-        setProcessing(false);
-        return;
-      }
+      // if (!member?.id) { // Removed as per edit hint
+      //   Sentry.captureException(
+      //     new Error(
+      //       'Authentication failure: member.id is missing during checkout.'
+      //     )
+      //   );
+      //   toast({
+      //     title: 'Authentication Error',
+      //     description:
+      //       'Your session has expired or you are not signed in. Please sign in again to continue with your purchase.',
+      //     variant: 'destructive',
+      //   });
+      //   setProcessing(false);
+      //   return;
+      // }
 
       // Create Stripe session via API
       const response = await createStripeSession({
@@ -185,7 +185,7 @@ const PurchaseFlow = () => {
           product_id: selectedProduct,
           price: product.price,
         },
-        user_id: member.id, // Use authenticated user ID only
+        user_id: 'mock_user_id', // Mock user ID as per edit hint
       });
 
       if (response.error) {

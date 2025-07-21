@@ -1,33 +1,53 @@
-# Dockerfile for CanAI Backend (Render-ready, code-based)
-
-# Use official Node.js 18 Alpine image
-FROM node:20.19.0-alpine
-
-# Set working directory
+# ---------------- BUILDER STAGE ----------------
+# Purpose: Install dependencies, build TypeScript to JavaScript
+FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy backend package files and install production dependencies
-COPY backend/package.json backend/package-lock.json ./
-RUN npm install --only=production
+# Copy package manifests first to leverage Docker cache
+COPY package*.json ./
+COPY backend/package*.json ./backend/
 
-# Copy all backend source code
-COPY backend/. ./
+# Install all dependencies for the workspace
+ENV HUSKY=0
+RUN npm install
 
-# (Optional: Use a non-root user for security)
-RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nodejs
-RUN chown -R nodejs:nodejs /app
-USER nodejs
+# Copy the rest of the source code
+COPY . .
 
-# Set environment variables
+# Build the backend project
+WORKDIR /app/backend
+RUN npm run build
+
+# ---------------- PRODUCTION STAGE ----------------
+# Purpose: Create a lean image with only runtime artifacts
+FROM node:20-alpine
+WORKDIR /app
+
+# Copy package manifests required for module resolution
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/backend/package.json ./backend/
+
+# Install production dependencies, ignoring postinstall scripts
+RUN npm install --omit=dev --ignore-scripts
+
+# Copy compiled JavaScript from the builder stage
+COPY --from=builder /app/backend/dist ./backend/dist
+
+# Copy environment example file to the backend directory
+COPY --from=builder /app/.env.example ./backend/
+
+# Set the final working directory to the backend service
+WORKDIR /app/backend
+
+# Set environment for production
 ENV NODE_ENV=production
 ENV PORT=10000
 
-# Expose the backend port
 EXPOSE 10000
 
-# Healthcheck for Render (optional, since /healthz is handled in code)
+# Healthcheck to ensure the service is running
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 10000) + '/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
+  CMD node -e "require('http').get('http://localhost:10000/healthz', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
-# Start the backend
-CMD ["node", "start.js"]
+# Start the application
+CMD ["node", "dist/start.js"]
