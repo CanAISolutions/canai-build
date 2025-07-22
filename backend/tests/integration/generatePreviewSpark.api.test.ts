@@ -79,45 +79,21 @@ type AnalyticsMockType = {
   default: { capture: (...args: unknown[]) => unknown };
   safeCapture?: (...args: unknown[]) => unknown;
 };
-// type SentryMockType = {
-//   default: {
-//     logger: {
-//       info: (...args: unknown[]) => unknown;
-//       error: (...args: unknown[]) => unknown;
-//     };
-//   };
-// };
+// Note: SentryMockType was removed during refactoring to use instrument service
+// The instrument service mock above provides the same logging functionality
 
 let analytics: unknown, app: Application;
 
 // Pre-import modules once to avoid repeated imports
 beforeAll(async () => {
-  const maxRetries = 3;
-  let lastError: Error | null = null;
-
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      analytics = await import('../../services/posthog');
-      const mod = await import('../../server');
-      app = mod.createApp() as Application;
-
-      // If we get here, the import was successful
-      console.log(`Module import successful on attempt ${attempt}`);
-      return;
-    } catch (error) {
-      lastError = error as Error;
-      console.warn(`Module import attempt ${attempt} failed:`, error);
-
-      if (attempt < maxRetries) {
-        // Wait a bit before retrying
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-      }
-    }
+  try {
+    analytics = await import('../../services/posthog');
+    const mod = await import('../../server');
+    app = mod.createApp() as Application;
+  } catch (error) {
+    console.error('Error in beforeAll:', error);
+    throw error;
   }
-
-  // If all retries failed, throw the last error
-  console.error('All module import attempts failed');
-  throw lastError;
 }, 30000); // 30 second timeout for initial setup
 
 beforeEach(async () => {

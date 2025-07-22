@@ -23,8 +23,7 @@ import {
   trackPaymentCompleted,
   trackProductSwitched,
 } from '@/utils/purchaseAnalytics';
-import { useToast } from '@/hooks/use-toast';
-import * as Sentry from '@sentry/react';
+
 // import { memberstackAuth } from '@/utils/memberstackAuth'; // TODO: Uncomment when ready
 
 // Product types for type safety
@@ -81,7 +80,7 @@ const PRODUCTS: Product[] = [
 
 const PurchaseFlow = () => {
   // const { member } = useMember(); // Removed as per edit hint
-  const { toast } = useToast();
+
   const [selectedProduct, setSelectedProduct] =
     useState<ProductType>('business_builder');
   const [isCheckoutOpen, setCheckoutOpen] = useState(false);

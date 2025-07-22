@@ -14,12 +14,12 @@ class MockScorer {
   constructor() {
     this.belowThreshold = false;
   }
-  normalizeScore(score: unknown) {
+  normalizeScore(_score: unknown) {
     return this.belowThreshold
       ? { arousal: 0.4, valence: 0.5, confidence: 0.9 }
-      : score;
+      : _score;
   }
-  validateScore(score) {
+  validateScore(_score) {
     return !this.belowThreshold;
   }
 }

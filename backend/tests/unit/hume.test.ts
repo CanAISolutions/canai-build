@@ -347,7 +347,24 @@ describe('HumeService fallback logic', () => {
   });
 });
 
-// If ReferenceError persists, skip test:
-describe.skip('hume analyze unit', () => {
-  // Skipped: Mock initialization issue, not MVP-critical per PRD.md section 7.2
+// Replace skipped test with working pattern using existing mock setup
+describe('hume analyze unit', () => {
+  it('should analyze emotion with proper mocking', async () => {
+    process.env.HUME_API_KEY = 'test-key';
+    const service = new HumeService();
+
+    // Use the existing mock setup that works for other tests
+    service.client.language.analyzeText = vi.fn().mockResolvedValue({
+      predictions: [{ arousal: 0.7, valence: 0.8, confidence: 0.9 }],
+    });
+
+    const result = await service.analyzeEmotion('test text', 'test-id');
+
+    expect(result).toEqual({
+      arousal: 0.7,
+      valence: 0.8,
+      confidence: 0.9,
+      source: 'hume',
+    });
+  });
 });

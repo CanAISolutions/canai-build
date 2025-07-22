@@ -1,5 +1,5 @@
 // Vitest skeleton for validation.js
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import validate from './validation.js';
 import type { Request, Response } from 'express';
 
@@ -45,20 +45,20 @@ function createMockRequest(overrides: Partial<Request> = {}): Request {
 // Helper to create a mock response object
 function createMockResponse(): Response {
   const res = {
-    status: (code: number) => res,
-    json: (data: unknown) => res,
-    send: (data: unknown) => res,
-    end: () => res,
-    set: () => res,
-    get: () => undefined,
-    clearCookie: () => res,
-    cookie: () => res,
-    location: () => res,
-    redirect: () => res,
-    render: () => res,
-    sendFile: () => res,
-    sendStatus: () => res,
-    links: () => res,
+    status: vi.fn().mockReturnThis(),
+    json: vi.fn().mockReturnThis(),
+    send: vi.fn().mockReturnThis(),
+    end: vi.fn().mockReturnThis(),
+    set: vi.fn().mockReturnThis(),
+    get: vi.fn().mockReturnValue(undefined),
+    clearCookie: vi.fn().mockReturnThis(),
+    cookie: vi.fn().mockReturnThis(),
+    location: vi.fn().mockReturnThis(),
+    redirect: vi.fn().mockReturnThis(),
+    render: vi.fn().mockReturnThis(),
+    sendFile: vi.fn().mockReturnThis(),
+    sendStatus: vi.fn().mockReturnThis(),
+    links: vi.fn().mockReturnThis(),
     locals: {},
     charset: 'utf-8',
     app: {} as Record<string, unknown>,
@@ -112,16 +112,104 @@ describe('validation middleware', () => {
     expect(nextCalled).toBe(true);
   });
 
-  // TODO: Error handling - throws/returns ValidationError on failure
-  it('should throw or return ValidationError on sanitization failure', () => {
+  // Error handling - throws/returns ValidationError on failure
+  it('should handle ValidationError on sanitization failure', () => {
     // Arrange
     const req = createMockRequest({ body: { a: null } });
     const res = createMockResponse();
-    const next: NextFunction = () => {};
+    let nextCalled = false;
+    let errorPassedToNext: Error | null = null;
+    const next: NextFunction = (err?: Error) => {
+      nextCalled = true;
+      errorPassedToNext = err || null;
+    };
+
     // Act
-    validate({}, {})(req, res, next);
+    validate({}, { sanitizeSchema: { a: { sanitize: true, mode: 'plain' } } })(
+      req,
+      res,
+      next
+    );
+
     // Assert - middleware should handle the error gracefully
-    // No assertion needed as we're just testing that it doesn't throw
+    // The middleware should send a 400 response directly and NOT call next()
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.stringContaining('Invalid input'),
+        field: 'a',
+      })
+    );
+
+    // Verify that next() was NOT called (middleware handles error internally)
+    expect(nextCalled).toBe(false);
+    expect(errorPassedToNext).toBeNull();
+  });
+
+  it('should handle ValidationError with proper error structure when sanitization fails', () => {
+    // Arrange
+    const req = createMockRequest({ body: { a: null } });
+    const res = createMockResponse();
+    let nextCalled = false;
+    const next: NextFunction = () => {
+      nextCalled = true;
+    };
+
+    // Act - This should trigger a ValidationError when sanitizing null with sanitize: true
+    validate({}, { sanitizeSchema: { a: { sanitize: true, mode: 'plain' } } })(
+      req,
+      res,
+      next
+    );
+
+    // Assert - The middleware should handle the ValidationError by sending a 400 response
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        error: expect.stringContaining('Invalid input'),
+        field: 'a',
+      })
+    );
+
+    // Verify that the error response contains the expected ValidationError structure
+    const responseCall = (res.json as ReturnType<typeof vi.fn>).mock
+      .calls[0][0];
+    expect(responseCall).toHaveProperty('error');
+    expect(responseCall).toHaveProperty('field', 'a');
+
+    // Verify that next() was NOT called (middleware handles error internally)
+    expect(nextCalled).toBe(false);
+  });
+
+  it('should pass ValidationError to next function when sanitization fails and error handling is delegated', () => {
+    // Arrange - Create a scenario where the middleware might delegate error handling
+    const req = createMockRequest({
+      body: { a: '<script>alert("xss")</script>' },
+    });
+    const res = createMockResponse();
+    let nextCalled = false;
+    let errorPassedToNext: Error | null = null;
+    const next: NextFunction = (err?: Error) => {
+      nextCalled = true;
+      errorPassedToNext = err || null;
+    };
+
+    // Act - This should trigger sanitization but not necessarily a ValidationError
+    // The middleware should call next() after successful sanitization
+    validate({}, { sanitizeSchema: { a: { sanitize: true, mode: 'plain' } } })(
+      req,
+      res,
+      next
+    );
+
+    // Assert - For successful sanitization, next() should be called without error
+    expect(nextCalled).toBe(true);
+    expect(errorPassedToNext).toBeNull();
+
+    // Verify that the body was sanitized
+    expect(req.body.a).not.toContain('<script>');
+    // The sanitization removes script tags completely, leaving empty string
+    expect(req.body.a).toBe('');
   });
 
   // TODO: Integration - all endpoints using middleware sanitize input

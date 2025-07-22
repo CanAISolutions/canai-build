@@ -15,6 +15,16 @@ vi.mock('@ai-sdk/hume', () => ({
   hume: { language: { analyzeText: mockHumeAnalyze } },
 }));
 
+// Mock the hume.js module that exports humeClient
+vi.mock('../services/hume.js', () => ({
+  default: vi.fn(),
+  humeClient: {
+    language: {
+      analyzeText: mockHumeAnalyze,
+    },
+  },
+}));
+
 const mockPostHogCapture = vi.fn();
 const mockPostHogInstance = { capture: mockPostHogCapture };
 const mockEncode = vi.fn((text: string) => {
@@ -81,15 +91,15 @@ process.env.HUME_API_KEY = 'test_hume_key';
 describe('GPT4Service', () => {
   let GPT4Service;
   let service;
-  // let mockSentryCapture;
+  let mockSentryCapture;
 
   beforeEach(async () => {
     vi.clearAllMocks();
     vi.resetModules(); // Reset module cache to ensure fresh mocks
 
     // Get the mocked Sentry functions
-    // const Sentry = await import('@sentry/node');
-    // mockSentryCapture = Sentry.captureException;
+    const Sentry = await import('@sentry/node');
+    mockSentryCapture = Sentry.captureException;
 
     // Now import GPT4Service and hume after the mocks
     const module = await import('../services/gpt4o.js');
@@ -110,6 +120,35 @@ describe('GPT4Service', () => {
       expect(mockEncode).toHaveBeenCalledWith(text);
       expect(result).toBe(11);
       expect(mockFree).toHaveBeenCalled();
+    });
+
+    test('initialization error is captured by Sentry', async () => {
+      // Create a fresh service instance that hasn't been initialized
+      const freshService = new GPT4Service(
+        {
+          from: mockSupabaseFrom,
+          rpc: mockSupabaseRpc,
+        },
+        mockPostHogInstance
+      );
+
+      // Mock the Supabase RPC to throw an error during initialization
+      const mockRpc = vi
+        .fn()
+        .mockRejectedValue(new Error('Vault connection failed'));
+      freshService.supabase.rpc = mockRpc;
+
+      // Attempt to initialize and expect it to throw
+      await expect(freshService.initialize()).rejects.toThrow(
+        'Vault connection failed'
+      );
+
+      // Verify Sentry.captureException was called
+      expect(mockSentryCapture).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Vault connection failed',
+        })
+      );
     });
 
     test('chunkInput handles small input correctly', () => {
@@ -174,6 +213,39 @@ describe('GPT4Service', () => {
       expect(cost).toBe(50);
       expect(mockSupabaseInsert).toHaveBeenCalledTimes(1);
     });
+
+    test('generate method error is captured by Sentry with extra context', async () => {
+      // Mock the client to throw an error
+      service.client = {
+        chat: {
+          completions: {
+            create: vi.fn().mockRejectedValue(new Error('OpenAI API error')),
+          },
+        },
+      } as Record<string, unknown>;
+
+      // Attempt to generate and expect it to throw
+      await expect(
+        service.generate('test prompt', { prompt_type: 'business_plan' })
+      ).rejects.toThrow(
+        'GPT-4o generation failed after retries: OpenAI API error'
+      );
+
+      // Verify Sentry.captureException was called with extra context
+      expect(mockSentryCapture).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'OpenAI API error',
+        }),
+        expect.objectContaining({
+          extra: {
+            service: 'gpt4o',
+            attempts: expect.any(Number),
+            prompt_type: 'business_plan',
+            prompt_length: 11,
+          },
+        })
+      );
+    });
   });
 
   describe('validateResponse', () => {
@@ -181,14 +253,13 @@ describe('GPT4Service', () => {
       service.generate = vi.fn().mockResolvedValue('no');
     });
 
-    // Skipped for MVP: Hume AI resonance mocking is not critical for PRD MVP acceptance. See code-fix.md.
-    test.skip('validates response with high resonance and trustDelta', async () => {
-      // const { hume } = await import('../services/hume.js');
-      // console.debug('hume after import:', hume);
-      // console.debug('hume.language after import:', hume && hume.language);
-      // vi.spyOn(hume.language, 'analyzeText').mockResolvedValue({
-      //   predictions: [{ arousal: 0.8, valence: 0.9 }],
-      // });
+    test('validates response with high resonance and trustDelta', async () => {
+      // Use the fallback pattern that's already working in other tests
+      mockHumeAnalyze.mockRejectedValueOnce(new Error('Hume API down'));
+      service.generate.mockImplementationOnce(async _prompt => {
+        return '{ "arousal": 0.8, "valence": 0.9 }';
+      });
+
       const response =
         'Valid response with over 100 characters to meet completeness requirement for trust scoring purposes in a business plan context.';
       const result = await service.validateResponse(response, {
@@ -316,6 +387,96 @@ describe('GPT4Service', () => {
         'gpt4o_quality',
         expect.any(Object)
       );
+    });
+
+    test('fallback error is captured by Sentry', async () => {
+      // Mock both Hume and generate to fail
+      mockHumeAnalyze.mockRejectedValueOnce(new Error('Hume API down'));
+      service.generate = vi
+        .fn()
+        .mockRejectedValueOnce(new Error('Fallback failed'));
+
+      const result = await service.validateResponse(
+        'Test response with over 100 characters for testing fallback error handling.',
+        {
+          promptType: 'business_plan',
+          userId: 'test-user',
+          trustDelta: 4.5,
+        }
+      );
+
+      // Verify Sentry.captureException was called for fallback error
+      expect(mockSentryCapture).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Fallback failed',
+        })
+      );
+
+      // Verify the validation still completes with issues
+      expect(result.issues).toContain('Hume AI and fallback failed');
+    });
+
+    test('toxicity check error is captured by Sentry', async () => {
+      mockHumeAnalyze.mockResolvedValueOnce({
+        predictions: [{ arousal: 0.8, valence: 0.9 }],
+      });
+
+      // Mock generate to succeed for fallback but fail for toxicity check
+      service.generate = vi
+        .fn()
+        .mockResolvedValueOnce('{ "arousal": 0.8, "valence": 0.9 }') // fallback resonance
+        .mockRejectedValueOnce(new Error('Toxicity check failed')); // toxicity check
+
+      const result = await service.validateResponse(
+        'Test response with over 100 characters for testing toxicity error handling.',
+        {
+          promptType: 'business_plan',
+          userId: 'test-user',
+          trustDelta: 4.5,
+        }
+      );
+
+      // Verify Sentry.captureException was called for toxicity error
+      expect(mockSentryCapture).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Toxicity check failed',
+        })
+      );
+
+      // Verify the validation still completes with issues
+      expect(result.issues).toContain('Toxicity check failed');
+    });
+
+    test('logging error is captured by Sentry', async () => {
+      mockHumeAnalyze.mockResolvedValueOnce({
+        predictions: [{ arousal: 0.8, valence: 0.9 }],
+      });
+
+      // Mock Supabase insert to fail for logging
+      mockSupabaseInsert.mockRejectedValueOnce(
+        new Error('Database logging failed')
+      );
+
+      const result = await service.validateResponse(
+        'Test response with over 100 characters for testing logging error handling.',
+        {
+          promptType: 'business_plan',
+          userId: 'test-user',
+          trustDelta: 4.5,
+        }
+      );
+
+      // Verify Sentry.captureException was called for logging error
+      expect(mockSentryCapture).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Database logging failed',
+        })
+      );
+
+      // Verify the validation still completes (logging error doesn't affect validation result)
+      expect(result).toHaveProperty('isValid');
+      expect(result).toHaveProperty('trustScore');
+      expect(result).toHaveProperty('issues');
     });
   });
 });
