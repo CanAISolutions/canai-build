@@ -55,10 +55,14 @@ if (fs.existsSync(packageJsonPath)) {
 
 // Verify all required files exist
 const requiredFiles = ['start.js', 'server.js', 'package.json'];
-const missingFiles = requiredFiles.filter(file => !fs.existsSync(path.join(distDir, file)));
+const missingFiles = requiredFiles.filter(
+  file => !fs.existsSync(path.join(distDir, file))
+);
 
 if (missingFiles.length > 0) {
-  console.error(`❌ Error: Missing required files in dist: ${missingFiles.join(', ')}`);
+  console.error(
+    `❌ Error: Missing required files in dist: ${missingFiles.join(', ')}`
+  );
   process.exit(1);
 }
 

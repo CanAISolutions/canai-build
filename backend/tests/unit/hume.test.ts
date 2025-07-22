@@ -1,7 +1,7 @@
 import '../../../testEnvSetup';
 import 'dotenv/config';
 if (!process.env['HUME_API_KEY']) throw new Error('HUME_API_KEY not set');
-import { vi, describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
 
 // Mock Redis before any imports to prevent connection issues
 vi.mock('ioredis', () => {
@@ -37,7 +37,13 @@ vi.mock('@ai-sdk/hume', () => ({
       },
     },
   })),
-  hume: {}, // Export the hume object as well
+  hume: {
+    language: {
+      analyzeText: vi.fn().mockResolvedValue({
+        predictions: [{ arousal: 0.7, valence: 0.8, confidence: 0.9 }],
+      }),
+    },
+  },
 }));
 
 // Only import the real service after mocks
@@ -50,7 +56,7 @@ import EmotionalScorer from '../../services/emotionalScoring.js';
 vi.mock('../../supabase/client.js', () => {
   const mockEq = vi.fn().mockResolvedValue({ data: {}, error: null });
   const mockUpdate = vi.fn().mockReturnValue({ eq: mockEq });
-  const mockFrom = vi.fn(tableName => {
+  const mockFrom = vi.fn((_tableName: string) => {
     // Return appropriate mock based on table name
     const baseTable = {
       upsert: vi.fn().mockResolvedValue({ data: {}, error: null }),

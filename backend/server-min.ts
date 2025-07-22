@@ -6,8 +6,8 @@ import morgan from 'morgan';
 import supabase from './supabase/client.js';
 import emotionalAnalysisRouter from './routes/emotionalAnalysis.js';
 import stripeRouter from './routes/stripe.js';
-import HumeService from './services/hume.js';
-import * as Sentry from '@sentry/node';
+// import HumeService from './services/hume.js';
+// import * as Sentry from '@sentry/node';
 import validate from './middleware/validation.js';
 import rateLimit from './middleware/rateLimit.js';
 import auth from './middleware/auth.js';
@@ -18,7 +18,7 @@ dotenv.config();
 //   sendDefaultPii: true,
 // });
 const app = express();
-const humeService = new HumeService();
+// const humeService = new HumeService();
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(

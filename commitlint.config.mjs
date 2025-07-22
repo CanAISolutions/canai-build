@@ -8,19 +8,19 @@ export default {
       2,
       'always',
       [
-        'feat',      // New feature
-        'fix',       // Bug fix
-        'docs',      // Documentation change
-        'style',     // Code style change (formatting, missing semi-colons, etc.)
-        'refactor',  // A code change that neither fixes a bug nor adds a feature
-        'perf',      // A code change that improves performance
-        'test',      // Adding missing tests or correcting existing tests
-        'chore',     // Changes to the build process or auxiliary tools
-        'ci',        // Changes to our CI configuration files and scripts
-        'build',     // Changes that affect the build system or external dependencies
-        'revert',    // Reverts a previous commit
-        'security',  // A code change that improves security
-        'canai',     // CanAI platform specific changes
+        'feat', // New feature
+        'fix', // Bug fix
+        'docs', // Documentation change
+        'style', // Code style change (formatting, missing semi-colons, etc.)
+        'refactor', // A code change that neither fixes a bug nor adds a feature
+        'perf', // A code change that improves performance
+        'test', // Adding missing tests or correcting existing tests
+        'chore', // Changes to the build process or auxiliary tools
+        'ci', // Changes to our CI configuration files and scripts
+        'build', // Changes that affect the build system or external dependencies
+        'revert', // Reverts a previous commit
+        'security', // A code change that improves security
+        'canai', // CanAI platform specific changes
       ],
     ],
     'scope-enum': [

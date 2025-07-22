@@ -3,7 +3,7 @@ import { memberstackAuthMiddleware } from '../../middleware/auth.js';
 import jwt from 'jsonwebtoken';
 import * as Sentry from '../../services/instrument.js';
 import posthog from '../../services/posthog.js';
-import log from '../../Shared/Logger.js';
+// import log from '../../Shared/Logger.js';
 import authRouter from '../../routes/auth.js';
 import request from 'supertest';
 import * as jwtUtils from '../../middleware/jwtUtils.js';
@@ -19,7 +19,7 @@ import express from 'express';
 vi.mock('jsonwebtoken', () => {
   // Define the mock functions once
   const verify = vi.fn();
-  const sign = (payload, secret) => {
+  const sign = (payload, _secret: string) => {
     const header = Buffer.from(
       JSON.stringify({ alg: 'HS256', typ: 'JWT' })
     ).toString('base64');

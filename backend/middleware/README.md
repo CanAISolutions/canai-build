@@ -1,6 +1,7 @@
 # Retry Middleware with Exponential Backoff
 
-A robust retry middleware implementation with exponential backoff, circuit breaker pattern, and comprehensive observability for the CanAI Emotional Sovereignty Platform.
+A robust retry middleware implementation with exponential backoff, circuit breaker pattern, and
+comprehensive observability for the CanAI Emotional Sovereignty Platform.
 
 ## Features
 
@@ -23,9 +24,13 @@ The retry middleware is included in the backend package. No additional installat
 import { retryWithBackoff } from './middleware/retry.js';
 
 // Simple retry with default configuration
-const result = await retryWithBackoff(async () => {
-  return await fetch('https://api.example.com/data');
-}, {}, 'api-service');
+const result = await retryWithBackoff(
+  async () => {
+    return await fetch('https://api.example.com/data');
+  },
+  {},
+  'api-service'
+);
 ```
 
 ### Custom Configuration
@@ -41,13 +46,13 @@ const config: Partial<RetryConfig> = {
   jitterEnabled: true,
   jitterFactor: 0.2,
   timeout: 5000,
-  shouldRetry: (error) => {
+  shouldRetry: error => {
     // Custom retry logic
     return error.status >= 500 || error.code === 'ECONNRESET';
   },
   onRetry: (error, attempt, delay) => {
     console.log(`Retry ${attempt} after ${delay}ms: ${error.message}`);
-  }
+  },
 };
 
 const result = await retryWithBackoff(apiCall, config, 'custom-service');
@@ -57,27 +62,27 @@ const result = await retryWithBackoff(apiCall, config, 'custom-service');
 
 ### RetryConfig
 
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `maxAttempts` | `number` | `3` | Maximum number of retry attempts |
-| `baseDelay` | `number` | `500` | Base delay in milliseconds |
-| `multiplier` | `number` | `2` | Exponential backoff multiplier |
-| `maxDelay` | `number` | `5000` | Maximum delay in milliseconds |
-| `jitterEnabled` | `boolean` | `true` | Enable random jitter |
-| `jitterFactor` | `number` | `0.2` | Jitter factor (0-1) |
-| `timeout` | `number` | `10000` | Request timeout in milliseconds |
-| `shouldRetry` | `(error: any) => boolean` | See below | Custom retry logic |
-| `onRetry` | `(error, attempt, delay) => void` | - | Retry callback |
-| `onSuccess` | `(result, attempt) => void` | - | Success callback |
-| `onFailure` | `(error, attempts) => void` | - | Failure callback |
+| Property        | Type                              | Default   | Description                      |
+| --------------- | --------------------------------- | --------- | -------------------------------- |
+| `maxAttempts`   | `number`                          | `3`       | Maximum number of retry attempts |
+| `baseDelay`     | `number`                          | `500`     | Base delay in milliseconds       |
+| `multiplier`    | `number`                          | `2`       | Exponential backoff multiplier   |
+| `maxDelay`      | `number`                          | `5000`    | Maximum delay in milliseconds    |
+| `jitterEnabled` | `boolean`                         | `true`    | Enable random jitter             |
+| `jitterFactor`  | `number`                          | `0.2`     | Jitter factor (0-1)              |
+| `timeout`       | `number`                          | `10000`   | Request timeout in milliseconds  |
+| `shouldRetry`   | `(error: any) => boolean`         | See below | Custom retry logic               |
+| `onRetry`       | `(error, attempt, delay) => void` | -         | Retry callback                   |
+| `onSuccess`     | `(result, attempt) => void`       | -         | Success callback                 |
+| `onFailure`     | `(error, attempts) => void`       | -         | Failure callback                 |
 
 ### CircuitBreakerConfig
 
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `failureThreshold` | `number` | `5` | Failures before opening circuit |
-| `resetTimeout` | `number` | `60000` | Time to wait before half-open |
-| `alertThreshold` | `number` | `300000` | Alert if open too long |
+| Property           | Type     | Default  | Description                     |
+| ------------------ | -------- | -------- | ------------------------------- |
+| `failureThreshold` | `number` | `5`      | Failures before opening circuit |
+| `resetTimeout`     | `number` | `60000`  | Time to wait before half-open   |
+| `alertThreshold`   | `number` | `300000` | Alert if open too long          |
 
 ## Default Error Classification
 
@@ -102,16 +107,21 @@ import express from 'express';
 const app = express();
 
 // Apply retry middleware to all routes
-app.use(retryMiddleware({
-  maxAttempts: 3,
-  baseDelay: 1000
-}));
+app.use(
+  retryMiddleware({
+    maxAttempts: 3,
+    baseDelay: 1000,
+  })
+);
 
 // Or apply to specific routes
-app.use('/api/external', retryMiddleware({
-  maxAttempts: 5,
-  timeout: 15000
-}));
+app.use(
+  '/api/external',
+  retryMiddleware({
+    maxAttempts: 5,
+    timeout: 15000,
+  })
+);
 ```
 
 ## Service-Specific Wrappers
@@ -124,9 +134,9 @@ const gpt4oRetry = createRetryWrapper('gpt4o-service', {
   maxAttempts: 3,
   baseDelay: 2000,
   timeout: 30000,
-  shouldRetry: (error) => {
+  shouldRetry: error => {
     return error.status === 429 || (error.status >= 500 && error.status < 600);
-  }
+  },
 });
 
 // Use the wrapper
@@ -139,7 +149,8 @@ const result = await gpt4oRetry(async () => {
 
 ### Sentry Integration
 
-All retry attempts, circuit breaker state changes, and failures are automatically logged to Sentry with:
+All retry attempts, circuit breaker state changes, and failures are automatically logged to Sentry
+with:
 
 - Service name and context
 - Attempt counts and delays
@@ -165,20 +176,20 @@ By default, the following errors are considered retriable:
 
 ```typescript
 // Network errors
-error.code === 'ECONNRESET'
-error.code === 'ENOTFOUND'
-error.code === 'ETIMEDOUT'
+error.code === 'ECONNRESET';
+error.code === 'ENOTFOUND';
+error.code === 'ETIMEDOUT';
 
 // Server errors
-error.status >= 500 && error.status < 600
+error.status >= 500 && error.status < 600;
 
 // Rate limits
-error.status === 429
+error.status === 429;
 
 // Error messages containing network error codes
-error.message.toLowerCase().includes('econnreset')
-error.message.toLowerCase().includes('enotfound')
-error.message.toLowerCase().includes('etimedout')
+error.message.toLowerCase().includes('econnreset');
+error.message.toLowerCase().includes('enotfound');
+error.message.toLowerCase().includes('etimedout');
 ```
 
 ### Non-Retriable Errors
@@ -245,13 +256,13 @@ See `retry-example.ts` for comprehensive usage examples including:
 const gpt4oRetry = createRetryWrapper('gpt4o-service', {
   maxAttempts: 3,
   baseDelay: 2000,
-  timeout: 30000
+  timeout: 30000,
 });
 
 const response = await gpt4oRetry(async () => {
   return await openai.chat.completions.create({
     model: 'gpt-4o',
-    messages: [{ role: 'user', content: prompt }]
+    messages: [{ role: 'user', content: prompt }],
   });
 });
 ```
@@ -262,15 +273,15 @@ const response = await gpt4oRetry(async () => {
 const stripeRetry = createRetryWrapper('stripe-service', {
   maxAttempts: 2,
   baseDelay: 1000,
-  shouldRetry: (error) => {
+  shouldRetry: error => {
     return error.type === 'StripeCardError' && error.code === 'card_declined';
-  }
+  },
 });
 
 const payment = await stripeRetry(async () => {
   return await stripe.paymentIntents.create({
     amount: 1000,
-    currency: 'usd'
+    currency: 'usd',
   });
 });
 ```
@@ -282,9 +293,9 @@ const externalApiRetry = createRetryWrapper('external-api', {
   maxAttempts: 5,
   baseDelay: 1000,
   timeout: 15000,
-  shouldRetry: (error) => {
+  shouldRetry: error => {
     return error.status >= 500 || error.status === 429;
-  }
+  },
 });
 
 const data = await externalApiRetry(async () => {
@@ -329,4 +340,4 @@ When contributing to the retry middleware:
 
 ## License
 
-Part of the CanAI Emotional Sovereignty Platform. 
+Part of the CanAI Emotional Sovereignty Platform.

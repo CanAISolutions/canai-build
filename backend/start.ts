@@ -1,4 +1,4 @@
-/// <reference path="./src/types/express.d.ts" />
+// import type { Request } from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
 import { createApp } from './server.js';

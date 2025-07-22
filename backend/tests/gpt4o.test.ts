@@ -1,8 +1,8 @@
 require('../../testEnvSetup');
 /* eslint-disable no-undef */
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { createHume } from '@ai-sdk/hume';
-import { hume } from '../services/hume.js';
+// import { createHume } from '@ai-sdk/hume';
+// import { hume } from '../services/hume.js';
 
 // mockHumeAnalyze must be the first thing in the file
 const mockHumeAnalyze = vi.fn();
@@ -17,9 +17,9 @@ vi.mock('@ai-sdk/hume', () => ({
 
 const mockPostHogCapture = vi.fn();
 const mockPostHogInstance = { capture: mockPostHogCapture };
-const mockEncode = vi.fn(text => {
+const mockEncode = vi.fn((text: string) => {
   console.log('mockEncode called with:', text);
-  return Array.from(text).map(c => c.charCodeAt(0));
+  return Array.from(text).map((c: string) => c.charCodeAt(0));
 });
 const mockDecode = vi.fn(tokens => {
   console.log('mockDecode called with:', tokens);
@@ -81,16 +81,16 @@ process.env.HUME_API_KEY = 'test_hume_key';
 describe('GPT4Service', () => {
   let GPT4Service;
   let service;
-  let mockSentryCapture;
+  // let mockSentryCapture;
 
   beforeEach(async () => {
     vi.clearAllMocks();
     vi.resetModules(); // Reset module cache to ensure fresh mocks
-    
+
     // Get the mocked Sentry functions
-    const Sentry = await import('@sentry/node');
-    mockSentryCapture = Sentry.captureException;
-    
+    // const Sentry = await import('@sentry/node');
+    // mockSentryCapture = Sentry.captureException;
+
     // Now import GPT4Service and hume after the mocks
     const module = await import('../services/gpt4o.js');
     GPT4Service = module.GPT4Service;
@@ -183,12 +183,12 @@ describe('GPT4Service', () => {
 
     // Skipped for MVP: Hume AI resonance mocking is not critical for PRD MVP acceptance. See code-fix.md.
     test.skip('validates response with high resonance and trustDelta', async () => {
-      const { hume } = await import('../services/hume.js');
-      console.debug('hume after import:', hume);
-      console.debug('hume.language after import:', hume && hume.language);
-      vi.spyOn(hume.language, 'analyzeText').mockResolvedValue({
-        predictions: [{ arousal: 0.8, valence: 0.9 }],
-      });
+      // const { hume } = await import('../services/hume.js');
+      // console.debug('hume after import:', hume);
+      // console.debug('hume.language after import:', hume && hume.language);
+      // vi.spyOn(hume.language, 'analyzeText').mockResolvedValue({
+      //   predictions: [{ arousal: 0.8, valence: 0.9 }],
+      // });
       const response =
         'Valid response with over 100 characters to meet completeness requirement for trust scoring purposes in a business plan context.';
       const result = await service.validateResponse(response, {
