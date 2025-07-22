@@ -18,6 +18,142 @@ vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY', 'test-service-role-key');
 vi.stubEnv('OPENAI_API_KEY', 'test-openai-key');
 vi.stubEnv('HUME_API_KEY', 'test-hume-key');
 
+// Global Supabase mock for all tests
+vi.mock('@supabase/supabase-js', () => {
+  const mockLog = {
+    id: 'test-log-id',
+    user_id: 'test-user-id',
+    event_type: 'checkout.session.created',
+    status: 'completed',
+    amount: 1000,
+    created_at: new Date().toISOString(),
+  };
+
+  // Create chainable mock methods
+  const createChainableMock = () => ({
+    select: vi.fn(() => ({
+      eq: vi.fn(() =>
+        Promise.resolve({ data: [mockLog], error: null, count: 1 })
+      ),
+      gte: vi.fn(() =>
+        Promise.resolve({ data: [mockLog], error: null, count: 1 })
+      ),
+      lte: vi.fn(() =>
+        Promise.resolve({ data: [mockLog], error: null, count: 1 })
+      ),
+      order: vi.fn(() =>
+        Promise.resolve({ data: [mockLog], error: null, count: 1 })
+      ),
+      range: vi.fn(() =>
+        Promise.resolve({ data: [mockLog], error: null, count: 1 })
+      ),
+      limit: vi.fn(() =>
+        Promise.resolve({ data: [mockLog], error: null, count: 1 })
+      ),
+    })),
+    insert: vi.fn(() => ({
+      select: vi.fn(() => Promise.resolve({ data: [mockLog], error: null })),
+    })),
+    update: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    delete: vi.fn(() => ({
+      eq: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    })),
+    eq: vi.fn(() =>
+      Promise.resolve({ data: [mockLog], error: null, count: 1 })
+    ),
+    gte: vi.fn(() =>
+      Promise.resolve({ data: [mockLog], error: null, count: 1 })
+    ),
+    lte: vi.fn(() =>
+      Promise.resolve({ data: [mockLog], error: null, count: 1 })
+    ),
+    order: vi.fn(() =>
+      Promise.resolve({ data: [mockLog], error: null, count: 1 })
+    ),
+    range: vi.fn(() =>
+      Promise.resolve({ data: [mockLog], error: null, count: 1 })
+    ),
+    limit: vi.fn(() =>
+      Promise.resolve({ data: [mockLog], error: null, count: 1 })
+    ),
+  });
+
+  return {
+    createClient: vi.fn(() => ({
+      from: vi.fn(() => createChainableMock()),
+      rpc: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    })),
+  };
+});
+
+// Mock the local Supabase client that's imported in routes
+vi.mock('../supabase/client.js', () => {
+  const mockLog = {
+    id: 'test-log-id',
+    user_id: 'test-user-id',
+    event_type: 'checkout.session.created',
+    status: 'completed',
+    amount: 1000,
+    created_at: new Date().toISOString(),
+  };
+
+  // Create chainable mock methods
+  const createChainableMock = () => ({
+    select: vi.fn(() => ({
+      eq: vi.fn(() =>
+        Promise.resolve({ data: [mockLog], error: null, count: 1 })
+      ),
+      gte: vi.fn(() =>
+        Promise.resolve({ data: [mockLog], error: null, count: 1 })
+      ),
+      lte: vi.fn(() =>
+        Promise.resolve({ data: [mockLog], error: null, count: 1 })
+      ),
+      order: vi.fn(() =>
+        Promise.resolve({ data: [mockLog], error: null, count: 1 })
+      ),
+      range: vi.fn(() =>
+        Promise.resolve({ data: [mockLog], error: null, count: 1 })
+      ),
+      limit: vi.fn(() =>
+        Promise.resolve({ data: [mockLog], error: null, count: 1 })
+      ),
+    })),
+    insert: vi.fn(() => ({
+      select: vi.fn(() => Promise.resolve({ data: [mockLog], error: null })),
+    })),
+    update: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    delete: vi.fn(() => ({
+      eq: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    })),
+    eq: vi.fn(() =>
+      Promise.resolve({ data: [mockLog], error: null, count: 1 })
+    ),
+    gte: vi.fn(() =>
+      Promise.resolve({ data: [mockLog], error: null, count: 1 })
+    ),
+    lte: vi.fn(() =>
+      Promise.resolve({ data: [mockLog], error: null, count: 1 })
+    ),
+    order: vi.fn(() =>
+      Promise.resolve({ data: [mockLog], error: null, count: 1 })
+    ),
+    range: vi.fn(() =>
+      Promise.resolve({ data: [mockLog], error: null, count: 1 })
+    ),
+    limit: vi.fn(() =>
+      Promise.resolve({ data: [mockLog], error: null, count: 1 })
+    ),
+  });
+
+  return {
+    default: {
+      from: vi.fn(() => createChainableMock()),
+      rpc: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    },
+  };
+});
+
 // Mock console methods to reduce noise in tests
 const originalConsole = { ...console };
 vi.spyOn(console, 'log').mockImplementation(() => {});

@@ -1,12 +1,6 @@
 // Vitest test skeleton for retry middleware (exponential backoff, circuit breaker, observability)
 // Reference: docs/retry-middleware-test-plan.md
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-// import {
-//   retryWithBackoff,
-//   CircuitBreaker,
-//   RetryOptions,
-//   CircuitBreakerOptions,
-// } from '../middleware/retry';
+import { describe, it } from 'vitest';
 
 // --- Unit Tests ---
 describe('Retry Middleware - Unit', () => {

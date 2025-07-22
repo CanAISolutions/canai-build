@@ -481,7 +481,7 @@ describe('/v1/auth/refresh-token endpoint', () => {
       );
     }
     const origHandle = layer.route.stack[0].handle;
-    layer.route.stack[0].handle = (req, res, next) =>
+    layer.route.stack[0].handle = (req, res, _next) =>
       res.status(429).json({ error: 'Rate limit exceeded' });
     const res = await request(app)
       .post('/v1/auth/refresh-token')

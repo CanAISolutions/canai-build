@@ -1,6 +1,5 @@
 // backend/tests/unit/posthog.test.js
 require('../../../testEnvSetup');
-import * as posthogNode from 'posthog-node';
 
 process.env['POSTHOG_HOST'] = 'http://localhost';
 process.env['npm_package_version'] = '1.2.3';

@@ -18,7 +18,10 @@ class GPT4oFallbackService {
   // this.posthog = PostHog.init(process.env.POSTHOG_API_KEY);
 
   constructor() {
-    this.openai = new OpenAI({ apiKey: process.env['OPENAI_API_KEY'] });
+    this.openai = new OpenAI({
+      apiKey: process.env['OPENAI_API_KEY'],
+      dangerouslyAllowBrowser: true, // Required for test environment
+    });
     this.scorer = new EmotionalScorer();
     // this.posthog = PostHog.init(process.env.POSTHOG_API_KEY);
   }

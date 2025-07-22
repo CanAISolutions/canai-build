@@ -27,7 +27,11 @@ export default defineConfig({
         statements: 80,
       },
     },
-    include: ['tests/**/*.test.{js,ts}', 'middleware/*.test.{js,ts}'],
+    include: [
+      'tests/**/*.test.{js,ts}',
+      'middleware/*.test.{js,ts}',
+      'validation/*.test.{js,ts}',
+    ],
     setupFiles: ['tests/vitest.setup.ts'],
   },
 });

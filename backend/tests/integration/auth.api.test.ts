@@ -49,7 +49,6 @@ vi.mock('openai', () => ({
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import request from 'supertest';
-import jwt from 'jsonwebtoken';
 
 let Sentry, PostHog, createApp, server;
 
@@ -70,12 +69,6 @@ afterEach(async () => {
   console.log('[DEBUG] afterEach: end');
   vi.clearAllMocks();
 }, 30000);
-
-// const _validJWT = jwt.sign(
-//   { sub: '1234567890', name: 'John Doe', iat: 1516239022 },
-//   'your-secret-key',
-//   { expiresIn: '1h' }
-// );
 
 const sentrySpy = vi.fn();
 const posthogSpy = vi.fn();

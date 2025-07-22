@@ -60,179 +60,211 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !TEST_USER_JWT || !TEST_USER_ID) {
 
   let createdPromptLogId: string | undefined;
 
-  describe.skip('prompt_logs CRUD & RLS (F5: Input Collection)', () => {
-    // Clean up any test records before/after
-    beforeAll(async () => {
-      await supabase
-        .from('prompt_logs')
-        .delete()
-        .eq('business_description', testPromptLog.business_description);
-    });
-    afterAll(async () => {
-      await supabase
-        .from('prompt_logs')
-        .delete()
-        .eq('business_description', testPromptLog.business_description);
-    });
+  // Skip integration tests in test environment (requires running server)
+  const shouldSkipIntegration =
+    process.env.NODE_ENV === 'test' && !process.env.RUN_INTEGRATION_TESTS;
 
-    it('should create a prompt_log (POST /api/prompt-logs)', async () => {
-      const res = await axios.post(
-        `${API_BASE_URL}/api/prompt-logs`,
-        testPromptLog,
-        {
-          headers: { Authorization: `Bearer ${TEST_USER_JWT}` },
-        }
-      );
-      expect(res.status).toBe(201);
-      expect(res.data).toHaveProperty('id');
-      createdPromptLogId = res.data.id;
-    });
+  (shouldSkipIntegration ? describe.skip : describe)(
+    'prompt_logs CRUD & RLS (F5: Input Collection)',
+    () => {
+      // Clean up any test records before/after
+      beforeAll(async () => {
+        // Set up required environment variables
+        process.env.SUPABASE_URL =
+          process.env.SUPABASE_URL || 'https://test.supabase.co';
+        process.env.SUPABASE_ANON_KEY =
+          process.env.SUPABASE_ANON_KEY || 'test-anon-key';
+        process.env.SUPABASE_SERVICE_KEY =
+          process.env.SUPABASE_SERVICE_KEY || 'test-service-key';
+        process.env.TEST_USER_JWT =
+          process.env.TEST_USER_JWT || 'test-user-jwt';
+        process.env.TEST_ADMIN_JWT =
+          process.env.TEST_ADMIN_JWT || 'test-admin-jwt';
+        process.env.TEST_USER_ID = process.env.TEST_USER_ID || 'test-user-id';
+        process.env.TEST_API_BASE_URL =
+          process.env.TEST_API_BASE_URL || 'http://localhost:3000';
 
-    it('should read own prompt_log (GET /api/prompt-logs/:id)', async () => {
-      const res = await axios.get(
-        `${API_BASE_URL}/api/prompt-logs/${createdPromptLogId}`,
-        {
-          headers: { Authorization: `Bearer ${TEST_USER_JWT}` },
-        }
-      );
-      expect(res.status).toBe(200);
-      expect(res.data).toHaveProperty('id', createdPromptLogId);
-      expect(res.data).toHaveProperty('user_id', TEST_USER_ID);
-    });
+        await supabase
+          .from('prompt_logs')
+          .delete()
+          .eq('business_description', testPromptLog.business_description);
+      });
+      afterAll(async () => {
+        await supabase
+          .from('prompt_logs')
+          .delete()
+          .eq('business_description', testPromptLog.business_description);
+      });
 
-    it('should not allow another user to read prompt_log (GET /api/prompt-logs/:id)', async () => {
-      // Use admin JWT as a different user for this test
-      if (!TEST_ADMIN_JWT) return;
-      try {
-        await axios.get(
-          `${API_BASE_URL}/api/prompt-logs/${createdPromptLogId}`,
+      it('should create a prompt_log (POST /api/prompt-logs)', async () => {
+        const res = await axios.post(
+          `${API_BASE_URL}/api/prompt-logs`,
+          testPromptLog,
           {
-            headers: { Authorization: `Bearer ${TEST_ADMIN_JWT}` },
+            headers: { Authorization: `Bearer ${TEST_USER_JWT}` },
           }
         );
-        // If admin is allowed, this should be checked for role in API logic
-        // If not allowed, should throw
-      } catch (err: unknown) {
-        expect([403, 404]).toContain(err instanceof Error ? err.message : err);
-      }
-    });
+        expect(res.status).toBe(201);
+        expect(res.data).toHaveProperty('id');
+        createdPromptLogId = res.data.id;
+      });
 
-    it('should update own prompt_log (PATCH /api/prompt-logs/:id)', async () => {
-      const res = await axios.patch(
-        `${API_BASE_URL}/api/prompt-logs/${createdPromptLogId}`,
-        {
-          business_description:
-            'Updated business description for integration test',
-        },
-        {
-          headers: { Authorization: `Bearer ${TEST_USER_JWT}` },
-        }
-      );
-      expect(res.status).toBe(200);
-      expect(res.data).toHaveProperty(
-        'business_description',
-        'Updated business description for integration test'
-      );
-    });
-
-    it('should delete own prompt_log (DELETE /api/prompt-logs/:id)', async () => {
-      const res = await axios.delete(
-        `${API_BASE_URL}/api/prompt-logs/${createdPromptLogId}`,
-        {
-          headers: { Authorization: `Bearer ${TEST_USER_JWT}` },
-        }
-      );
-      expect([200, 204]).toContain(res.status);
-      // Confirm deletion
-      const { data } = await supabase
-        .from('prompt_logs')
-        .select('id')
-        .eq('id', createdPromptLogId);
-      expect(data && data.length).toBe(0);
-    });
-
-    it('should enforce RLS: unauthenticated cannot create/read/update/delete', async () => {
-      // Create
-      try {
-        await axios.post(`${API_BASE_URL}/api/prompt-logs`, testPromptLog);
-      } catch (err: unknown) {
-        expect([401, 403]).toContain(err instanceof Error ? err.message : err);
-      }
-      // Read
-      try {
-        await axios.get(
-          `${API_BASE_URL}/api/prompt-logs/${createdPromptLogId}`
-        );
-      } catch (err: unknown) {
-        expect([401, 403]).toContain(err instanceof Error ? err.message : err);
-      }
-      // Update
-      try {
-        await axios.patch(
+      it('should read own prompt_log (GET /api/prompt-logs/:id)', async () => {
+        const res = await axios.get(
           `${API_BASE_URL}/api/prompt-logs/${createdPromptLogId}`,
-          { business_description: 'fail' }
-        );
-      } catch (err: unknown) {
-        expect([401, 403]).toContain(err instanceof Error ? err.message : err);
-      }
-      // Delete
-      try {
-        await axios.delete(
-          `${API_BASE_URL}/api/prompt-logs/${createdPromptLogId}`
-        );
-      } catch (err: unknown) {
-        expect([401, 403]).toContain(err instanceof Error ? err.message : err);
-      }
-    });
-
-    it('should reject constraint violations (POST /api/prompt-logs)', async () => {
-      // Missing required field
-      try {
-        await axios.post(
-          `${API_BASE_URL}/api/prompt-logs`,
           {
-            ...testPromptLog,
-            business_description: undefined,
+            headers: { Authorization: `Bearer ${TEST_USER_JWT}` },
+          }
+        );
+        expect(res.status).toBe(200);
+        expect(res.data).toHaveProperty('id', createdPromptLogId);
+        expect(res.data).toHaveProperty('user_id', TEST_USER_ID);
+      });
+
+      it('should not allow another user to read prompt_log (GET /api/prompt-logs/:id)', async () => {
+        // Use admin JWT as a different user for this test
+        if (!TEST_ADMIN_JWT) return;
+        try {
+          await axios.get(
+            `${API_BASE_URL}/api/prompt-logs/${createdPromptLogId}`,
+            {
+              headers: { Authorization: `Bearer ${TEST_ADMIN_JWT}` },
+            }
+          );
+          // If admin is allowed, this should be checked for role in API logic
+          // If not allowed, should throw
+        } catch (err: unknown) {
+          expect([403, 404]).toContain(
+            err instanceof Error ? err.message : err
+          );
+        }
+      });
+
+      it('should update own prompt_log (PATCH /api/prompt-logs/:id)', async () => {
+        const res = await axios.patch(
+          `${API_BASE_URL}/api/prompt-logs/${createdPromptLogId}`,
+          {
+            business_description:
+              'Updated business description for integration test',
           },
           {
             headers: { Authorization: `Bearer ${TEST_USER_JWT}` },
           }
         );
-      } catch (err: unknown) {
-        expect(err instanceof Error ? err.message : err).toBe(400);
-      }
-      // Invalid field (too short)
-      try {
-        await axios.post(
-          `${API_BASE_URL}/api/prompt-logs`,
-          {
-            ...testPromptLog,
-            business_description: 'short',
-          },
+        expect(res.status).toBe(200);
+        expect(res.data).toHaveProperty(
+          'business_description',
+          'Updated business description for integration test'
+        );
+      });
+
+      it('should delete own prompt_log (DELETE /api/prompt-logs/:id)', async () => {
+        const res = await axios.delete(
+          `${API_BASE_URL}/api/prompt-logs/${createdPromptLogId}`,
           {
             headers: { Authorization: `Bearer ${TEST_USER_JWT}` },
           }
         );
-      } catch (err: unknown) {
-        expect(err instanceof Error ? err.message : err).toBe(400);
-      }
-    });
+        expect([200, 204]).toContain(res.status);
+        // Confirm deletion
+        const { data } = await supabase
+          .from('prompt_logs')
+          .select('id')
+          .eq('id', createdPromptLogId);
+        expect(data && data.length).toBe(0);
+      });
 
-    it('should write audit log after create/update/delete', async () => {
-      // Check audit_logs for recent entry by user
-      const { data, error } = await supabase
-        .from('audit_logs')
-        .select('*')
-        .eq('user_id', TEST_USER_ID)
-        .order('created_at', { ascending: false })
-        .limit(5);
-      expect(error).toBeNull();
-      // At least one audit log entry for prompt_logs
-      expect(
-        data && data.some((row: unknown) => row.table_name === 'prompt_logs')
-      ).toBe(true);
-    });
-  });
+      it('should enforce RLS: unauthenticated cannot create/read/update/delete', async () => {
+        // Create
+        try {
+          await axios.post(`${API_BASE_URL}/api/prompt-logs`, testPromptLog);
+        } catch (err: unknown) {
+          expect([401, 403]).toContain(
+            err instanceof Error ? err.message : err
+          );
+        }
+        // Read
+        try {
+          await axios.get(
+            `${API_BASE_URL}/api/prompt-logs/${createdPromptLogId}`
+          );
+        } catch (err: unknown) {
+          expect([401, 403]).toContain(
+            err instanceof Error ? err.message : err
+          );
+        }
+        // Update
+        try {
+          await axios.patch(
+            `${API_BASE_URL}/api/prompt-logs/${createdPromptLogId}`,
+            { business_description: 'fail' }
+          );
+        } catch (err: unknown) {
+          expect([401, 403]).toContain(
+            err instanceof Error ? err.message : err
+          );
+        }
+        // Delete
+        try {
+          await axios.delete(
+            `${API_BASE_URL}/api/prompt-logs/${createdPromptLogId}`
+          );
+        } catch (err: unknown) {
+          expect([401, 403]).toContain(
+            err instanceof Error ? err.message : err
+          );
+        }
+      });
+
+      it('should reject constraint violations (POST /api/prompt-logs)', async () => {
+        // Missing required field
+        try {
+          await axios.post(
+            `${API_BASE_URL}/api/prompt-logs`,
+            {
+              ...testPromptLog,
+              business_description: undefined,
+            },
+            {
+              headers: { Authorization: `Bearer ${TEST_USER_JWT}` },
+            }
+          );
+        } catch (err: unknown) {
+          expect(err instanceof Error ? err.message : err).toBe(400);
+        }
+        // Invalid field (too short)
+        try {
+          await axios.post(
+            `${API_BASE_URL}/api/prompt-logs`,
+            {
+              ...testPromptLog,
+              business_description: 'short',
+            },
+            {
+              headers: { Authorization: `Bearer ${TEST_USER_JWT}` },
+            }
+          );
+        } catch (err: unknown) {
+          expect(err instanceof Error ? err.message : err).toBe(400);
+        }
+      });
+
+      it('should write audit log after create/update/delete', async () => {
+        // Check audit_logs for recent entry by user
+        const { data, error } = await supabase
+          .from('audit_logs')
+          .select('*')
+          .eq('user_id', TEST_USER_ID)
+          .order('created_at', { ascending: false })
+          .limit(5);
+        expect(error).toBeNull();
+        // At least one audit log entry for prompt_logs
+        expect(
+          data && data.some((row: unknown) => row.table_name === 'prompt_logs')
+        ).toBe(true);
+      });
+    }
+  );
 
   describe.skip('prompt logs integration', () => {
     // Skipped: Missing env vars, not MVP-critical per PRD.md section 7.2
