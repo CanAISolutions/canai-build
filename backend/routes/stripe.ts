@@ -1,8 +1,6 @@
 import express from 'express';
 import stripe from '../services/stripe.js';
-import { createClient } from '@supabase/supabase-js';
 import { createCheckoutSession } from '../services/stripeCheckout.js';
-import Joi from 'joi';
 import jwt from 'jsonwebtoken';
 import {
   queryPaymentLogs,
@@ -20,11 +18,11 @@ router.options('*', (req, res) => {
   res.sendStatus(204);
 });
 
-const allowedTracks = [
-  'business-plan-builder',
-  'social-media-campaign',
-  'website-audit-feedback',
-];
+// const allowedTracks = [
+//   'business-plan-builder',
+//   'social-media-campaign',
+//   'website-audit-feedback',
+// ];
 
 router.post(
   '/stripe-session',

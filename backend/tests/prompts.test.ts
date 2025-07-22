@@ -16,7 +16,7 @@ describe.skip('Prompt Templates', () => {
     process.env.SUPABASE_URL =
       process.env.SUPABASE_URL || 'https://your-test-project.supabase.co';
     process.env.SUPABASE_KEY = process.env.SUPABASE_KEY || 'your-test-anon-key';
-    supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+    // supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
   });
 
   test('Social Media Template generates valid campaign', async () => {

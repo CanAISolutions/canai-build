@@ -14,7 +14,7 @@ class MockScorer {
   constructor() {
     this.belowThreshold = false;
   }
-  normalizeScore(score) {
+  normalizeScore(score: unknown) {
     return this.belowThreshold
       ? { arousal: 0.4, valence: 0.5, confidence: 0.9 }
       : score;

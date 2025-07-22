@@ -13,6 +13,43 @@ vi.mock('../../services/gpt4o', () => ({
     raw: 'Mocked raw output',
   }),
 }));
+
+vi.mock('../../services/gpt4oFallback', () => ({
+  default: vi.fn().mockImplementation(() => ({
+    generate: vi.fn().mockResolvedValue({
+      content: 'Mocked GPT-4o fallback content',
+      raw: 'Mocked raw output',
+    }),
+  })),
+}));
+
+vi.mock('../../services/previewGenerator', () => ({
+  default: {
+    generatePreviewSpark: vi.fn().mockResolvedValue({
+      preview: 'Mocked preview content',
+      id: 'mock-preview-id',
+      businessType: 'tech',
+      tone: 'bold',
+      customTone: 'edgy',
+      targetAudience: 'startups',
+      customInstructions: 'Focus on innovation.',
+      maxLength: 150,
+    }),
+  },
+}));
+
+vi.mock('../../services/hume', () => ({
+  default: vi.fn().mockImplementation(() => ({
+    analyzeEmotion: vi.fn().mockResolvedValue({
+      emotion: 'joy',
+      confidence: 0.8,
+    }),
+    circuitBreaker: {
+      isOpen: vi.fn().mockReturnValue(false),
+      state: 'CLOSED',
+    },
+  })),
+}));
 // Defensive analytics event spy setup for validation error (see docs/generate-preview-spark-test-plan.md, task-15-defensive-implementation-plan.md)
 vi.mock('../../services/posthog', () => ({
   __esModule: true,
@@ -42,39 +79,63 @@ type AnalyticsMockType = {
   default: { capture: (...args: unknown[]) => unknown };
   safeCapture?: (...args: unknown[]) => unknown;
 };
-type SentryMockType = {
-  default: {
-    logger: {
-      info: (...args: unknown[]) => unknown;
-      error: (...args: unknown[]) => unknown;
-    };
-  };
-};
+// type SentryMockType = {
+//   default: {
+//     logger: {
+//       info: (...args: unknown[]) => unknown;
+//       error: (...args: unknown[]) => unknown;
+//     };
+//   };
+// };
 
-let Sentry: unknown, analytics: unknown, app: Application;
+let analytics: unknown, app: Application;
+
+// Pre-import modules once to avoid repeated imports
+beforeAll(async () => {
+  const maxRetries = 3;
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      analytics = await import('../../services/posthog');
+      const mod = await import('../../server');
+      app = mod.createApp() as Application;
+
+      // If we get here, the import was successful
+      console.log(`Module import successful on attempt ${attempt}`);
+      return;
+    } catch (error) {
+      lastError = error as Error;
+      console.warn(`Module import attempt ${attempt} failed:`, error);
+
+      if (attempt < maxRetries) {
+        // Wait a bit before retrying
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      }
+    }
+  }
+
+  // If all retries failed, throw the last error
+  console.error('All module import attempts failed');
+  throw lastError;
+}, 30000); // 30 second timeout for initial setup
 
 beforeEach(async () => {
-  vi.resetModules();
-  
-  // Import modules with timeout and error handling
-  try {
-    Sentry = await import('../../services/instrument');
-    analytics = await import('../../services/posthog');
-    const mod = await import('../../server');
-    app = mod.createApp() as Application;
-  } catch (error) {
-    console.error('Failed to import modules:', error);
-    throw error;
-  }
-  
   vi.clearAllMocks();
 
   // Mock console methods for logging tests
   vi.spyOn(console, 'info').mockImplementation(() => {});
   vi.spyOn(console, 'error').mockImplementation(() => {});
 });
+
 afterEach(() => {
   vi.clearAllMocks();
+});
+
+afterAll(async () => {
+  // Clean up any remaining resources
+  vi.clearAllMocks();
+  vi.resetModules();
 });
 
 const validInput = {
@@ -101,8 +162,6 @@ const edgeCases = [
 
 // --- Tests ---
 describe('/v1/generate-preview-spark API (Integration, Defensive)', () => {
-  // Increase timeout for module imports
-  vi.setConfig({ testTimeout: 30000 });
   it('should generate preview with all valid fields', async () => {
     // Arrange
     const analyticsSpy = vi.spyOn(

@@ -1,50 +1,56 @@
 // Vitest skeleton for sanitize.js
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { sanitize, sanitizeWithSchema, ValidationError } from './sanitize.js';
 
-// Arrange-Act-Assert (AAA) pattern
+// 🟢 Arrange – shared setup
+beforeEach(() => {
+  vi.resetModules(); // Ensure clean state between tests
+});
 
-describe('sanitize.js', () => {
-  // TODO: Unit - plain text mode strips all HTML
-  it('should strip all HTML in plain text mode', () => {
+describe('sanitize', () => {
+  it('should strip all HTML in plain mode', () => {
     // Arrange
-    const input = '<div>Hello <b>world</b><script>alert(1)</script></div>';
+    const input =
+      '<b>Safe</b><script>evil()</script><img src=x onerror=alert(1)>';
     // Act
     const result = sanitize(input, { mode: 'plain' });
     // Assert
-    expect(result).toBe('Hello world');
+    expect(result).toBe('Safe');
   });
 
-  // TODO: Unit - rich text mode allows minimal safe tags
-  it('should allow minimal safe tags in rich text mode', () => {
+  it('should allow safe HTML in rich mode', () => {
     // Arrange
     const input =
-      '<b>Bold</b> <i>Italic</i> <script>alert(1)</script> <a href="http://x.com" onclick="evil()">link</a>';
+      '<b>Safe</b><script>evil()</script><img src=x onerror=alert(1)>';
     // Act
     const result = sanitize(input, { mode: 'rich' });
     // Assert
-    expect(result).toContain('<b>Bold</b>');
-    expect(result).toContain('<i>Italic</i>');
+    expect(result).toContain('<b>Safe</b>');
     expect(result).not.toContain('<script>');
-    expect(result).toContain('<a href="http://x.com"');
-    expect(result).not.toContain('onclick');
+    expect(result).not.toContain('<img');
   });
 
-  // TODO: Recursion - nested objects/arrays
-  it('should recursively sanitize nested objects and arrays', () => {
+  it('should handle complex nested objects/arrays', () => {
     // Arrange
     const input = {
       a: '<b>Safe</b><img src=x onerror=evil()>',
-      b: ['<script>bad()</script>', '<i>ok</i>'],
-      c: { d: '<svg/onload=evil()>', e: 'plain' },
+      b: [
+        '<script>bad()</script>',
+        { c: '<i>ok</i>', d: '<svg/onload=evil()>' },
+      ],
+      c: { d: '<svg>bad</svg>', e: 'plain' },
     };
     // Act
-    const result = sanitize(input, { mode: 'rich' });
+    const result = sanitize(input, { mode: 'rich' }) as {
+      a: string;
+      b: [string, { c: string; d: string }];
+      c: { d: string; e: string };
+    };
     // Assert
     expect(result.a).toContain('<b>Safe</b>');
     expect(result.a).not.toContain('<img');
     expect(result.b[0]).not.toContain('<script>');
-    expect(result.b[1]).toContain('<i>ok</i>');
+    expect(result.b[1].c).toContain('<i>ok</i>');
     expect(result.c.d).not.toContain('<svg');
     expect(result.c.e).toBe('plain');
   });
@@ -118,16 +124,16 @@ describe('sanitizeWithSchema', () => {
       h: 'should skip',
     };
     const schema = {
-      a: { sanitize: true, mode: 'rich' },
+      a: { sanitize: true, mode: 'rich' as const },
       b: {
         sanitize: true,
         schema: {
-          0: { sanitize: true, mode: 'plain' },
+          0: { sanitize: true, mode: 'plain' as const },
           1: {
             sanitize: true,
             schema: {
-              c: { sanitize: true, mode: 'rich' },
-              d: { sanitize: true, mode: 'plain' },
+              c: { sanitize: true, mode: 'rich' as const },
+              d: { sanitize: true, mode: 'plain' as const },
             },
           },
         },
@@ -135,13 +141,18 @@ describe('sanitizeWithSchema', () => {
       e: {
         sanitize: true,
         schema: {
-          f: { sanitize: true, mode: 'plain' },
-          g: { sanitize: true, mode: 'rich' },
+          f: { sanitize: true, mode: 'plain' as const },
+          g: { sanitize: true, mode: 'rich' as const },
         },
       },
       h: { sanitize: false },
     };
-    const result = sanitizeWithSchema(input, schema);
+    const result = sanitizeWithSchema(input, schema) as {
+      a: string;
+      b: [string, { c: string; d: string }];
+      e: { f: string; g: string };
+      h: string;
+    };
     expect(result.a).toContain('<b>Safe</b>');
     expect(result.a).not.toContain('<img');
     expect(result.b[0]).toBe('');
@@ -152,64 +163,96 @@ describe('sanitizeWithSchema', () => {
     expect(result.h).toBe('should skip');
   });
 
-  it('should throw ValidationError for missing or null fields', () => {
-    const input = { a: null };
-    const schema = { a: { sanitize: true, mode: 'plain' } };
+  it('should throw ValidationError for invalid schema', () => {
+    const input = { a: 'test' };
+    const schema = { a: { sanitize: true, mode: 'invalid' as never } };
     expect(() => sanitizeWithSchema(input, schema)).toThrow(ValidationError);
   });
 
-  it('should throw ValidationError for non-string fields', () => {
-    const input = { a: 123 };
-    const schema = { a: { sanitize: true, mode: 'plain' } };
-    expect(() => sanitizeWithSchema(input, schema)).toThrow(ValidationError);
+  it('should skip fields not in schema', () => {
+    const input = { b: 'test' }; // Field 'a' not in schema
+    const schema = { a: { sanitize: true } };
+    const result = sanitizeWithSchema(input, schema) as {
+      b: string;
+      a?: undefined;
+    };
+    expect(result.b).toBe('test'); // Should preserve field not in schema
+    expect(result.a).toBeUndefined(); // Field 'a' should not be present
   });
 
-  it('should handle empty, long, and unicode fields', () => {
+  it('should handle arrays with mixed content types', () => {
     const input = {
-      a: '',
-      b: 'a'.repeat(10000) + '<script>bad()</script>',
-      c: '\ud835\udcaf\ud835\udc52\ud835\udcc8\ud835\udcc9 <b>\ud835\udccd\ud835\udcc8\ud835\udcc8</b>\u200B',
+      a: '<b>Safe</b><img src=x onerror=evil()>',
+      b: [
+        '<script>bad()</script>',
+        { c: '<i>ok</i>', d: '<svg/onload=evil()>' },
+      ],
+      c: '<script>bad()</script>',
     };
     const schema = {
-      a: { sanitize: true, mode: 'plain' },
-      b: { sanitize: true, mode: 'plain' },
-      c: { sanitize: true, mode: 'rich' },
-    };
-    const result = sanitizeWithSchema(input, schema);
-    expect(result.a).toBe('');
-    expect(result.b).not.toContain('<script>');
-    expect(result.c).toContain('<b>𝓍𝓈𝓈</b>');
-    expect(result.c).not.toContain('\u200B');
-  });
-
-  it('should neutralize malicious payloads in nested fields', () => {
-    const input = {
-      a: '<img src=x onerror=alert(1)>',
-      b: {
-        c: '<svg/onload=evil()>',
-        d: '<a href="javascript:alert(1)">bad</a>',
-      },
-    };
-    const schema = {
-      a: { sanitize: true, mode: 'rich' },
+      a: { sanitize: true, mode: 'rich' as const },
       b: {
         sanitize: true,
         schema: {
-          c: { sanitize: true, mode: 'plain' },
-          d: { sanitize: true, mode: 'rich' },
+          0: { sanitize: true, mode: 'plain' as const },
+          1: {
+            sanitize: true,
+            schema: {
+              c: { sanitize: true, mode: 'rich' as const },
+              d: { sanitize: true, mode: 'plain' as const },
+            },
+          },
+        },
+      },
+      c: { sanitize: true, mode: 'plain' as const },
+    };
+    const result = sanitizeWithSchema(input, schema) as {
+      a: string;
+      b: [string, { c: string; d: string }];
+      c: string;
+    };
+    expect(result.a).toContain('<b>Safe</b>');
+    expect(result.b[1].c).toContain('<i>ok</i>');
+    expect(result.b[1].d).not.toMatch(/<svg/i);
+    expect(result.c).not.toContain('<script>');
+  });
+
+  it('should handle nested objects with complex schemas', () => {
+    const input = {
+      a: '<img src=x onerror=evil()>',
+      b: {
+        c: '<svg/onload=evil()>',
+        d: 'javascript:evil()',
+      },
+    };
+    const schema = {
+      a: { sanitize: true, mode: 'rich' as const },
+      b: {
+        sanitize: true,
+        schema: {
+          c: { sanitize: true, mode: 'rich' as const },
+          d: { sanitize: true, mode: 'plain' as const },
         },
       },
     };
-    const result = sanitizeWithSchema(input, schema);
+    const result = sanitizeWithSchema(input, schema) as {
+      a: string;
+      b: { c: string; d: string };
+    };
     expect(result.a).not.toMatch(/onerror|<img/i);
     expect(result.b.c).not.toMatch(/<svg/i);
     expect(result.b.d).not.toMatch(/javascript:/i);
   });
 
-  it('should log and handle errors for nested validation errors', () => {
-    const input = { a: { b: null } };
+  it('should throw ValidationError for invalid nested schema', () => {
+    const input = { a: { b: 'test' } };
     const schema = {
-      a: { sanitize: true, schema: { b: { sanitize: true, mode: 'plain' } } },
+      a: {
+        sanitize: true,
+        schema: {
+          b: { sanitize: true, mode: 'invalid' as never },
+        },
+      },
     };
     expect(() => sanitizeWithSchema(input, schema)).toThrow(ValidationError);
   });

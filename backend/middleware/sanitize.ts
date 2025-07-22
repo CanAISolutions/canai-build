@@ -45,14 +45,33 @@ const DOMPurify = createDOMPurify(window);
 // Helper for plain string sanitization
 function sanitizePlainString(data: string): string {
   let sanitizedValue = data.normalize('NFC');
+
+  // Remove script tags and their content
   sanitizedValue = sanitizedValue
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
-  sanitizedValue = sanitizedValue.replace(/<script.*?<\/script>/gis, ''); // extra pass for script tags
+
+  // Extra pass for script tags
+  sanitizedValue = sanitizedValue.replace(/<script.*?<\/script>/gis, '');
+
+  // Remove all HTML tags
   sanitizedValue = sanitizedValue.replace(/<[^>]+>/g, '');
+
+  // Remove zero-width characters
   sanitizedValue = sanitizedValue.replace(/[\u200B-\u200D\uFEFF]/g, '');
+
+  // Remove JavaScript URLs and other dangerous protocols
+  sanitizedValue = sanitizedValue.replace(/javascript:[^;\s]*/gi, '');
+  sanitizedValue = sanitizedValue.replace(/data:[^;\s]*/gi, '');
+  sanitizedValue = sanitizedValue.replace(/vbscript:[^;\s]*/gi, '');
+
+  // Remove event handlers and other dangerous patterns
+  sanitizedValue = sanitizedValue.replace(/on\w+\s*=/gi, '');
+  sanitizedValue = sanitizedValue.replace(/<svg[^>]*>/gi, '');
+  sanitizedValue = sanitizedValue.replace(/<iframe[^>]*>/gi, '');
+
+  // If nothing remains after sanitization, try to extract attribute values
   if (/^\s*$/.test(sanitizedValue)) {
-    // Try to extract attribute values from the original string if nothing remains
     const attrMatches = [...data.matchAll(/\b\w+=(["']?)([^"'>\s]+)\1/g)];
     if (attrMatches.length > 0) {
       sanitizedValue = attrMatches.map(m => m[2]).join(' ');
@@ -60,7 +79,8 @@ function sanitizePlainString(data: string): string {
       sanitizedValue = '';
     }
   }
-  return sanitizedValue;
+
+  return sanitizedValue.trim();
 }
 
 // Minimal safe tags for rich text (customize as needed)
@@ -148,7 +168,17 @@ export function sanitizeWithSchema(
   path = ''
 ): unknown {
   // Handle null/undefined
-  if (data === null || data === undefined) return data;
+  if (data === null || data === undefined) {
+    // If this is a field that requires sanitization, throw an error
+    if (schema && (schema as SanitizeFieldRule).sanitize) {
+      throw new ValidationError(
+        `Invalid input: field is required but value is ${data === null ? 'null' : 'undefined'}.`,
+        path
+      );
+    }
+    return data;
+  }
+
   // Handle string sanitization first, before arrays/objects
   if (
     typeof data === 'string' &&
@@ -157,6 +187,12 @@ export function sanitizeWithSchema(
   ) {
     const mode = (schema as SanitizeFieldRule).mode || 'plain';
     console.log('[sanitizeWithSchema][string-handler]', { path, schema, mode });
+
+    // Validate mode
+    if (mode !== 'plain' && mode !== 'rich') {
+      throw new ValidationError(`Invalid sanitization mode: ${mode}`, path);
+    }
+
     if (mode === 'plain') {
       const sanitized = sanitizePlainString(data);
       console.log('[sanitizeWithSchema][plain][forced-regex]', {
@@ -187,6 +223,57 @@ export function sanitizeWithSchema(
       sanitizedValue = sanitizedValue
         .normalize('NFC')
         .replace(/[\u200B-\u200D\uFEFF]/g, '');
+
+      // If dangerous elements were detected, apply stricter sanitization
+      // Only strip dangerous content, preserve safe HTML
+      if (
+        data.includes('onerror') ||
+        data.includes('onload') ||
+        data.includes('javascript:') ||
+        data.includes('data:') ||
+        data.includes('<svg') ||
+        data.includes('<iframe')
+      ) {
+        console.log('[sanitizeWithSchema][strict]', {
+          key: path,
+          original: data,
+          hasOnError: data.includes('onerror'),
+          hasOnLoad: data.includes('onload'),
+          hasJavaScript: data.includes('javascript:'),
+          hasData: data.includes('data:'),
+          hasSvg: data.includes('<svg'),
+          hasIframe: data.includes('<iframe'),
+          stripping: true,
+        });
+        // Apply stricter DOMPurify config to remove dangerous content while preserving safe HTML
+        sanitizedValue = createDOMPurify(window).sanitize(data, {
+          ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br', 'div', 'span'],
+          ALLOWED_ATTR: ['class', 'id'],
+          FORBID_TAGS: [
+            'script',
+            'img',
+            'svg',
+            'iframe',
+            'math',
+            'object',
+            'embed',
+          ],
+          FORBID_ATTR: [
+            'onerror',
+            'onload',
+            'onclick',
+            'onmouseover',
+            'onfocus',
+            'onblur',
+          ],
+          ALLOW_DATA_ATTR: false,
+          ALLOW_UNKNOWN_PROTOCOLS: false,
+          FORCE_BODY: true,
+          WHOLE_DOCUMENT: false,
+          RETURN_TRUSTED_TYPE: false,
+        });
+      }
+
       console.log('[sanitizeWithSchema][rich]', {
         key: path,
         before: data,
@@ -202,6 +289,7 @@ export function sanitizeWithSchema(
     });
     return sanitized;
   }
+
   // Handle arrays recursively
   if (Array.isArray(data)) {
     return data.map((item, idx) => {
@@ -219,6 +307,19 @@ export function sanitizeWithSchema(
           appliedSchema = schema as SanitizeFieldRule;
         }
       }
+
+      // Validate mode for array items
+      if (
+        appliedSchema.mode &&
+        appliedSchema.mode !== 'plain' &&
+        appliedSchema.mode !== 'rich'
+      ) {
+        throw new ValidationError(
+          `Invalid sanitization mode: ${appliedSchema.mode}`,
+          currentPath
+        );
+      }
+
       if (
         appliedSchema.sanitize &&
         (appliedSchema.mode || 'plain') === 'plain' &&
@@ -239,6 +340,7 @@ export function sanitizeWithSchema(
       return sanitizeWithSchema(item, nestedSchema, currentPath);
     });
   }
+
   // Handle objects
   if (typeof data === 'object' && data !== null) {
     const sanitized = { ...data } as Record<string, unknown>;
@@ -252,6 +354,19 @@ export function sanitizeWithSchema(
       ) {
         fieldRule = (schema as SanitizeSchema)[key];
       }
+
+      // Validate mode for object fields
+      if (
+        fieldRule.mode &&
+        fieldRule.mode !== 'plain' &&
+        fieldRule.mode !== 'rich'
+      ) {
+        throw new ValidationError(
+          `Invalid sanitization mode: ${fieldRule.mode}`,
+          `${path}.${key}`
+        );
+      }
+
       if (fieldRule.sanitize && typeof value === 'string') {
         const mode = fieldRule.mode || 'plain';
         console.log('[sanitizeWithSchema][string-handler]', {
@@ -384,18 +499,97 @@ export function sanitize(
   if (typeof value === 'string') {
     // Normalize Unicode and remove zero-width chars
     const clean = value.normalize('NFC').replace(/[\u200B-\u200D\uFEFF]/g, '');
-    result = DOMPurify.sanitize(clean, {
-      ALLOWED_TAGS: allowedTags,
-      ALLOWED_ATTR: allowedAttr,
-      FORBID_TAGS: forbidTags,
-      FORBID_ATTR: forbidAttr,
-      ALLOWED_URI_REGEXP: uriRegexp,
-      FORCE_BODY: true,
-      WHOLE_DOCUMENT: false,
-      RETURN_TRUSTED_TYPE: false,
-    });
+
+    if (mode === 'plain') {
+      // For plain mode, strip all HTML
+      result = sanitizePlainString(clean);
+    } else {
+      // For rich mode, use DOMPurify
+      result = DOMPurify.sanitize(clean, {
+        ALLOWED_TAGS: allowedTags,
+        ALLOWED_ATTR: allowedAttr,
+        FORBID_TAGS: forbidTags,
+        FORBID_ATTR: forbidAttr,
+        ALLOWED_URI_REGEXP: uriRegexp,
+        FORCE_BODY: true,
+        WHOLE_DOCUMENT: false,
+        RETURN_TRUSTED_TYPE: false,
+      });
+      // Additional cleanup for rich mode
+      result = (result as string).replace(/<script.*?<\/script>/gis, '');
+      result = (result as string)
+        .normalize('NFC')
+        .replace(/[\u200B-\u200D\uFEFF]/g, '');
+
+      // If dangerous elements were detected, apply stricter sanitization
+      // Only strip dangerous content, preserve safe HTML
+      if (
+        clean.includes('onerror') ||
+        clean.includes('onload') ||
+        clean.includes('javascript:') ||
+        clean.includes('data:') ||
+        clean.includes('<svg') ||
+        clean.includes('<iframe')
+      ) {
+        console.log('[sanitize][strict]', {
+          original: clean,
+          hasOnError: clean.includes('onerror'),
+          hasOnLoad: clean.includes('onload'),
+          hasJavaScript: clean.includes('javascript:'),
+          hasData: clean.includes('data:'),
+          hasSvg: clean.includes('<svg'),
+          hasIframe: clean.includes('<iframe'),
+          stripping: true,
+        });
+        // Apply stricter DOMPurify config to remove dangerous content while preserving safe HTML
+        result = DOMPurify.sanitize(clean, {
+          ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br', 'div', 'span'],
+          ALLOWED_ATTR: ['class', 'id'],
+          FORBID_TAGS: [
+            'script',
+            'img',
+            'svg',
+            'iframe',
+            'math',
+            'object',
+            'embed',
+          ],
+          FORBID_ATTR: [
+            'onerror',
+            'onload',
+            'onclick',
+            'onmouseover',
+            'onfocus',
+            'onblur',
+          ],
+          ALLOW_DATA_ATTR: false,
+          ALLOW_UNKNOWN_PROTOCOLS: false,
+          FORCE_BODY: true,
+          WHOLE_DOCUMENT: false,
+          RETURN_TRUSTED_TYPE: false,
+        });
+      }
+    }
   } else if (Array.isArray(value)) {
-    result = value.map(item => sanitize(item, options));
+    result = value.map(item => {
+      if (typeof item === 'string') {
+        return sanitize(item, options);
+      } else if (item && typeof item === 'object') {
+        // For objects within arrays, recursively sanitize them
+        const sanitized: Record<string, unknown> = {};
+        for (const key in item) {
+          if (Object.prototype.hasOwnProperty.call(item, key)) {
+            sanitized[key] = sanitize(
+              (item as Record<string, unknown>)[key],
+              options
+            );
+          }
+        }
+        return sanitized;
+      } else {
+        return item;
+      }
+    });
   } else if (value && typeof value === 'object') {
     const sanitized: Record<string, unknown> = {};
     for (const key in value) {

@@ -1,11 +1,9 @@
-/// <reference path="./src/types/express.d.ts" />
-/// <reference path="./src/types/missing.d.ts" />
+import { Request, Response, NextFunction } from 'express';
+
 export interface CustomError extends Error {
   code?: string;
   type?: string;
 }
-
-import { Request, Response, NextFunction } from 'express';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -127,13 +125,15 @@ export function createApp() {
   // ==============================================
   // Retry Middleware (apply to all routes)
   // ==============================================
-  app.use(retryMiddleware({
-    maxAttempts: 3,
-    baseDelay: 500,
-    multiplier: 2,
-    maxDelay: 5000,
-    timeout: 10000
-  }));
+  app.use(
+    retryMiddleware({
+      maxAttempts: 3,
+      baseDelay: 500,
+      multiplier: 2,
+      maxDelay: 5000,
+      timeout: 10000,
+    })
+  );
 
   // ==============================================
   // Routes

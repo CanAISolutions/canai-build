@@ -11,8 +11,8 @@ console.log('🧪 Testing build process...');
 
 // Test 1: Check if required source files exist
 const requiredSourceFiles = ['start-deploy.js', 'server-deploy.js'];
-const missingSourceFiles = requiredSourceFiles.filter(file =>
-  !fs.existsSync(path.join(__dirname, file))
+const missingSourceFiles = requiredSourceFiles.filter(
+  file => !fs.existsSync(path.join(__dirname, file))
 );
 
 if (missingSourceFiles.length > 0) {
@@ -37,7 +37,7 @@ try {
   const { execSync } = await import('child_process');
   execSync('node scripts/build-deploy.js', {
     cwd: path.join(__dirname, '..'),
-    stdio: 'inherit'
+    stdio: 'inherit',
   });
   console.log('✅ Build process completed successfully');
 } catch (error) {
@@ -48,8 +48,8 @@ try {
 // Test 4: Verify dist directory contents
 const distDir = path.join(__dirname, '..', 'dist');
 const requiredDistFiles = ['start.js', 'server.js', 'package.json'];
-const missingDistFiles = requiredDistFiles.filter(file =>
-  !fs.existsSync(path.join(distDir, file))
+const missingDistFiles = requiredDistFiles.filter(
+  file => !fs.existsSync(path.join(distDir, file))
 );
 
 if (missingDistFiles.length > 0) {

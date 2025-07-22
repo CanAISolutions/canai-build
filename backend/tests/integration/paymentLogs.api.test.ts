@@ -51,10 +51,10 @@ let server;
 let app;
 
 console.log('[DEBUG] Top-level: Instantiating Supabase client');
-const anonKey = process.env.SUPABASE_ANON_KEY;
+// const anonKey = process.env.SUPABASE_ANON_KEY;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const url = process.env.SUPABASE_URL;
-const serviceClient = createClient(url, serviceKey);
+const serviceClient = createClient(url!, serviceKey!);
 
 beforeEach(async () => {
   console.log('[DEBUG] beforeEach: start');
@@ -125,7 +125,7 @@ describe('/v1/stripe/payment-logs API', () => {
     };
     adminJwt = jwt.sign(adminPayload, secret);
     process.env.TEST_ADMIN_JWT = adminJwt;
-    adminId = adminPayload.sub;
+    // adminId = adminPayload.sub;
 
     // Insert a payment log for the test user
     const uniqueStripePaymentId = `pi_test_123_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
@@ -299,6 +299,10 @@ describe('/v1/stripe/payment-logs API', () => {
       const res = await request(server)
         .get('/v1/stripe/payment-logs/analytics')
         .set('Authorization', `Bearer ${userJwt}`);
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('totalRevenue');
+      expect(res.body).toHaveProperty('totalRefunds');
+      expect(res.body).toHaveProperty('eventCounts');
     });
   });
 });
