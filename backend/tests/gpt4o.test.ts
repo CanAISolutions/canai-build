@@ -101,17 +101,27 @@ describe('GPT4Service', () => {
     const Sentry = await import('@sentry/node');
     mockSentryCapture = Sentry.captureException;
 
-    // Now import GPT4Service and hume after the mocks
-    const module = await import('../services/gpt4o.js');
-    GPT4Service = module.GPT4Service;
-    service = new GPT4Service(
-      {
-        from: mockSupabaseFrom,
-        rpc: mockSupabaseRpc,
-      },
-      mockPostHogInstance
-    );
-  });
+    // Import GPT4Service with timeout protection
+    try {
+      const module = (await Promise.race([
+        import('../services/gpt4o.js'),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Import timeout')), 5000)
+        ),
+      ])) as typeof import('../services/gpt4o.js');
+      GPT4Service = module.GPT4Service;
+      service = new GPT4Service(
+        {
+          from: mockSupabaseFrom,
+          rpc: mockSupabaseRpc,
+        },
+        mockPostHogInstance
+      );
+    } catch (error) {
+      console.error('GPT4Service import failed:', error);
+      throw error;
+    }
+  }, 10000); // Increase timeout to 10s
 
   describe('Basic functionality', () => {
     test('countTokens returns correct token count for string', () => {

@@ -42,14 +42,37 @@ beforeEach(async () => {
   vi.resetModules();
   // eslint-disable-next-line no-console
   console.log('[CORS TEST] beforeEach: after resetModules');
-  // (Assume app/server setup here)
-  // eslint-disable-next-line no-console
-  console.log('[CORS TEST] beforeEach: before app/server setup');
-  const mod = await import('../../server.js');
-  app = mod.createApp();
-  server = app.listen(0);
-  // eslint-disable-next-line no-console
-  console.log('[CORS TEST] beforeEach: completed');
+
+  try {
+    // Import with timeout protection
+    const mod = await Promise.race([
+      import('../../server.js'),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Server import timeout')), 10000)
+      ),
+    ]);
+
+    // eslint-disable-next-line no-console
+    console.log('[CORS TEST] beforeEach: before app/server setup');
+    app = mod.createApp();
+
+    // Start server with timeout protection
+    server = await Promise.race([
+      new Promise<import('http').Server>(resolve => {
+        const s = app.listen(0, () => resolve(s));
+      }),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Server startup timeout')), 5000)
+      ),
+    ]);
+
+    // eslint-disable-next-line no-console
+    console.log('[CORS TEST] beforeEach: completed');
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('[CORS TEST] beforeEach failed:', error);
+    throw error;
+  }
 }, 20000); // Increase timeout to 20s
 afterEach(async () => {
   if (server && server.close) {

@@ -26,6 +26,7 @@ import intentMirrorRouter from './routes/intentMirror.js';
 import requestRevisionRouter from './routes/requestRevision.js';
 import sparkSplitRouter from './routes/sparkSplit.js';
 import feedbackRouter from './routes/feedback.js';
+import cacheRouter from './routes/cache.js';
 
 let pkg = { version: '0.0.0' };
 try {
@@ -261,6 +262,7 @@ export function createApp() {
   app.use('/v1', requestRevisionRouter);
   app.use('/v1', sparkSplitRouter);
   app.use('/v1', feedbackRouter);
+  app.use('/v1/cache', cacheRouter);
 
   // 404 handler
   app.all('*', (req, res) => {

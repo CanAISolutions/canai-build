@@ -335,7 +335,10 @@ export async function retryWithBackoff<T>(
   // let delay = config.baseDelay; // Unused variable - removed
   let lastError: unknown;
 
-  while (attempt < config.maxAttempts) {
+  // Ensure at least one attempt is made
+  const effectiveMaxAttempts = Math.max(1, config.maxAttempts);
+
+  while (attempt < effectiveMaxAttempts) {
     // Check for abort signal before each attempt
     if (abortSignal?.aborted) {
       const abortError = new Error('Retry operation aborted');
@@ -400,7 +403,7 @@ export async function retryWithBackoff<T>(
       lastError = error;
 
       // Check if we should retry
-      if (attempt >= config.maxAttempts || !config.shouldRetry(error)) {
+      if (attempt >= effectiveMaxAttempts || !config.shouldRetry(error)) {
         circuitBreaker.onFailure();
 
         if (config.onFailure) {
