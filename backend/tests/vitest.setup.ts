@@ -15,6 +15,7 @@ vi.stubEnv('SESSION_TIMEOUT_MINUTES', '30');
 vi.stubEnv('SUPABASE_URL', 'http://localhost:54321');
 vi.stubEnv('SUPABASE_ANON_KEY', 'test-anon-key');
 vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY', 'test-service-role-key');
+vi.stubEnv('SUPABASE_JWT_SECRET', 'test-jwt-secret-for-testing-only');
 vi.stubEnv('OPENAI_API_KEY', 'test-openai-key');
 vi.stubEnv('HUME_API_KEY', 'test-hume-key');
 
@@ -155,11 +156,11 @@ vi.mock('../supabase/client.js', () => {
 });
 
 // Mock console methods to reduce noise in tests
-const originalConsole = { ...console };
-vi.spyOn(console, 'log').mockImplementation(() => {});
-vi.spyOn(console, 'warn').mockImplementation(() => {});
-vi.spyOn(console, 'error').mockImplementation(() => {});
-vi.spyOn(console, 'info').mockImplementation(() => {});
+// const originalConsole = { ...console };
+// vi.spyOn(console, 'log').mockImplementation(() => {});
+// vi.spyOn(console, 'warn').mockImplementation(() => {});
+// vi.spyOn(console, 'error').mockImplementation(() => {});
+// vi.spyOn(console, 'info').mockImplementation(() => {});
 
 // Restore console after all tests
 afterAll(() => {

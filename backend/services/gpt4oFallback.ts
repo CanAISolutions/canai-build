@@ -18,10 +18,19 @@ class GPT4oFallbackService {
   // this.posthog = PostHog.init(process.env.POSTHOG_API_KEY);
 
   constructor() {
-    this.openai = new OpenAI({
+    const config: {
+      apiKey: string | undefined;
+      dangerouslyAllowBrowser?: boolean;
+    } = {
       apiKey: process.env['OPENAI_API_KEY'],
-      dangerouslyAllowBrowser: true, // Required for test environment
-    });
+    };
+
+    // Only enable dangerouslyAllowBrowser in test environment
+    if (process.env['NODE_ENV'] === 'test') {
+      config.dangerouslyAllowBrowser = true;
+    }
+
+    this.openai = new OpenAI(config);
     this.scorer = new EmotionalScorer();
     // this.posthog = PostHog.init(process.env.POSTHOG_API_KEY);
   }

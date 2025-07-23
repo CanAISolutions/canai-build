@@ -108,7 +108,8 @@ let userJwt, adminJwt, testUserId;
 
 beforeAll(async () => {
   // Dynamically generate JWTs for test user and admin
-  const secret = process.env.SUPABASE_JWT_SECRET || 'test-secret-key';
+  const secret =
+    process.env.SUPABASE_JWT_SECRET || 'test-jwt-secret-for-testing-only';
   const baseTime = Math.floor(Date.now() / 1000);
 
   // User JWT
