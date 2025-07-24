@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import * as previewGen from '../services/previewGenerator.js';
-import { gpt4oGenerate } from '../services/gpt4o.js'; // Fix: Import the mocked gpt4oGenerate
+import * as previewGen from '../services/previewGenerator';
+import { gpt4oGenerate } from '../services/gpt4o'; // Fix: Import the mocked gpt4oGenerate
 
 // --- Defensive: Mock all external dependencies at the top ---
 // (No real GPT-4o, Supabase, or analytics calls should ever occur in tests)

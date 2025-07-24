@@ -23,8 +23,8 @@ vi.mock('../services/posthog.js', () => ({
 }));
 
 // Import mocked modules to get their functions
-import Sentry from '../services/instrument.js';
-import posthog from '../services/posthog.js';
+import Sentry from '../services/instrument';
+import posthog from '../services/posthog';
 
 // --- Unit Tests ---
 describe('Retry Middleware - Unit', () => {
@@ -625,7 +625,7 @@ describe('Retry Middleware - Security', () => {
       { pattern: 'Path traversal', error: new Error('../../../etc/passwd') },
     ];
 
-    for (const { pattern, error } of attackPatterns) {
+    for (const { error } of attackPatterns) {
       const mockFn = vi.fn().mockRejectedValue(error);
 
       await expect(

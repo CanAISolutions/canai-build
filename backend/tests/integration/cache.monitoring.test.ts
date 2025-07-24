@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import request from 'supertest';
 import express from 'express';
-import cacheRouter from '../../routes/cache.js';
+import cacheRouter from '../../routes/cache';
 import {
   cacheMonitor,
   clearCacheMetrics,
@@ -88,7 +88,7 @@ describe('Cache Monitoring Integration Tests', () => {
     });
 
     // Get the mocked cache service
-    const { cache } = await import('../../services/cache.js');
+    const { cache } = await import('../../services/cache');
     mockCache = cache;
 
     // Reset all mocks before each test

@@ -4,8 +4,8 @@
 
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
-import { maliciousPayloads } from '../helpers/maliciousPayloads.js';
-import { createApp } from '../../../backend/server.js'; // Use the factory function as exported
+import { maliciousPayloads } from '../helpers/maliciousPayloads';
+import { createApp } from '../../server'; // Use the factory function as exported
 const app = createApp();
 
 // Only enable this block for initial evidence-based implementation

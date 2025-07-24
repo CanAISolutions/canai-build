@@ -79,7 +79,7 @@ beforeEach(async () => {
   console.log('[DEBUG] beforeEach: start');
   vi.clearAllMocks();
   vi.resetModules();
-  const mod = await import('../../server.js');
+  const mod = await import('../../server');
   app = mod.createApp();
   server = app.listen(0);
   console.log('[DEBUG] beforeEach: end');

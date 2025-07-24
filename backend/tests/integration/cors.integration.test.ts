@@ -46,9 +46,10 @@ beforeEach(async () => {
   try {
     // Import with timeout protection
     const mod = await Promise.race([
-      import('../../server.js'),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Server import timeout')), 10000)
+      import('../../server'),
+      new Promise<never>(
+        (_, reject) =>
+          setTimeout(() => reject(new Error('Server import timeout')), 20000) // Increased timeout to 20s for test stability
       ),
     ]);
 

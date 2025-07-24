@@ -11,7 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { StandardButton } from '@/components/ui/standard-button';
 import { FormData } from '@/types/formTypes';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Container from '@/components/Container';
 
@@ -123,13 +123,24 @@ const DetailedInput: React.FC = () => {
     }
   };
 
-  const isStep1Complete =
-    formData.businessName &&
-    formData.businessDescription &&
-    formData.targetAudience &&
-    formData.keyProducts;
-  const isStep2Complete =
-    formData.primaryGoals && formData.timeline && formData.budget;
+  const isStep1Complete = useMemo(
+    () =>
+      formData.businessName &&
+      formData.businessDescription &&
+      formData.targetAudience &&
+      formData.keyProducts,
+    [
+      formData.businessName,
+      formData.businessDescription,
+      formData.targetAudience,
+      formData.keyProducts,
+    ]
+  );
+
+  const isStep2Complete = useMemo(
+    () => formData.primaryGoals && formData.timeline && formData.budget,
+    [formData.primaryGoals, formData.timeline, formData.budget]
+  );
 
   return (
     <StandardBackground>

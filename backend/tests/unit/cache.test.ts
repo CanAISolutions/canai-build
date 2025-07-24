@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { CacheService } from '../../services/cache.js';
+import { CacheService } from '../../services/cache';
 
 // Mock the logger and Sentry
 vi.mock('../../services/logger.js', () => ({
@@ -372,14 +372,14 @@ describe('CacheService', () => {
 
 describe('Cache Export', () => {
   it('should export default cache instance', async () => {
-    const { default: defaultCache } = await import('../../services/cache.js');
+    const { default: defaultCache } = await import('../../services/cache');
     expect(defaultCache).toBeDefined();
     expect(typeof defaultCache.get).toBe('function');
     expect(typeof defaultCache.set).toBe('function');
   });
 
   it('should export cache object with methods', async () => {
-    const { cache } = await import('../../services/cache.js');
+    const { cache } = await import('../../services/cache');
     expect(cache).toBeDefined();
     expect(typeof cache.get).toBe('function');
     expect(typeof cache.set).toBe('function');
