@@ -33,6 +33,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Format scenario JSON
+        run: |
+          cd backend/webhooks/make_scenarios
+          for file in *.json; do
+            echo "Formatting $file"
+            jq '.' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+          done
+
       - name: Validate scenario JSON
         run: |
           cd backend/webhooks/make_scenarios

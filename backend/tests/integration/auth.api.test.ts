@@ -1,32 +1,19 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import request from 'supertest';
+
+// Mock services at the top level
 vi.mock('../../services/instrument.js', () => ({
   __esModule: true,
-  captureException: (...args) => {
-    console.log('[MOCK] Sentry.captureException called with:', ...args);
-    return vi.fn()(...args);
-  },
-  default: {
-    captureException: (...args) => {
-      console.log(
-        '[MOCK] Sentry.default.captureException called with:',
-        ...args
-      );
-      return vi.fn()(...args);
-    },
-  },
+  captureException: vi.fn(),
+  default: { captureException: vi.fn() },
 }));
+
 vi.mock('../../services/posthog.js', () => ({
   __esModule: true,
-  capture: (...args) => {
-    console.log('[MOCK] PostHog.capture called with:', ...args);
-    return vi.fn()(...args);
-  },
-  default: {
-    capture: (...args) => {
-      console.log('[MOCK] PostHog.default.capture called with:', ...args);
-      return vi.fn()(...args);
-    },
-  },
+  capture: vi.fn(),
+  default: { capture: vi.fn() },
 }));
+
 vi.mock('axios', () => ({
   default: {
     post: vi.fn(() => {
@@ -34,55 +21,30 @@ vi.mock('axios', () => ({
     }),
   },
 }));
-vi.mock('../../services/gpt4oFallback.js', () => ({
-  default: class MockGPT4oFallbackService {
-    async analyzeEmotion() {
-      return { arousal: 0.7, valence: 0.8, confidence: 0.9, source: 'gpt4o' };
-    }
-  },
-}));
-vi.mock('openai', () => ({
-  default: function OpenAI() {
-    return {};
-  },
-}));
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import request from 'supertest';
+import { createApp } from '../../server';
+import instrument from '../../services/instrument';
+import posthog from '../../services/posthog';
 
-let Sentry, PostHog, createApp, server;
+let server;
 
 beforeEach(async () => {
   console.log('[DEBUG] beforeEach: start');
-  vi.resetModules();
-  // Dynamically import after mocks
-  Sentry = await import('../../services/instrument');
-  PostHog = await import('../../services/posthog');
-  ({ createApp } = await import('../../server'));
-  server = createApp().listen(0);
+  vi.clearAllMocks();
+
+  // Create app and server directly
+  const app = createApp();
+  server = app.listen(0);
+
   console.log('[DEBUG] beforeEach: end');
-}, 30000);
+}, 10000); // Reduced timeout
 
 afterEach(async () => {
   console.log('[DEBUG] afterEach: start');
   if (server && server.close) await server.close();
   console.log('[DEBUG] afterEach: end');
   vi.clearAllMocks();
-}, 30000);
-
-const sentrySpy = vi.fn();
-const posthogSpy = vi.fn();
-
-vi.mock('../../services/instrument.js', () => ({
-  __esModule: true,
-  captureException: sentrySpy,
-  default: { captureException: sentrySpy },
-}));
-vi.mock('../../services/posthog.js', () => ({
-  __esModule: true,
-  capture: posthogSpy,
-  default: { capture: posthogSpy },
-}));
+}, 10000); // Reduced timeout
 
 describe('/refresh-token defensive integration', () => {
   it('should return 400 if refreshToken is missing', async () => {
@@ -91,127 +53,85 @@ describe('/refresh-token defensive integration', () => {
       .post('/v1/auth/refresh-token')
       .send({});
     console.log('[TEST] Response:', response.status, response.body);
-    // Print Sentry/PostHog object reference from test
-    console.log('[TEST] Sentry ref:', Sentry.default);
-    console.log('[TEST] PostHog ref:', PostHog.default);
     expect(response.status).toBe(400);
-    expect(sentrySpy).toHaveBeenCalled();
-    expect(Sentry.default.captureException).toHaveBeenCalled();
-    expect(PostHog.default.capture).toHaveBeenCalled();
-    console.log('[TEST] Sentry called:', sentrySpy.mock.calls.length);
-    console.log('[TEST] PostHog called:', posthogSpy.mock.calls.length);
+    expect(instrument.captureException).toHaveBeenCalled();
+    expect(posthog.capture).toHaveBeenCalled();
   });
 
   it('should return 400 and AUTH_TOKEN_MISSING for non-string token', async () => {
     console.log('[TEST] /refresh-token: non-string token');
-    console.log('[TEST] Sentry ref (test):', Sentry.default);
-    console.log('[TEST] PostHog ref (test):', PostHog.default);
     const response = await request(server)
       .post('/v1/auth/refresh-token')
       .send({ refreshToken: 123 });
     console.log('[TEST] Response:', response.status, response.body);
     expect(response.status).toBe(400);
     expect(response.body.code).toBe('AUTH_TOKEN_MISSING');
-    expect(sentrySpy).toHaveBeenCalled();
-    expect(posthogSpy).toHaveBeenCalled();
-    console.log('[TEST] Sentry called:', sentrySpy.mock.calls.length);
-    console.log('[TEST] PostHog called:', posthogSpy.mock.calls.length);
+    expect(instrument.captureException).toHaveBeenCalled();
+    expect(posthog.capture).toHaveBeenCalled();
   });
 
   it('should return 400 and AUTH_TOKEN_MISSING for too short token', async () => {
     console.log('[TEST] /refresh-token: too short token');
-    console.log('[TEST] Sentry ref (test):', Sentry.default);
-    console.log('[TEST] PostHog ref (test):', PostHog.default);
     const response = await request(server)
       .post('/v1/auth/refresh-token')
       .send({ refreshToken: 'a' });
     console.log('[TEST] Response:', response.status, response.body);
     expect(response.status).toBe(400);
     expect(response.body.code).toBe('AUTH_TOKEN_MISSING');
-    expect(sentrySpy).toHaveBeenCalled();
-    expect(posthogSpy).toHaveBeenCalled();
-    console.log('[TEST] Sentry called:', sentrySpy.mock.calls.length);
-    console.log('[TEST] PostHog called:', posthogSpy.mock.calls.length);
+    expect(instrument.captureException).toHaveBeenCalled();
+    expect(posthog.capture).toHaveBeenCalled();
   });
 
   it('should return 400 and AUTH_TOKEN_MISSING for bad format token', async () => {
     console.log('[TEST] /refresh-token: bad format token');
-    console.log('[TEST] Sentry ref (test):', Sentry.default);
-    console.log('[TEST] PostHog ref (test):', PostHog.default);
     const response = await request(server)
       .post('/v1/auth/refresh-token')
       .send({ refreshToken: 'bad.token' });
     console.log('[TEST] Response:', response.status, response.body);
     expect(response.status).toBe(400);
     expect(response.body.code).toBe('AUTH_TOKEN_MISSING');
-    expect(sentrySpy).toHaveBeenCalled();
-    expect(posthogSpy).toHaveBeenCalled();
-    console.log('[TEST] Sentry called:', sentrySpy.mock.calls.length);
-    console.log('[TEST] PostHog called:', posthogSpy.mock.calls.length);
+    expect(instrument.captureException).toHaveBeenCalled();
+    expect(posthog.capture).toHaveBeenCalled();
   });
 
   it('should return 401 and AUTH_TOKEN_REFRESH_FAILED for Memberstack API error', async () => {
     console.log('[TEST] /refresh-token: Memberstack API error');
-    console.log('[TEST] Sentry ref (test):', Sentry.default);
-    console.log('[TEST] PostHog ref (test):', PostHog.default);
     const response = await request(server)
       .post('/v1/auth/refresh-token')
-      .send({ refreshToken: 'header.payload.signature' });
+      .send({ refreshToken: 'valid.jwt.token' });
     console.log('[TEST] Response:', response.status, response.body);
-    expect([401, 400]).toContain(response.status);
+    expect(response.status).toBe(401);
     expect(response.body.code).toBe('AUTH_TOKEN_REFRESH_FAILED');
-    expect(sentrySpy).toHaveBeenCalled();
-    expect(posthogSpy).toHaveBeenCalled();
-    console.log('[TEST] Sentry called:', sentrySpy.mock.calls.length);
-    console.log('[TEST] PostHog called:', posthogSpy.mock.calls.length);
-  });
-
-  it('should return 401 and AUTH_TOKEN_REFRESH_FAILED if no accessToken returned', async () => {
-    console.log('[TEST] /refresh-token: no accessToken returned');
-    console.log('[TEST] Sentry ref (test):', Sentry.default);
-    console.log('[TEST] PostHog ref (test):', PostHog.default);
-    const response = await request(server)
-      .post('/v1/auth/refresh-token')
-      .send({ refreshToken: 'header.payload.signature' });
-    console.log('[TEST] Response:', response.status, response.body);
-    expect([401, 400]).toContain(response.status);
-    expect(response.body.code).toBe('AUTH_TOKEN_REFRESH_FAILED');
-    expect(sentrySpy).toHaveBeenCalled();
-    expect(posthogSpy).toHaveBeenCalled();
-    console.log('[TEST] Sentry called:', sentrySpy.mock.calls.length);
-    console.log('[TEST] PostHog called:', posthogSpy.mock.calls.length);
+    expect(instrument.captureException).toHaveBeenCalled();
+    expect(posthog.capture).toHaveBeenCalled();
   });
 
   it('should return 200 and accessToken for valid token and Memberstack success', async () => {
     console.log('[TEST] /refresh-token: valid token and Memberstack success');
-    console.log('[TEST] Sentry ref (test):', Sentry.default);
-    console.log('[TEST] PostHog ref (test):', PostHog.default);
     // Override axios mock for this test only
     const axios = await import('axios');
-    axios.default.post.mockImplementationOnce(() =>
-      Promise.resolve({ data: { accessToken: 'newtoken' } })
+    (
+      axios.default.post as jest.MockedFunction<typeof axios.default.post>
+    ).mockImplementationOnce(() =>
+      Promise.resolve({
+        data: { accessToken: 'new-access-token' },
+      })
     );
+
     const response = await request(server)
       .post('/v1/auth/refresh-token')
-      .send({ refreshToken: 'header.payload.signature' });
+      .send({ refreshToken: 'valid.jwt.token' });
     console.log('[TEST] Response:', response.status, response.body);
     expect(response.status).toBe(200);
-    expect(response.body.accessToken).toBe('newtoken');
+    expect(response.body.accessToken).toBe('new-access-token');
   });
 
   it('should trigger Sentry and PostHog on all error paths', async () => {
     console.log('[TEST] /refresh-token: all error paths');
-    console.log('[TEST] Sentry ref (test):', Sentry.default);
-    console.log('[TEST] PostHog ref (test):', PostHog.default);
     await request(server).post('/v1/auth/refresh-token').send({});
-    expect(sentrySpy).toHaveBeenCalled();
-    expect(Sentry.default.captureException).toHaveBeenCalled();
-    expect(PostHog.default.capture).toHaveBeenCalled();
-    console.log('[TEST] Sentry called:', sentrySpy.mock.calls.length);
-    console.log('[TEST] PostHog called:', posthogSpy.mock.calls.length);
+    expect(instrument.captureException).toHaveBeenCalled();
+    expect(posthog.capture).toHaveBeenCalled();
   });
-
-  // Add more edge/malicious cases as needed
 });
 
 // @refresh-token-migration TEST: Joi schema edge/fuzz cases
@@ -239,8 +159,8 @@ describe('/refresh-token Joi schema edge/fuzz cases @refresh-token-migration', (
         .send({ refreshToken: value });
       expect(response.status).toBe(400);
       expect(response.body.code).toBe(code);
-      expect(sentrySpy).toHaveBeenCalled();
-      expect(posthogSpy).toHaveBeenCalled();
+      expect(instrument.captureException).toHaveBeenCalled();
+      expect(posthog.capture).toHaveBeenCalled();
       // [DEBUG] log assertion (if logs are captured)
     });
   });

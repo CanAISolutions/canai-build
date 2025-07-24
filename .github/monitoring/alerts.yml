@@ -1,2 +1,1 @@
-alerts:
-  enabled: false 
+# This file is reserved for future alerting configurations.

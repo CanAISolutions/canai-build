@@ -37,10 +37,27 @@ export class MessagesRepository {
       .from('trust_indicators')
       .select('*', { count: 'exact' });
 
-    // Apply filters for pagination
-    if (filters.limit) query = query.limit(filters.limit);
-    if (filters.offset)
-      query = query.range(filters.offset, filters.offset + filters.limit - 1);
+    // Apply filters for pagination with proper validation
+    if (
+      filters.limit &&
+      typeof filters.limit === 'number' &&
+      filters.limit > 0
+    ) {
+      query = query.limit(filters.limit);
+    }
+
+    if (
+      filters.offset &&
+      typeof filters.offset === 'number' &&
+      filters.offset >= 0
+    ) {
+      // Ensure limit is defined and valid before using in range calculation
+      const limit =
+        filters.limit && typeof filters.limit === 'number' && filters.limit > 0
+          ? filters.limit
+          : 10; // Default limit if not provided or invalid
+      query = query.range(filters.offset, filters.offset + limit - 1);
+    }
 
     query = query.order('created_at', { ascending: false });
 
