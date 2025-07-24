@@ -104,11 +104,11 @@ describe('GPT4Service', () => {
     // Import GPT4Service with timeout protection
     try {
       const module = (await Promise.race([
-        import('../services/gpt4o.js'),
+        import('../services/gpt4o'),
         new Promise<never>((_, reject) =>
           setTimeout(() => reject(new Error('Import timeout')), 5000)
         ),
-      ])) as typeof import('../services/gpt4o.js');
+      ])) as typeof import('../services/gpt4o');
       GPT4Service = module.GPT4Service;
       service = new GPT4Service(
         {

@@ -56,9 +56,9 @@ beforeEach(async () => {
   console.log('[DEBUG] beforeEach: start');
   vi.resetModules();
   // Dynamically import after mocks
-  Sentry = await import('../../services/instrument.js');
-  PostHog = await import('../../services/posthog.js');
-  ({ createApp } = await import('../../server.js'));
+  Sentry = await import('../../services/instrument');
+  PostHog = await import('../../services/posthog');
+  ({ createApp } = await import('../../server'));
   server = createApp().listen(0);
   console.log('[DEBUG] beforeEach: end');
 }, 30000);

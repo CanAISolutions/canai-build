@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import request from 'supertest';
 import express from 'express';
-import cacheRouter from '../../routes/cache.js';
+import cacheRouter from '../../routes/cache';
 
 // Mock the cache service
 vi.mock('../../services/cache.js', () => {
@@ -53,7 +53,7 @@ describe('Cache API Integration Tests', () => {
     app.use('/v1/cache', cacheRouter);
 
     // Get the mocked cache service
-    const { cache } = await import('../../services/cache.js');
+    const { cache } = await import('../../services/cache');
     mockCache = cache;
 
     // Reset all mocks before each test

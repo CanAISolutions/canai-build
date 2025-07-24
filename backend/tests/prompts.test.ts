@@ -1,9 +1,9 @@
 /**
  * Unit tests for prompt templates (Task 5.4, PRD Section 13.1)
  */
-import { SocialMediaTemplate } from '../prompts/socialMediaTemplate.js';
-import { WebsiteAuditTemplate } from '../prompts/websiteAuditTemplate.js';
-import { EmotionallyIntelligentPromptFramework } from '../prompts/framework.js';
+import { SocialMediaTemplate } from '../prompts/socialMediaTemplate';
+import { WebsiteAuditTemplate } from '../prompts/websiteAuditTemplate';
+import { EmotionallyIntelligentPromptFramework } from '../prompts/framework';
 
 // Prompt templates are critical for core business logic (PRD Section 6.7)
 describe('Prompt Templates', () => {

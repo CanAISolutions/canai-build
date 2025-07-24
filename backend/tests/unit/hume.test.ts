@@ -47,10 +47,10 @@ vi.mock('@ai-sdk/hume', () => ({
 }));
 
 // Only import the real service after mocks
-import HumeService from '../../services/hume.js';
-import KeyManagementService from '../../services/keyManagement.js';
-import HumeCircuitBreaker from '../../middleware/hume.js';
-import EmotionalScorer from '../../services/emotionalScoring.js';
+import HumeService from '../../services/hume';
+import KeyManagementService from '../../services/keyManagement';
+import HumeCircuitBreaker from '../../middleware/hume';
+import EmotionalScorer from '../../services/emotionalScoring';
 
 // Mock Supabase client more comprehensively
 vi.mock('../../supabase/client.js', () => {
@@ -136,7 +136,7 @@ describe('KeyManagementService', () => {
     kms.generateNewKey = vi.fn().mockResolvedValue('b'.repeat(64));
 
     // Get the imported supabase client and set up spy before test execution
-    const supabase = (await import('../../supabase/client.js')).default;
+    const supabase = (await import('../../supabase/client')).default;
     const upsertMock = vi.fn().mockRejectedValue(new Error('upsert failed'));
     const fromSpy = vi
       .spyOn(supabase, 'from')
@@ -171,7 +171,7 @@ describe('KeyManagementService', () => {
     kms.generateNewKey = vi.fn().mockResolvedValue(validKey);
 
     // Get the imported supabase client and set up spy before test execution
-    const supabase = (await import('../../supabase/client.js')).default;
+    const supabase = (await import('../../supabase/client')).default;
     const upsertMock = vi.fn().mockResolvedValue({ data: {}, error: null });
     const fromSpy = vi
       .spyOn(supabase, 'from')

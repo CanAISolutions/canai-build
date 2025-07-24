@@ -1,19 +1,19 @@
 import { describe, it, beforeEach, afterEach, expect, vi } from 'vitest';
-import { memberstackAuthMiddleware } from '../../middleware/auth.js';
+import { memberstackAuthMiddleware } from '../../middleware/auth';
 import jwt from 'jsonwebtoken';
-import * as Sentry from '../../services/instrument.js';
-import posthog from '../../services/posthog.js';
-// import log from '../../Shared/Logger.js';
-import authRouter from '../../routes/auth.js';
+import * as Sentry from '../../services/instrument';
+import posthog from '../../services/posthog';
+// import log from '../../Shared/Logger';
+import authRouter from '../../routes/auth';
 import request from 'supertest';
-import * as jwtUtils from '../../middleware/jwtUtils.js';
+import * as jwtUtils from '../../middleware/jwtUtils';
 import axios from 'axios';
 import {
   hasRequiredRole,
   checkScenarioAccess,
   rbacMiddleware,
 } from '../../middleware/rbac.js';
-import { scenarioPermissions } from '../../config/rolePermissions.js';
+import { scenarioPermissions } from '../../config/rolePermissions';
 import express from 'express';
 
 vi.mock('jsonwebtoken', () => {

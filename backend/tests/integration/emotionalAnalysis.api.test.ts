@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import jwt from 'jsonwebtoken';
 // import { rbacMiddleware } from '../../middleware/rbac.js';
-import { createApp } from '../../server.js';
+import { createApp } from '../../server';
 
 process.env.NODE_ENV = 'development';
 
@@ -55,20 +55,20 @@ describe('Emotional Analysis API Logic', () => {
 
   describe('Service Layer Tests', () => {
     it('should have the emotional analysis service available', async () => {
-      const HumeService = (await import('../../services/hume.js')).default;
+      const HumeService = (await import('../../services/hume')).default;
       expect(HumeService).toBeDefined();
       expect(typeof HumeService).toBe('function');
     });
 
     it('should be able to create HumeService instance', async () => {
-      const HumeService = (await import('../../services/hume.js')).default;
+      const HumeService = (await import('../../services/hume')).default;
       const service = new HumeService();
       expect(service).toBeDefined();
       expect(service.analyzeEmotion).toBeDefined();
     });
 
     it('should handle emotion analysis request structure', async () => {
-      const HumeService = (await import('../../services/hume.js')).default;
+      const HumeService = (await import('../../services/hume')).default;
       const service = new HumeService();
       const result = await service.analyzeEmotion(
         'test text',

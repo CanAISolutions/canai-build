@@ -1,6 +1,62 @@
 // backend/tests/vitest.setup.ts
 import { vi } from 'vitest';
 
+// Mock the Logger before any imports
+vi.mock('../Shared/Logger.js', () => ({
+  default: {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    fatal: vi.fn(),
+    trace: vi.fn(),
+  },
+  httpLogger: {
+    logger: {
+      info: vi.fn(),
+      error: vi.fn(),
+      warn: vi.fn(),
+      debug: vi.fn(),
+    },
+  },
+  addApiBreadcrumbs: vi.fn(),
+}));
+
+// Mock the services logger
+vi.mock('../services/logger.js', () => ({
+  logger: {
+    info: vi.fn(),
+    error: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+    fatal: vi.fn(),
+    trace: vi.fn(),
+  },
+}));
+
+// Mock PostHog service for test stability
+vi.mock('../services/posthog.js', () => ({
+  initPosthog: vi.fn(),
+  safeCapture: vi.fn(),
+  trackFunnelStep: vi.fn(),
+  track: vi.fn(),
+  identify: vi.fn(),
+  capture: vi.fn(),
+  posthog: {
+    capture: vi.fn(),
+    identify: vi.fn(),
+    track: vi.fn(),
+  },
+}));
+
+// Mock analytics service for test stability
+vi.mock('../services/analytics.js', () => ({
+  track: vi.fn(),
+  identify: vi.fn(),
+  capture: vi.fn(),
+  initAnalytics: vi.fn(),
+}));
+
 // Set test environment variables
 vi.stubEnv('POSTHOG_API_KEY', 'test-key');
 vi.stubEnv('POSTHOG_HOST', 'http://localhost');
