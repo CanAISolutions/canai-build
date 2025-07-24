@@ -8,6 +8,7 @@ import { MessagesRepository } from '../services/messages.js';
 import { analytics } from '../services/analytics.js';
 import cache from '../services/cache.js';
 import log from '../Shared/Logger.js';
+import Sentry from '../services/instrument.js';
 
 const router = express.Router();
 const logger = log;
@@ -76,10 +77,22 @@ router.get(
         offset: parseInt(query.offset as string) || 0,
       };
 
-      const [messagesResult] = await Promise.all([
-        messageRepo.getMessages(filters),
-        messageRepo.getStatistics(),
-      ]);
+      // Fetch messages with Sentry performance monitoring
+      const messagesResult = await Sentry.startSpan(
+        {
+          op: 'db.query',
+          name: 'GET /v1/messages - fetch messages',
+        },
+        async span => {
+          // Add relevant attributes to the span
+          span.setAttribute('filters.type', filters.type);
+          span.setAttribute('filters.limit', filters.limit);
+          span.setAttribute('filters.offset', filters.offset);
+          span.setAttribute('cache.miss', true);
+
+          return await messageRepo.getMessages(filters);
+        }
+      );
 
       // PRD Response Format: { "messages": [{ "text": "string", "user_id": "uuid|null" }], "error": null }
       const responseData = {
@@ -104,6 +117,22 @@ router.get(
 
       res.json(responseData);
     } catch (error) {
+      // Capture error in Sentry for monitoring (before logging)
+      if (Sentry && typeof Sentry.captureException === 'function') {
+        Sentry.captureException(error, {
+          tags: {
+            route: 'GET /v1/messages',
+            step: 'discovery_hook',
+          },
+          extra: {
+            userId: req.memberstackUser?.userId,
+            query: req.query,
+            errorName: error.name,
+            errorMessage: error.message,
+          },
+        });
+      }
+
       logger.error('[route] GET /v1/messages ERROR:', error);
 
       // PRD: Error handling with analytics tracking
@@ -114,7 +143,9 @@ router.get(
         completed: false,
       });
 
-      // PRD: Return error format with null error for consistency
+      // PRD: Return error format consistent with success response structure
+      // Success: { messages: [...], error: null }
+      // Error: { messages: [], error: "error message" }
       res.status(500).json({
         messages: [],
         error: 'Failed to fetch messages. Please try again later.',

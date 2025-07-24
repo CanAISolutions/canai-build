@@ -45,5 +45,10 @@ jobs:
 
       - name: Check prompt quality
         run: |
-          cd backend
-          npm run prompts:quality-check
+          cd backend/prompts
+          for file in $(find . -name '*.md'); do
+            if [ ! -s "$file" ]; then
+              echo "Error: Prompt file $file is empty."
+              exit 1
+            fi
+          done

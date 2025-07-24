@@ -10,33 +10,32 @@ env:
   FORCE_COLOR: 1
 
 jobs:
-  # typescript-rules-validation:
-  #   TODO: Disabled for MVP focus. Uncomment when ready for full TypeScript rules validation.
-  #   name: TypeScript Rules Validation
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: 20
-  #         cache: 'npm'
-  #     - name: Install root dependencies
-  #       run: npm ci
-  #     - name: Validate TypeScript Configuration
-  #       run: |
-  #         echo "🔍 Validating TypeScript configurations..."
-  #         npx tsc --showConfig --project tsconfig.json
-  #         npx tsc --showConfig --project backend/tsconfig.json
-  #         npx tsc --showConfig --project frontend/tsconfig.json
-  #     - name: Check TypeScript Strict Mode Compliance
-  #       run: |
-  #         echo "🔒 Checking TypeScript strict mode compliance..."
-  #         grep -q '"strict": true' tsconfig.json || exit 1
-  #         grep -q '"strictNullChecks": true' tsconfig.json || exit 1
-  #         grep -q '"noUncheckedIndexedAccess": true' tsconfig.json || exit 1
-  #         echo "✅ TypeScript strict mode compliance verified"
+  typescript-rules-validation:
+    name: TypeScript Rules Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install root dependencies
+        run: npm ci
+      - name: Validate TypeScript Configuration
+        run: |
+          echo "🔍 Validating TypeScript configurations..."
+          npx tsc --showConfig --project tsconfig.json
+          npx tsc --showConfig --project backend/tsconfig.json
+          npx tsc --showConfig --project frontend/tsconfig.json
+      - name: Check TypeScript Strict Mode Compliance
+        run: |
+          echo "🔒 Checking TypeScript strict mode compliance..."
+          grep -q '"strict": true' tsconfig.json || exit 1
+          grep -q '"strictNullChecks": true' tsconfig.json || exit 1
+          grep -q '"noUncheckedIndexedAccess": true' tsconfig.json || exit 1
+          echo "✅ TypeScript strict mode compliance verified"
 
   backend:
     name: Backend - CanAI TypeScript Rules

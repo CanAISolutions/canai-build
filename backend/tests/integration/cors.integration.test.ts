@@ -1,33 +1,18 @@
-vi.mock('../../services/gpt4oFallback.js', () => ({
-  default: vi.fn().mockImplementation(() => ({
-    analyzeEmotion: vi.fn().mockResolvedValue({
-      arousal: 0.5,
-      valence: 0.5,
-      confidence: 0.5,
-    }),
-  })),
-}));
-vi.mock('../../services/hume.js', () => ({
-  default: vi.fn().mockImplementation(() => ({
-    analyzeEmotion: vi.fn().mockResolvedValue({
-      arousal: 0.5,
-      valence: 0.5,
-      confidence: 0.5,
-    }),
-    circuitBreaker: { isOpen: vi.fn().mockReturnValue(false), state: 'CLOSED' },
-  })),
-}));
-vi.mock('../../services/instrument.js', () => ({
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import request from 'supertest';
+
+// Mock services at the top level to avoid import issues
+vi.mock('../../services/instrument', () => ({
   captureException: vi.fn(),
   default: { captureException: vi.fn() },
 }));
-vi.mock('../../services/posthog.js', () => ({
+
+vi.mock('../../services/posthog', () => ({
   capture: vi.fn(),
   default: { capture: vi.fn() },
 }));
 
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
-import request from 'supertest';
+import { createApp } from '../../server';
 
 let server;
 let app;
@@ -44,28 +29,13 @@ beforeEach(async () => {
   console.log('[CORS TEST] beforeEach: after resetModules');
 
   try {
-    // Import with timeout protection
-    const mod = await Promise.race([
-      import('../../server'),
-      new Promise<never>(
-        (_, reject) =>
-          setTimeout(() => reject(new Error('Server import timeout')), 20000) // Increased timeout to 20s for test stability
-      ),
-    ]);
-
+    // Create app directly without timeout protection
     // eslint-disable-next-line no-console
     console.log('[CORS TEST] beforeEach: before app/server setup');
-    app = mod.createApp();
+    app = createApp();
 
-    // Start server with timeout protection
-    server = await Promise.race([
-      new Promise<import('http').Server>(resolve => {
-        const s = app.listen(0, () => resolve(s));
-      }),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Server startup timeout')), 5000)
-      ),
-    ]);
+    // Start server directly
+    server = app.listen(0);
 
     // eslint-disable-next-line no-console
     console.log('[CORS TEST] beforeEach: completed');
@@ -74,7 +44,8 @@ beforeEach(async () => {
     console.error('[CORS TEST] beforeEach failed:', error);
     throw error;
   }
-}, 20000); // Increase timeout to 20s
+}, 10000); // Reduced timeout to 10s
+
 afterEach(async () => {
   if (server && server.close) {
     await new Promise(resolve => server.close(resolve));

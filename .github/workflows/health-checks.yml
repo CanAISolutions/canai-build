@@ -1,0 +1,62 @@
+name: Health Checks
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 */6 * * *' # Every 6 hours
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  health-checks:
+    name: Health Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build applications
+        run: |
+          npm run build:frontend
+          npm run build:backend
+
+      - name: Start applications
+        run: |
+          npm run start:test &
+          sleep 15
+
+      - name: Health check - Backend API
+        run: |
+          curl -f http://localhost:10000/health || exit 1
+          echo "✅ Backend health check passed"
+
+      - name: Health check - Frontend
+        run: |
+          curl -f http://localhost:3000 || exit 1
+          echo "✅ Frontend health check passed"
+
+      - name: Database connectivity check
+        run: |
+          cd backend
+          npm run db:check || exit 1
+          echo "✅ Database connectivity check passed"
+
+      - name: External services check
+        run: |
+          cd backend
+          npm run services:check || exit 1
+          echo "✅ External services check passed"
